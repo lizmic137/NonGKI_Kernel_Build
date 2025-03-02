@@ -292,7 +292,6 @@ jobs:
               AR=llvm-ar \
               NM=llvm-nm \
               STRIP=llvm-strip \
-              CFLAGS="-Wno-unused-command-line-argument $(CFLAGS)" \
               ASFLAGS="-D __ASSEMBLY__ $(ASFLAGS)"
           else
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
@@ -311,7 +310,6 @@ jobs:
               AR=llvm-ar \
               NM=llvm-nm \
               STRIP=llvm-strip \
-              CFLAGS="-Wno-unused-command-line-argument $(CFLAGS)" \
               ASFLAGS="-D __ASSEMBLY__ $(ASFLAGS)"
           fi
 
