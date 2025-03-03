@@ -297,23 +297,7 @@ jobs:
               V=1
           else
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
-            make -j$(nproc --all) \
-              CC="ccache clang" \
-              O=out \
-              ARCH=arm64 \
-              ${{ env.CUSTOM_CMDS }} \
-              ${{ env.EXTRA_CMDS }} \
-              ${{ env.GCC_64 }} \
-              ${{ env.GCC_32 }} \
-              CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-              CROSS_COMPILE=aarch64-linux-gnu- \
-              OBJCOPY=llvm-objcopy \
-              OBJDUMP=llvm-objdump \
-              AR=llvm-ar \
-              NM=llvm-nm \
-              STRIP=llvm-strip \
-              CFLAGS="$(echo $CFLAGS | sed 's/-D __ASSEMBLY__//g')" \
-              ASFLAGS="-D __ASSEMBLY__ $(ASFLAGS)"
+            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CFLAGS="$(echo $CFLAGS | sed 's/-D __ASSEMBLY__//g')" V=1
           fi
 
       - name: Make Anykernel3 Flasher
