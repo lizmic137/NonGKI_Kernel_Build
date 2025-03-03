@@ -243,10 +243,20 @@ jobs:
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
+          KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
+          PATCHLEVEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $2}')
+
           if [[ -f "/tmp/Patches/patches.sh" ]]; then
             cp /tmp/Patches/patches.sh device_kernel/
             cd device_kernel
             bash patches.sh
+            if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
+                cp /tmp/Patches/extra_patches.sh device_kernel/
+                cd device_kernel
+                bash extra_patches.sh
+            else
+                echo "your kernel needn't the patch."
+            fi
           else
             echo "Cannot found patches.sh in build project , please check u file existed in build project !"
           fi

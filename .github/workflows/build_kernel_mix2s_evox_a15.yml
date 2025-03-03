@@ -199,8 +199,10 @@ jobs:
           fi
 
           cp NonGKI_Kernel_Patches/patches.sh ./
+          cp NonGKI_Kernel_Patches/extra_patches.sh ./
 
           bash patches.sh
+          bash extra_patches.sh
 
       - name: Extra Kernel Options
         run: |
