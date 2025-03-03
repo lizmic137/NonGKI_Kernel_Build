@@ -199,7 +199,7 @@ jobs:
           echo "PACK_METHOD=$PACK_METHOD" >> $GITHUB_ENV
 
           if [[ $KERNELSU_METHOD == "shell" ]]; then
-            curl -sSL ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
+            wget ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
           elif [[ $KERNELSU_METHOD == "manual" ]]; then
             rm -rf KernelSU && rm -rf KernelSU-Next
             git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
