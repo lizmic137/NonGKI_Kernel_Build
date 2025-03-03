@@ -90,7 +90,7 @@ jobs:
         - Redmi Note 4X (CN) can only be used for the **Qualcomm** version. Please do not attempt it on the MediaTek version.
         - OnePlus 8 (CN) has been tested and can be used on the OnePlus 9R. Theoretically, it should also work on the OnePlus 8T/8Pro.
         - Black Shark 4 is temporarily unable to support SUSFS due to potential kernel vulnerabilities.
-        - The version of KernelSU Magic patched with SuSFS is not the latest.
+        - The KernelSU version is for reference only. It is normal for the KernelSU version embedded in SUSFS to be lower.
 
     steps:
       # Checkout the code
@@ -111,9 +111,7 @@ jobs:
           # Fetch the latest tag from GitHub (this is the latest tag based on the GitHub API)
           LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
           if [ -z "$LATEST_TAG" ]; then
-            LATEST_TAG="v1.0-prelease" # if have no any releases.
-          else
-            LATEST_TAG="v1.1"
+            LATEST_TAG="v1.1" # if have no any releases.
           fi
 
           NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-r%d", $1, suffix}')
@@ -135,12 +133,18 @@ jobs:
           KSU_NEXT_VERSION=$(cd KernelSU-Next && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           git clone -b magic https://github.com/backslashxx/KernelSU.git KernelSU-Magic
           KSU_MAGIC_VERSION=$(cd KernelSU-Magic && expr $(/usr/bin/git rev-list --count HEAD) + 10200 - 32)
+          git clone -b main https://github.com/rsuntk/KernelSU.git KernelSU-rsuntk
+          KSU_RSUNTK_VERSION=$(cd KernelSU-rsuntk && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
+          git clone -b non-gki https://github.com/lightsummer233/KernelSU.git KernelSU-lightsummer233
+          KSU_LIGHTSUMMER233_VERSION=$(cd KernelSU-lightsummer233 && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
 
           # Input release note
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
           echo "KernelSU-Next Version: $KSU_NEXT_VERSION  " >> $GITHUB_ENV
           echo "KernelSU-Magic Version: $KSU_MAGIC_VERSION  " >> $GITHUB_ENV
+          echo "KernelSU-rsuntk Version: $KSU_RSUNTK_VERSION  " >> $GITHUB_ENV
+          echo "KernelSU-lightsummer233 Version: $KSU_LIGHTSUMMER233_VERSION  " >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       # Create GitHub Release and upload files if make_release is true
