@@ -188,31 +188,13 @@ jobs:
           # Variable
           SUSFS_SOURCE=https://gitlab.com/simonpunk/susfs4ksu.git
           SUSFS_BRANCH=kernel-${{ env.KERNEL_VERSION }}
-          PACK_METHOD=MKBOOTIMG # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
-          KERNELSU_METHOD=manual # shell and manual
+          KERNEL_PATCHES=https://github.com/JackA1ltman/NonGKI_Kernel_Patches.git
 
-          # Set $PACK_METHOD and KernelSU
-          if [[ $PACK_METHOD == "Anykernel3" ]]; then
-            cd $GITHUB_WORKSPACE/device_kernel
-            if [[ -d "Anykernel3" ]]; then
-              echo "Found Anykernel3 in Kernel!"
-            else
-              git clone ${{ env.AK3_SOURCE }} -b ${{ env.AK3_BRANCH }} Anykernel3 --depth=1
-            fi
-          elif [[ $PACK_METHOD == "MKBOOTIMG" ]]; then
-            cd $GITHUB_WORKSPACE
-            git clone https://android.googlesource.com/platform/system/tools/mkbootimg $GITHUB_WORKSPACE/mkboottools -b main-kernel-build-2024 --depth=1
-            wget ${{ env.BOOT_SOURCE }} -O $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
-            cd device_kernel
-          else
-            exit
-          fi
-          echo "PACK_METHOD=$PACK_METHOD" >> $GITHUB_ENV
+          # Set MKBOOTIMG and KSU
+          cd $GITHUB_WORKSPACE
+          git clone https://android.googlesource.com/platform/system/tools/mkbootimg mkboottools -b master-kernel-build-2022 --depth=1
+          wget ${{ env.BOOT_SOURCE }} -O $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
 
-          if [[ $KERNELSU_METHOD == "shell" ]]; then
-            wget ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
-          elif [[ $KERNELSU_METHOD == "manual" ]]; then
-            rm -rf KernelSU && rm -rf KernelSU-Next
           cd $GITHUB_WORKSPACE/device_kernel
           git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }} | bash -s ${{ env.KERNELSU_BRANCH }}
           KSU_VERSION=$(cd ${{ env.KERNELSU_NAME }} && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
