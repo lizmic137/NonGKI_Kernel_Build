@@ -213,19 +213,12 @@ jobs:
             wget ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
           elif [[ $KERNELSU_METHOD == "manual" ]]; then
             rm -rf KernelSU && rm -rf KernelSU-Next
-            git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
-            sudo mkdir -p "$KERNEL_LOCATION/KernelSU-Next/kernel"
-            ln -sf "$(realpath --relative-to="$KERNEL_LOCATION/drivers" "$KERNEL_LOCATION/KernelSU-Next/kernel")" "kernelsu"
-            grep -q "kernelsu" "$KERNEL_LOCATION/drivers/Makefile" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> $KERNEL_LOCATION/drivers/Makefile
-            grep -q "source \"drivers/kernelsu/Kconfig\"" "$KERNEL_LOCATION/drivers/Kconfig" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$KERNEL_LOCATION/drivers/Kconfig"
-            echo "KernelSU Settings done."
-          else
-            exit
-          fi
-          echo "KERNELSU_METHOD=$KERNELSU_METHOD" >> $GITHUB_ENV
+          cd $GITHUB_WORKSPACE/device_kernel
+          git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }} | bash -s ${{ env.KERNELSU_BRANCH }}
           KSU_VERSION=$(cd ${{ env.KERNELSU_NAME }} && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           echo "UPLOADNAME=-${{ env.KERNELSU_NAME }}_$KSU_VERSION" >> $GITHUB_ENV
-
+          echo "PACK_METHOD=MKBOOTIMG" >> $GITHUB_ENV
+          
           # Set SUSFS
           if [[ "${{ env.SUSFS_ENABLE }}" == true ]]; then
             if [[ "${{ env.SUSFS_FIXED }}" == true ]]; then
