@@ -4,3 +4,4 @@
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+AFLAGS := $(filter-out -D__ASSEMBLY__,$(AFLAGS))
