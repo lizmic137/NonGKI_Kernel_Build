@@ -1,0 +1,6 @@
+%.o: %.S
+	$(CC) $(AFLAGS) -c $< -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
