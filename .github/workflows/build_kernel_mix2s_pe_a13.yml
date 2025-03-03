@@ -192,21 +192,10 @@ jobs:
           KERNELSU_METHOD=shell # shell and manual
 
           # Set $PACK_METHOD and KernelSU
-          if [[ $PACK_METHOD == "Anykernel3" ]]; then
-            cd $GITHUB_WORKSPACE/device_kernel
-            if [[ -d "Anykernel3" ]]; then
-              echo "Found Anykernel3 in Kernel!"
-            else
-              git clone ${{ env.AK3_SOURCE }} -b ${{ env.AK3_BRANCH }} Anykernel3 --depth=1
-            fi
-          elif [[ $PACK_METHOD == "MKBOOTIMG" ]]; then
             cd $GITHUB_WORKSPACE
             git clone https://android.googlesource.com/platform/system/tools/mkbootimg $GITHUB_WORKSPACE/mkboottools -b main-kernel-build-2024 --depth=1
             wget ${{ env.BOOT_SOURCE }} -O $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
             cd device_kernel
-          else
-            exit
-          fi
           echo "PACK_METHOD=$PACK_METHOD" >> $GITHUB_ENV
 
           if [[ $KERNELSU_METHOD == "shell" ]]; then
