@@ -149,12 +149,12 @@ jobs:
             wget ${{ env.DEFCONFIG_SOURCE }} -O device_kernel/arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           fi
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/new_rules.txt
-          find . -name Makefile -exec bash -c '
-            cat new_rules.txt {} > {}.tmp && 
-            mv {}.tmp {} && 
-            echo "已修改: {}"
-          ' \;
+          #wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/new_rules.txt
+          #find . -name Makefile -exec bash -c '
+            #cat new_rules.txt {} > {}.tmp && 
+            #mv {}.tmp {} && 
+            #echo "已修改: {}"
+          #' \;
       - name: Set KSU and SUSFS for DEFCONFIG
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
