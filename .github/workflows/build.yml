@@ -37,6 +37,11 @@ on:
         required: true
         type: boolean
         default: true
+      build_kernel_mi10s_aosp_a15:
+        description: "Build Kernel Xiaomi 10S (Based-AOSP Android 15)?"
+        required: true
+        type: boolean
+        default: true
       make_release:
         description: "Do you want to create a release?"
         required: true
@@ -70,6 +75,10 @@ jobs:
     uses: ./.github/workflows/build_kernel_op8_nameless15_a15.yml
     secrets: inherit
     if: ${{ inputs.build_kernel_op8_nameless15_a15 }}
+  build_kernel_mi10s_aosp_a15:
+    uses: ./.github/workflows/build_kernel_op8_nameless15_a15.yml
+    secrets: inherit
+    if: ${{ inputs.build_kernel_mi10s_aosp_a15 }}
 
   trigger-release:
     runs-on: ubuntu-latest
@@ -80,6 +89,7 @@ jobs:
       - build_kernel_note4x_aosp_a13
       - build_kernel_blackshark4_miui_a11
       - build_kernel_op8_nameless15_a15
+      - build_kernel_mi10s_aosp_a15
     if: ${{ inputs.make_release }}
     env:
       REPO_OWNER: JackA1ltman
@@ -97,6 +107,7 @@ jobs:
         | Redmi K20 Pro (CN) | raphael | 4.14 | Based-AOSP | 15 | AnyKernel3 | Next | Yes | No |
         | Redmi Note 4X (CN) | mido | 4.9 | Based-AOSP | 13 | AnyKernel3 | Next | Yes | No |
         | Black Shark 4 | penrose | 4.19 | MIUI/JoyUI 12 | 11 | AnyKernel3 | Next | No | No |
+        | Xiaomi 10S | thyme | 4.19 | Based-AOSP | 15 | AnyKernel3 | Next | Yes | No |
 
         - Redmi Note 4X (CN) can only be used for the **Qualcomm** version. Please do not attempt it on the MediaTek version.
         - OnePlus 8 (CN) has been tested and can be used on the OnePlus 9R. Theoretically, it should also work on the OnePlus 8T/8Pro.
