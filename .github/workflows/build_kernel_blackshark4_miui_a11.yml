@@ -231,7 +231,6 @@ jobs:
               PATCHES_SOURCE=JackA1ltman/Kernel_Private
               PATCHES_BRANCH=main
               # git clone https://github.com/PATCHES_SOURCE.git -b $PATCHES_BRANCH NonGKI_Kernel_Patches --depth=1 # It's not necessary.
-              git clone https://${{ github.actor }}:${{ secrets.SPECIAL_COMMAND }}@github.com/$PATCHES_SOURCE -b $PATCHES_BRANCH NonGKI_Kernel_Patches # if u need.
             fi
             git clone $SUSFS_SOURCE -b $SUSFS_BRANCH susfs4ksu --depth=1
             cp susfs4ksu/kernel_patches/fs/* fs/
@@ -243,13 +242,17 @@ jobs:
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
-          if [[ -f "/tmp/Patches/patches.sh" ]]; then
-            cp /tmp/Patches/patches.sh device_kernel/
-            cd device_kernel
-            bash patches.sh
-          else
-            echo "Cannot found patches.sh in build project , please check u file existed in build project !"
-          fi
+          # if [[ -f "/tmp/Patches/patches.sh" ]]; then
+            # cp /tmp/Patches/patches.sh device_kernel/
+            # cd device_kernel
+            # bash patches.sh
+          # else
+            # echo "Cannot found patches.sh in build project , please check u file existed in build project !"
+          # fi
+          cd $GITHUB_WORKSPACE/device_kernel
+          git clone https://github.com/JackA1ltman/NonGKI_Kernel_Patches.git -b mi_kernel
+          cp NonGKI_Kernel_Patches/testing_vfs_hook.patch ./
+          patch -p1 < testing_vfs_hook.patch || true
 
       - name: Extra Kernel Options
         run: |

@@ -53,12 +53,10 @@ jobs:
     uses: ./.github/workflows/build_kernel_op8_oos13.1_a13.yml
     secrets: inherit
     if: ${{ inputs.build_kernel_op8_oos131_a13 }}
-
   build_kernel_k20p_aosp_a15:
     uses: ./.github/workflows/build_kernel_k20p_aosp_a15.yml
     secrets: inherit
     if: ${{ inputs.build_kernel_k20p_aosp_a15 }}
-
   build_kernel_mix2s_evox_a15:
     uses: ./.github/workflows/build_kernel_mix2s_evox_a15.yml
     secrets: inherit
@@ -76,7 +74,7 @@ jobs:
     secrets: inherit
     if: ${{ inputs.build_kernel_op8_nameless15_a15 }}
   build_kernel_mi10s_aosp_a15:
-    uses: ./.github/workflows/build_kernel_op8_nameless15_a15.yml
+    uses: ./.github/workflows/build_kernel_mi10s_aosp_a15.yml
     secrets: inherit
     if: ${{ inputs.build_kernel_mi10s_aosp_a15 }}
 
@@ -94,7 +92,7 @@ jobs:
     env:
       REPO_OWNER: JackA1ltman
       REPO_NAME: NonGKI_Kernel_Build
-      GITHUB_TOKEN: ${{ secrets.SPECIAL_COMMAND }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: "NonGKI Kernel Pre-built"
       RELEASE_NOTES: |
         Below is the codename reference table. Please select the image or archive you need based on this table.
@@ -128,7 +126,7 @@ jobs:
       # Get the Latest Tag from GitHub
       - name: Generate and Create New Tag
         env:
-          GITHUB_TOKEN: ${{ secrets.SPECIAL_COMMAND }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Fetch the latest tag from GitHub (this is the latest tag based on the GitHub API)
           LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')

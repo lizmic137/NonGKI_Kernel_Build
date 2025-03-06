@@ -255,7 +255,6 @@ jobs:
               PATCHES_SOURCE=JackA1ltman/NonGKI_Kernel_Patches
               PATCHES_BRANCH=op_kernel
               git clone https://github.com/$PATCHES_SOURCE.git -b $PATCHES_BRANCH NonGKI_Kernel_Patches --depth=1 # It's not necessary.
-              # git clone https://${{ github.actor }}:${{ secrets.SPECIAL_COMMAND }}@github.com/$PATCHES_SOURCE -b $PATCHES_BRANCH NonGKI_Kernel_Patches # if u need.
             fi
             git clone $SUSFS_SOURCE -b $SUSFS_BRANCH susfs4ksu --depth=1
             cp susfs4ksu/kernel_patches/fs/* fs/

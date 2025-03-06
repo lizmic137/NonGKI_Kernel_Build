@@ -6,5 +6,5 @@
 | Xiaomi MIX2S (CN) | polaris | 4.9/EvoX/EvoX | Evolution X 10.2.1 | 15 | Boot Image | Next | Yes | No | No |  
 | Redmi K20 Pro (CN) | raphael | 4.14/SOVIET-ANDROID/SOVIET-STAR-OSS | Based-AOSP | 15 | AnyKernel3 | Next | Yes | No | No |  
 | Redmi Note 4X (CN) | mido | 4.9/RaidenShogunSeggs/(Nothing) | Based-AOSP | 13 | AnyKernel3 | Next | Yes | No | No |  
-| Black Shark 4 | penrose | 4.19/DtHnAme/(Nothing) | MIUI/JoyUI 12 | 11 | AnyKernel3 | Next | No | No | No |  
+| Black Shark 4 | penrose | 4.19/DtHnAme/(Nothing) | MIUI/JoyUI 12 | 11 | AnyKernel3 | Next | No | No | Yes |  
 | Xiaomi 10S | thyme | 4.19/TIMISONG-dev/MagicTime | Based-AOSP | 15 | AnyKernel3 | Next | Yes | No | No |
