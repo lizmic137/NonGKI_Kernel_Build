@@ -6,7 +6,7 @@ Automatic build Non-GKI Kernel with KSU and SUSFS
 本项目欢迎Fork后自行编辑使用，也欢迎增加修改后提交合并，或者成为合作伙伴  
 
 # 使用例
-## Profiles/设备名称_ROM名称.env
+## Profiles/设备代号_ROM名称.env
 总共由以下内容组成：  
 **CONFIG_ENV** - 用来表明在Action环境中具体配置文件位置  
 
