@@ -1,4 +1,4 @@
-name: Mix 2S KernelSU Next With SUSFS
+name: Mix 2S KernelSU
 on:
   workflow_call:
   workflow_dispatch:
