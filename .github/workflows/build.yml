@@ -157,14 +157,17 @@ jobs:
           KSU_RSUNTK_VERSION=$(cd KernelSU-rsuntk && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           git clone -b non-gki https://github.com/lightsummer233/KernelSU.git KernelSU-lightsummer233
           KSU_LIGHTSUMMER233_VERSION=$(cd KernelSU-lightsummer233 && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
+          git clone -b nongki-susfs https://github.com/ShirkNeko/KernelSU.git KernelSU-mksu-skn
+          KSU_MKSU_SKN_VERSION=$(cd KernelSU-mksu-skn && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
 
           # Input release note
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
-          echo "KernelSU-Next Version: $KSU_NEXT_VERSION  " >> $GITHUB_ENV
-          echo "KernelSU-Magic Version: $KSU_MAGIC_VERSION  " >> $GITHUB_ENV
-          echo "KernelSU-rsuntk Version: $KSU_RSUNTK_VERSION  " >> $GITHUB_ENV
-          echo "KernelSU-lightsummer233 Version: $KSU_LIGHTSUMMER233_VERSION  " >> $GITHUB_ENV
+          echo "[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) Version: $KSU_NEXT_VERSION  " >> $GITHUB_ENV
+          echo "[KernelSU-Magic](https://github.com/backslashxx/KernelSU) Version: $KSU_MAGIC_VERSION  " >> $GITHUB_ENV
+          echo "[KernelSU-rsuntk](https://github.com/rsuntk/KernelSU) Version: $KSU_RSUNTK_VERSION  " >> $GITHUB_ENV
+          echo "[KernelSU-lightsummer233](https://github.com/lightsummer233/KernelSU) Version: $KSU_LIGHTSUMMER233_VERSION  " >> $GITHUB_ENV
+          echo "[KernelSU-mksu-skn](https://github.com/ShirkNeko/KernelSU) Version: $KSU_MKSU_SKN_VERSION  " >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       # Create GitHub Release and upload files if make_release is true
