@@ -278,10 +278,10 @@ jobs:
           KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
           PATCHLEVEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $2}')
 
-          if [[ -f "/tmp/Patches/patches.sh" ]]; then
-            cp /tmp/Patches/patches.sh device_kernel/
+          if [[ -f "/tmp/Patches/normal_patches.sh" ]]; then
+            cp /tmp/Patches/normal_patches.sh device_kernel/
             cd device_kernel
-            bash patches.sh
+            bash normal_patches.sh
             if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
                 cp /tmp/Patches/extra_patches.sh device_kernel/
                 cd device_kernel
@@ -290,7 +290,7 @@ jobs:
                 echo "your kernel needn't the patch."
             fi
           else
-            echo "Cannot found patches.sh in build project , please check u file existed in build project !"
+            echo "Cannot found normal_patches.sh in build project , please check u file existed in build project !"
           fi
 
       - name: Extra Kernel Options

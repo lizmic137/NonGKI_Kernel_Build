@@ -242,12 +242,12 @@ jobs:
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
-          # if [[ -f "/tmp/Patches/patches.sh" ]]; then
-            # cp /tmp/Patches/patches.sh device_kernel/
+          # if [[ -f "/tmp/Patches/normal_patches.sh" ]]; then
+            # cp /tmp/Patches/normal_patches.sh device_kernel/
             # cd device_kernel
-            # bash patches.sh
+            # bash normal_patches.sh
           # else
-            # echo "Cannot found patches.sh in build project , please check u file existed in build project !"
+            # echo "Cannot found normal_patches.sh in build project , please check u file existed in build project !"
           # fi
           cd $GITHUB_WORKSPACE/device_kernel
           git clone https://github.com/JackA1ltman/NonGKI_Kernel_Patches.git -b mi_kernel

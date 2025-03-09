@@ -97,15 +97,15 @@ jobs:
       RELEASE_NOTES: |
         Below is the codename reference table. Please select the image or archive you need based on this table.
 
-        | Device Name | Codename | Kernel | System | Android | Method | KernelSU | SuSFS | LXC |
-        |----------|----------|----------|----------|----------|----------|----------|----------|----------|
-        | OnePlus 8 (CN) | instantnoodle | 4.19 | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | Magic | ✅ | ❌ |
-        | OnePlus 8 (All) | instantnoodle | 4.19 | Nameless 15 | 15 | AnyKernel3 | Next | ✅ | ❌ |
-        | Xiaomi MIX2S (CN) | polaris | 4.9 | Evolution X 10.2.1 | 15 | Boot Image | Next | ✅ | ❌ |
-        | Redmi K20 Pro (CN) | raphael | 4.14 | Based-AOSP | 15 | AnyKernel3 | Next | ✅ | ❌ |
-        | Redmi Note 4X (CN) | mido | 4.9 | Based-AOSP | 13 | AnyKernel3 | Next | ✅ | ❌ |
-        | Black Shark 4 | penrose | 4.19 | MIUI/JoyUI 12 | 11 | AnyKernel3 | Next | ❌ | ❌ |
-        | Xiaomi 10S | thyme | 4.19 | Based-AOSP | 15 | AnyKernel3 | Next | ✅ | ❌ |
+        | Device Name | Codename | Kernel | System | Android | Method | KernelSU | SuSFS | LXC | VFS |
+        |----------|----------|----------|----------|----------|----------|----------|----------|----------|----------|
+        | OnePlus 8 (CN) | instantnoodle | 4.19 | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | Magic | ✅ | ❌ | ❌ |
+        | OnePlus 8 (All) | instantnoodle | 4.19 | Nameless 15 | 15 | AnyKernel3 | Next | ✅ | ❌ | ❌ |
+        | Xiaomi MIX2S (CN) | polaris | 4.9 | Evolution X 10.2.1 | 15 | Boot Image | Next | ✅ | ❌ | ❌ |
+        | Redmi K20 Pro (CN) | raphael | 4.14 | Based-AOSP | 15 | AnyKernel3 | Next | ✅ | ❌ | ❌ |
+        | Redmi Note 4X (CN) | mido | 4.9 | Based-AOSP | 13 | AnyKernel3 | Next | ✅ | ❌ | ❌ |
+        | Black Shark 4 | penrose | 4.19 | MIUI/JoyUI 12 | 11 | AnyKernel3 | Next | ❌ | ❌ | ❌ |
+        | Xiaomi 10S | thyme | 4.19 | Based-AOSP | 15 | AnyKernel3 | Next | ✅ | ❌ | ❌ |
 
         - Redmi Note 4X (CN) can only be used for the **Qualcomm** version. Please do not attempt it on the MediaTek version.
         - OnePlus 8 (CN) has been tested and can be used on the OnePlus 9R. Theoretically, it should also work on the OnePlus 8T/8Pro.
