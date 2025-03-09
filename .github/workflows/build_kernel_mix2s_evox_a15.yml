@@ -201,10 +201,10 @@ jobs:
             git clone https://github.com/JackA1ltman/NonGKI_Kernel_Patches.git -b mi_kernel NonGKI_Kernel_Patches
           fi
 
-          cp NonGKI_Kernel_Patches/patches.sh ./
+          cp NonGKI_Kernel_Patches/vfs_hook_patches.sh ./
           cp NonGKI_Kernel_Patches/extra_patches.sh ./
 
-          bash patches.sh
+          bash vfs_hook_patches.sh
           bash extra_patches.sh
 
       - name: Extra Kernel Options

@@ -2,6 +2,12 @@ name: Build Kernel Template (Cannot be used for compilation directly)
 on:
   workflow_call:
   workflow_dispatch:
+env:
+  PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
+  KERNELSU_METHOD: "shell" # shell and manual
+  PATCHES_SOURCE : "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
+  PATCHES_BRANCH : "branch" # [your_branch] -> main
+  HOOK_METHOD : "normal" # manual hook method,can choice vfs and normal.
 
 jobs:
   build:
@@ -220,18 +226,16 @@ jobs:
           # Variable
           SUSFS_SOURCE=https://gitlab.com/simonpunk/susfs4ksu.git
           SUSFS_BRANCH=kernel-${{ env.KERNEL_VERSION }}
-          PACK_METHOD=Anykernel3 # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
-          KERNELSU_METHOD=shell # shell and manual
 
-          # Set $PACK_METHOD and KernelSU
-          if [[ $PACK_METHOD == "Anykernel3" ]]; then
+          # Set ${{ env.PACK_METHOD }} and KernelSU
+          if [[ ${{ env.PACK_METHOD }} == "Anykernel3" ]]; then
             cd $GITHUB_WORKSPACE/device_kernel
             if [[ -d "Anykernel3" ]]; then
               echo "Found Anykernel3 in Kernel!"
             else
               git clone ${{ env.AK3_SOURCE }} -b ${{ env.AK3_BRANCH }} Anykernel3 --depth=1
             fi
-          elif [[ $PACK_METHOD == "MKBOOTIMG" ]]; then
+          elif [[ ${{ env.PACK_METHOD }} == "MKBOOTIMG" ]]; then
             cd $GITHUB_WORKSPACE
             git clone https://android.googlesource.com/platform/system/tools/mkbootimg $GITHUB_WORKSPACE/mkboottools -b main-kernel-build-2024 --depth=1
             wget ${{ env.BOOT_SOURCE }} -O $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
@@ -239,11 +243,11 @@ jobs:
           else
             exit
           fi
-          echo "PACK_METHOD=$PACK_METHOD" >> $GITHUB_ENV
+          echo "PACK_METHOD=${{ env.PACK_METHOD }}" >> $GITHUB_ENV
 
-          if [[ $KERNELSU_METHOD == "shell" ]]; then
+          if [[ ${{ env.KERNELSU_METHOD }} == "shell" ]]; then
             curl -sSL ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
-          elif [[ $KERNELSU_METHOD == "manual" ]]; then
+          elif [[ ${{ env.KERNELSU_METHOD }} == "manual" ]]; then
             rm -rf KernelSU && rm -rf KernelSU-Next
             git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
             ln -sf "$(realpath --relative-to="$KERNEL_LOCATION/drivers" "$KERNEL_LOCATION/KernelSU-Next/kernel")" "kernelsu"
@@ -253,16 +257,14 @@ jobs:
           else
             exit
           fi
-          echo "KERNELSU_METHOD=$KERNELSU_METHOD" >> $GITHUB_ENV
+          echo "KERNELSU_METHOD=${{ env.KERNELSU_METHOD }}" >> $GITHUB_ENV
           KSU_VERSION=$(cd ${{ env.KERNELSU_NAME }} && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           echo "UPLOADNAME=-${{ env.KERNELSU_NAME }}_$KSU_VERSION" >> $GITHUB_ENV
 
           # Set SUSFS
           if [[ "${{ env.SUSFS_ENABLE }}" == true ]]; then
             if [[ "${{ env.SUSFS_FIXED }}" == true ]]; then
-              PATCHES_SOURCE=[your_name]/[your_patch]
-              PATCHES_BRANCH=[your_branch]
-              git clone https://github.com/$PATCHES_SOURCE.git -b $PATCHES_BRANCH NonGKI_Kernel_Patches --depth=1 # It's not necessary.
+              git clone https://github.com/${{ env.PATCHES_SOURCE }}.git -b ${{ env.PATCHES_BRANCH }} NonGKI_Kernel_Patches --depth=1 # It's not necessary.
             fi
             git clone $SUSFS_SOURCE -b $SUSFS_BRANCH susfs4ksu --depth=1
             cp susfs4ksu/kernel_patches/fs/* fs/
@@ -276,20 +278,39 @@ jobs:
           cd $GITHUB_WORKSPACE
           KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
           PATCHLEVEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $2}')
-
-          if [[ -f "/tmp/Patches/patches.sh" ]]; then
-            cp /tmp/Patches/patches.sh device_kernel/
-            cd device_kernel
-            bash patches.sh
-            if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
-                cp /tmp/Patches/extra_patches.sh device_kernel/
+          if [[ ${{ env.HOOK_METHOD }} == "normal" ]]; then
+            if [[ -f "/tmp/Patches/normal_patches.sh" ]]; then
+                cp /tmp/Patches/normal_patches.sh device_kernel/
                 cd device_kernel
-                bash extra_patches.sh
+                bash normal_patches.sh
+                if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
+                    cp /tmp/Patches/extra_patches.sh device_kernel/
+                    cd device_kernel
+                    bash extra_patches.sh
+                else
+                    echo "your kernel needn't the patch."
+                fi
             else
-                echo "your kernel needn't the patch."
+                echo "Cannot found normal_patches.sh in build project , please check u file existed in build project !"
+            fi
+          elif [[ ${{ env.HOOK_METHOD }} == "vfs" ]]; then
+            if [[ -f "/tmp/Patches/vfs_hook_patches.sh" ]]; then
+                cp /tmp/Patches/vfs_hook_patches.sh device_kernel/
+                cd device_kernel
+                bash vfs_hook_patches.sh
+                if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
+                    cp /tmp/Patches/extra_patches.sh device_kernel/
+                    cd device_kernel
+                    bash extra_patches.sh
+                else
+                    echo "your kernel needn't the patch."
+                fi
+            else
+                echo "Cannot found vfs_hook_patches.sh in build project , please check u file existed in build project !"
             fi
           else
-            echo "Cannot found patches.sh in build project , please check u file existed in build project !"
+            echo "please input vaild option!"
+            exit
           fi
 
       - name: Extra Kernel Options
