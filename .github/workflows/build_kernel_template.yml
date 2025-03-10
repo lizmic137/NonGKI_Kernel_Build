@@ -277,7 +277,7 @@ jobs:
               if [ -z "${{ env.PATCHES_SOURCE }}" ] || [ -z "${{ env.PATCHES_BRANCH }}" ]; then
                 echo "Please input vaild source and branch!"
                 exit
-              elif [[ ${{ env.PATCHES_SOURCE }} == *".git" ]]
+              elif [[ ${{ env.PATCHES_SOURCE }} == *".git" ]]; then
                 git clone https://github.com/${{ env.PATCHES_SOURCE }}.git -b ${{ env.PATCHES_BRANCH }} NonGKI_Kernel_Patches --depth=1 # It's not necessary.
               else
                 echo "Patches source only supported .git!"
