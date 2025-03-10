@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [支持列表](Supported_Devices.md) | 中文文档 | [English](README_EN.md)  
 
-**Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）(5.4为QGKI)和真正Non-GKI（内核版本≤4.14）  
+**Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）（5.4为QGKI）和真正Non-GKI（内核版本≤4.14）  
 
 由于Non-GKI内核存在严重的碎片化，不仅仅体现在内核无法通用，更是存在编译环境参差不齐，包括但不限于系统版本，GCC版本，Clang版本等等，因此决定开始自动化编译Non-GKI内核项目  
 本项目欢迎Fork后自行编辑使用，也欢迎增加修改后提交合并，或者成为合作伙伴  
