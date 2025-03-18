@@ -27,11 +27,6 @@ on:
         required: true
         type: boolean
         default: true
-      build_kernel_op8_nameless15_a15:
-        description: "Build Kernel OnePlus 8 (Nameless 15)?"
-        required: true
-        type: boolean
-        default: true
       build_kernel_mi10s_aosp_a15:
         description: "Build Kernel Xiaomi 10S (Based-AOSP Android 15)?"
         required: true
