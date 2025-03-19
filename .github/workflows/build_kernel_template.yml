@@ -530,7 +530,16 @@ jobs:
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
 
-      - name: Upload Build Artifacts
+      - name: Upload Build Artifacts For Boot Image
+        if: env.PACK_METHOD == 'Anykernel3'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kernel-${{ env.PACK_NAME }}
+          path: |
+            device_kernel/${{ env.PACK_NAME }}
+
+      - name: Upload Build Artifacts For Anykernel3
+        if: env.PACK_METHOD == 'MKBOOTIMG'
         uses: actions/upload-artifact@v4
         with:
           name: Kernel-${{ env.PACK_NAME }}

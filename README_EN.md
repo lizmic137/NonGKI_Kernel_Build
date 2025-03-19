@@ -76,6 +76,10 @@ These are the example files we provide: **codename_rom_template.env** and **buil
     - If GCC is needed, both 64-bit and 32-bit versions must be specified. The recommended format is git, but tar.gz and zip are also supported.
     - Clang sources can be in git, tar.gz, tar.xz, zip, or managed via antman.
 
+- **Get Kernel Source**
+    - Normally, kernel source code can be obtained via Git, so modifications are generally unnecessary.
+    - Some smartphone manufacturers have questionable practices—they open source the code, but it's pre-packaged, or they separate drivers from the kernel source. As a result, you may need to modify this part yourself.
+    
 - **Set Pack Method, KernelSU, and SUSFS**
     - **Anykernel3** - If AnyKernel3 is not found in the kernel source, the one specified in env is used. Only git is supported.
     - **MKBOOTIMG** - Requires a clean kernel image. The recommended method is using a GitHub raw URL.

@@ -77,6 +77,10 @@
   - 若有GCC，则需填写GCC 64位和32位的版本，对于GCC我们建议git形式，但同时支持tar.gz和zip
   - 根据本人的使用情况，我们对于Clang支持为git、tar.gz、tar.xz、zip以及上述提到的antman管理软件
 
+- **Get Kernel Source**
+  - 正常来说内核源码都可以通过Git方式获得，所以基本不需要修改
+  - 某些国产厂商的水平堪忧，开源但却是自打包，或者驱动与内核源码分离，因此可能需要你自己修改这个部分
+  
 - **Set Pack Method and KernelSU and SUSFS**
   - 我们默认提供Anykernel3和MKBOOTIMG两种打包方式，其中AK3可以自动检测内核源码中是否存在，若不存在则调用env提供的SOURCE和BRANCH，对于AK3仅提供git方式，MKBOOTIMG由我们默认提供，一般不需要自行获取
   - **Anykernel3** 需要提供对应项目的地址和分支，且仅支持git方式，或者使用我们提供的默认方式，一般不会出错

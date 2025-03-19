@@ -505,6 +505,8 @@ jobs:
           cp -fp tmp/tmp.zip ${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-${{ env.PACK_METHOD }}${{ env.LXC_STATUS }}.zip
           rm -rf tmp
 
+          ls -al ./
+
           echo "PACK_NAME=${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-${{ env.PACK_METHOD }}${{ env.LXC_STATUS }}.zip" >> $GITHUB_ENV
 
       - name: Make Latest Boot Image
@@ -542,4 +544,4 @@ jobs:
         with:
           name: Kernel-${{ env.PACK_NAME }}
           path: |
-            ${{ env.PACK_NAME }}
+            device_kernel/${{ env.PACK_NAME }}
