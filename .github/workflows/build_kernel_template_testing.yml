@@ -1,4 +1,4 @@
-name: Build Kernel Template (Cannot be used for compilation directly)
+name: Build Kernel Template (Testing) (Cannot be used for compilation directly)
 on:
   workflow_call:
   workflow_dispatch:
@@ -10,6 +10,7 @@ env:
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
   PROFILE_NAME: "codename_rom_template.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
+  BUILD_CHECKER: "true" # enabled build checker
 
 jobs:
   build:
@@ -307,7 +308,8 @@ jobs:
                   bash normal_patches.sh
                   echo "execuated patch successfully."
                   if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
-                      cp /tmp/Patches/extra_patches.sh ./
+                      cp /tmp/Patches/extra_patches.sh device_kernel/
+                      cd device_kernel
                       bash extra_patches.sh
                       echo "execuated extra patch successfully."
                   else
@@ -324,7 +326,8 @@ jobs:
                   bash vfs_hook_patches.sh
                   echo "execuated vfs patch successfully."
                   if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
-                      cp /tmp/Patches/extra_patches.sh ./
+                      cp /tmp/Patches/extra_patches.sh device_kernel/
+                      cd device_kernel
                       bash extra_patches.sh
                       echo "execuated extra patch successfully."
                   else
@@ -437,12 +440,19 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
           if [ -z "${{ env.GCC_32 }}" ] && [ -z "${{ env.GCC_64 }}" ]; then
-            make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.DEFCONFIG_NAME }}
-            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }}
+            make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.DEFCONFIG_NAME }} 2>&1|tee error.log
+            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} 2>&1|tee error.log
           else
-            make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
-            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
+            make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }} 2>&1|tee error.log
+            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} 2>&1|tee error.log
           fi
+
+      - name: Build Checker
+        if: always() && env.BUILD_CHECKER == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp /tmp/build_checker.sh ./
+          bash build_checker.sh
 
       - name: Make Anykernel3 Flasher
         if: env.PACK_METHOD == 'Anykernel3'
