@@ -409,7 +409,7 @@ jobs:
             if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
                 echo "KernelSU-Next SuSFS Branch detected!"
             elif [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" ]]; then
-                curl -LSs "https://raw.githubusercontent.com/ShirkNeko/KernelSU/main/kernel/setup.sh"
+                git clone https://github.com/ShirkNeko/KernelSU.git -b susfs-dev susfs_fixed
                 rsync -av --exclude='.git' susfs_fixed/kernel/ KernelSU-Next/kernel/
             fi
           elif [[ "${{ env.KERNELSU_SUS_PATCH }}" == "true" ]]; then
