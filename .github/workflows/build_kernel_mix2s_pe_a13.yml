@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 env:
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
-  KERNELSU_METHOD: "manual" # shell, manual and only.
+  KERNELSU_METHOD: "shell" # shell, manual and only.
   PATCHES_SOURCE: "JackA1ltman/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "mi_kernel" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
@@ -409,7 +409,7 @@ jobs:
             if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
                 echo "KernelSU-Next SuSFS Branch detected!"
             elif [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" ]]; then
-               git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} susfs_fixed
+                curl -LSs "https://raw.githubusercontent.com/ShirkNeko/KernelSU/main/kernel/setup.sh"
                 rsync -av --exclude='.git' susfs_fixed/kernel/ KernelSU-Next/kernel/
             fi
           elif [[ "${{ env.KERNELSU_SUS_PATCH }}" == "true" ]]; then
