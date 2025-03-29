@@ -490,13 +490,12 @@ jobs:
           echo "CONFIG_CRYPTO_ZSTD=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_ZSTD_COMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_ZSTD_DECOMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_LTO_CLANG=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
+          # echo "CONFIG_LTO_CLANG=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_LTO=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_LTO_CLANG_THIN=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_THINLTO=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_ARCH_SUPPORTS_LTO_CLANG=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_ARCH_SUPPORTS_LTO_CLANG_THIN=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_LD_LLD=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           export CFLAGS="-flto=thin"
           export LDFLAGS="-flto=thin"
           if [ -z "${{ env.GCC_32 }}" ] && [ -z "${{ env.GCC_64 }}" ]; then
