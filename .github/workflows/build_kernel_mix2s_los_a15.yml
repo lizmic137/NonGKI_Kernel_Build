@@ -496,8 +496,6 @@ jobs:
           echo "CONFIG_THINLTO=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_ARCH_SUPPORTS_LTO_CLANG=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_ARCH_SUPPORTS_LTO_CLANG_THIN=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          export CFLAGS="-flto=thin"
-          export LDFLAGS="-flto=thin"
           if [ -z "${{ env.GCC_32 }}" ] && [ -z "${{ env.GCC_64 }}" ]; then
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} vendor/xiaomi/polaris_defconfig
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }}
@@ -505,8 +503,8 @@ jobs:
             make O=out ARCH=arm64 $${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}  vendor/xiaomi/polaris_defconfig
             make -j$(nproc --all) O=out ARCH=arm64 ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           else
-            make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu- vendor/xiaomi/polaris_defconfig
-            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu-
+            make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu- KCFLAGS="-flto=thin -fsplit-lto-unit" LDFLAGS="-flto=thin" CFLAGS="-flto=thin" vendor/xiaomi/polaris_defconfig
+            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu- KCFLAGS="-flto=thin -fsplit-lto-unit" LDFLAGS="-flto=thin" CFLAGS="-flto=thin"
           fi
 
       - name: Make Anykernel3 Flasher
