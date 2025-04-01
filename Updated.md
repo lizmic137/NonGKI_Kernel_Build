@@ -1,4 +1,30 @@
 ## 项目更新日志
+- **Ver.1.3 Fixed 20**
+    - 增加 生成DTB 功能
+    - 增加 说明文件 中对 生成DTB 功能的说明
+
+- **Ver.1.3 Fixed 19**
+    - 为 一加8 Nameless15 yaml文件移植自动获取defconfig功能
+
+- **Ver.1.3 Fixed 18**
+    - 修改 支持列表 和 发布列表 中SukiSU指向的Github项目至SukiSU-Ultra
+    - 修改 小米Mix2s 中对SukiSU的KernelSU源和分支指向
+
+- **Ver.1.3 Fixed 18**
+    - 删除 小米8（dipper） MIUI Android 10 设备
+    - 增加 说明文件 中PYTHON_VERSION对强制执行 Python2 方法的说明
+    - 增加 英文说明文件 中缺失的项目
+
+- **Ver.1.3 Fixed 17**
+    - 增加 说明文件 KERNELSU_METHOD 的解释
+    - 对 小米8 产生的问题进行修正
+
+- **Ver.1.3 Fixed 16**
+    - 将 红米 Note7Pro(lavender) 打包方式修改成MKBOOTIMG
+    - 增加 小米8(dipper) MIUI Android 10
+    - 修改 Clang 在yaml示例文件中若未设置而产生的提示语
+    - 删除 testing yaml示例文件
+
 - **Ver.1.3 Fixed 15**
     - 回滚 系统版本 设置
 

@@ -61,11 +61,11 @@
 这是我们提供的示例文件：**codename_rom_template.env**和**build_kernel_template.yml**  
 
 - **env:** - 设置必要修改的变量，独立于Profiles
-  - **PYTHON_VERSION** - Ubuntu的Python命令默认为Python3，但2仍有需求，因此增加该变量，可填写**2**或**3**
+  - **PYTHON_VERSION** - Ubuntu的Python命令默认为Python3，但2仍有需求，因此增加该变量，可填写**2**或**3**。如果你仅仅需要安装python2但不想修改默认python，那你可以在EXTRA_CMDS中增加PYTHON=/usr/bin/python2，便可以强制执行python2参与编译
   - **PACK_METHOD** - 打包方式，分为MKBOOTIMG，和[Anykernel3](https://github.com/osm0sis/AnyKernel3)，默认为Anykernel3
   - **KERNELSU_METHOD** - 嵌入KernelSU的方式：
     - 通常情况下使用**shell**方式即可
-    - 但如果你提供了非setup.sh的方式，或者该方式报错，请将其修改**manual**，manual虽然是手动安装，但实际上并不需要维护者修改任何内容
+    - 但如果你提供了非setup.sh的方式，或者该方式报错，请将其修改**manual**，manual虽然是手动安装，但实际上并不需要维护者修改任何内容，但注意，选该模式仅能使用git
     - 若你的内核已经存在KernelSU，但你想要替换，可使用**only**，仅执行git不执行修补
   - **PATCHES_SOURCE** - 使用susfs不可避免需要手动修补，这是用来填写你存放patch的github项目地址，当然如果你不采用susfs，则不需要填写，可参考我的用于Patch的git项目
   - **PATCHES_BRANCH** - patch项目所需的分支，一般为main
@@ -74,6 +74,8 @@
     - [vfs](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，且对于版本≤4.9的内核的支持存在问题，仅更高版本内核建议启用
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
+  - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dtb、.dtsi），则可以开启本项自动执行生成DTB步骤，仅限Anykernel3打包方式
+  - **GENERATE_CHIP** - 生成DTB文件的对应设备CPU，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
   - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，其他功能可期待未来更新
 
 - **runs-on: ubuntu-XX.XX** 
@@ -83,6 +85,7 @@
   - 这里分为无GCC和有GCC，Clang也有区分判定，请继续往下看
   - 若无GCC，则会自动选择仅Clang，而通常情况下，仅Clang可用于使用antman进行管理的Clang，这些步骤我们都已经可以自动识别，因此不需要修改yml来实现
   - 若有GCC，则需填写GCC 64位和32位的版本，对于GCC我们建议git形式，但同时支持tar.gz和zip
+  - 你可以选择仅使用GCC而不启用Clang，并且GCC允许使用系统默认安装的GCC，可在yaml文件变量中开启
   - 根据本人的使用情况，我们对于Clang支持为git、tar.gz、tar.xz、zip以及上述提到的antman管理软件
 
 - **Get Kernel Source**
