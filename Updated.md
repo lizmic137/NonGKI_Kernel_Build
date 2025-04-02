@@ -1,4 +1,16 @@
 ## 项目更新日志
+- **Ver.1.3 Fixed 22**
+    - 删除 小米Mix2s 设备中实验性启用 SukiSU-Ultra KPM 的内容
+    - 增加对 SukiSU-Ultra KPM 功能的判断
+
+- **Ver.1.3 Fixed 21**
+    - 增加 生成DTB 功能至MKBOOTIMG步骤
+    - 增加 合并CONFIG文件 功能
+    - 增加 说明文件 中对 合并CONFIG文件 功能的说明
+    - 修改 说明文件 中对 生成DTB 功能的说明
+    - 修正 示例yaml文件 中对部分变量错误调用的问题
+    - 增加编译时对仅GCC编译的判断
+
 - **Ver.1.3 Fixed 20**
     - 增加 生成DTB 功能
     - 增加 说明文件 中对 生成DTB 功能的说明

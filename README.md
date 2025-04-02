@@ -74,9 +74,10 @@
     - [vfs](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，且对于版本≤4.9的内核的支持存在问题，仅更高版本内核建议启用
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
-  - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dtb、.dtsi），则可以开启本项自动执行生成DTB步骤，仅限Anykernel3打包方式
+  - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dtb、.dtsi），则可以开启本项自动执行生成DTB步骤
   - **GENERATE_CHIP** - 生成DTB文件的对应设备CPU，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
   - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，其他功能可期待未来更新
+  - **BUILD_OTHER_CONFIG** - 若你需要合并内核源码中自带的其他.config文件，可启用本项，但是需要自行修改”Build Kernel“中数组MERGE_CONFIG_FILES中的内容
 
 - **runs-on: ubuntu-XX.XX** 
   - 不同内核所需系统不同，默认为22.04，我们预先提供了两套包安装选项（适配22.04和24.04），我们通过检测系统版本进行决定包安装
