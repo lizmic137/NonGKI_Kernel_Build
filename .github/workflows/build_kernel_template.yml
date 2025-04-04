@@ -500,7 +500,7 @@ jobs:
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
                     ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
-                make ARCH=arm64 olddefconfig
+                make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} olddefconfig
             fi
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }}
           elif [ -z "${{ env.GCC_32 }}" ]; then
@@ -509,7 +509,7 @@ jobs:
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
                     ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
-                make ARCH=arm64 olddefconfig
+                make O=out ARCH=arm64 ${{ env.GCC_64 }} olddefconfig
             fi
             make -j$(nproc --all) O=out ARCH=arm64 ${{ env.GCC_64 }}
           elif [ -z "${{ env.CLANG_SOURCE }}" ]; then
@@ -518,7 +518,7 @@ jobs:
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
                     ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
-                make ARCH=arm64 olddefconfig
+                make O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }} olddefconfig
             fi
             make -j$(nproc --all) O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           else
@@ -527,7 +527,7 @@ jobs:
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
                     ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
-                make ARCH=arm64 olddefconfig
+                make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} olddefconfig
             fi
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           fi
