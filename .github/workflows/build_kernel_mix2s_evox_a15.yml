@@ -150,16 +150,14 @@ jobs:
 
           # Backport Testing
           cd device_kernel
-          git remote add kanishk https://github.com/KanishkTheDerp/msm-4.9.git
-          git fetch kanishk
-          git log kanishk/* --oneline | grep bf067ef
-          git cherry-pick bf067ef87dfdfdb84373814765afaa6eb0228693
+          mv /tmp/Patches/backport_set_memory.patch ./
+          patch -p1 < backport_set_memory.patch
 
       - name: Set KSU and SUSFS for DEFCONFIG
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [[ ${{ env.SUSFS_ENABLE }} == "true" ]]; then
             echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
             echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
