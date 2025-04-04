@@ -498,32 +498,36 @@ jobs:
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.DEFCONFIG_NAME }}
             if [[ ${{ env.BUILD_OTHER_CONFIG == "true" }} ]]; then
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
-                    /scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
+                make ARCH=arm64 olddefconfig
             fi
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }}
           elif [ -z "${{ env.GCC_32 }}" ]; then
             make O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.DEFCONFIG_NAME }}
             if [[ ${{ env.BUILD_OTHER_CONFIG == "true" }} ]]; then
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
-                    /scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
+                make ARCH=arm64 olddefconfig
             fi
             make -j$(nproc --all) O=out ARCH=arm64 ${{ env.GCC_64 }}
           elif [ -z "${{ env.CLANG_SOURCE }}" ]; then
             make O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
             if [[ ${{ env.BUILD_OTHER_CONFIG == "true" }} ]]; then
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
-                    /scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
+                make ARCH=arm64 olddefconfig
             fi
             make -j$(nproc --all) O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           else
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
             if [[ ${{ env.BUILD_OTHER_CONFIG == "true" }} ]]; then
                 for FILES in "${MERGE_CONFIG_FILES[@]}"; do
-                    /scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
                 done
+                make ARCH=arm64 olddefconfig
             fi
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           fi
