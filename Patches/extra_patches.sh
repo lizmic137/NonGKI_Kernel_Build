@@ -6,7 +6,6 @@
 # 20250303
 
 patch_files=(
-    fs/devpts/inode.c
     security/selinux/hooks.c
 )
 
@@ -18,13 +17,6 @@ for i in "${patch_files[@]}"; do
     fi
 
     case $i in
-
-    # fs/ changes
-    ## fs/devpts/inode.c
-    fs/devpts/inode.c)
-        sed -i '/void \*devpts_get_priv(struct dentry \*dentry)/i\extern int ksu_handle_devpts(struct inode*);\n' fs/devpts/inode.c
-        sed -i '/if (dentry->d_sb->s_magic != DEVPTS_SUPER_MAGIC)/i\    ksu_handle_devpts(dentry->d_inode);' fs/devpts/inode.c
-        ;;
 
     # security/ changes
     ## security/selinux/hooks.c

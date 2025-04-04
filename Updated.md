@@ -1,4 +1,8 @@
 ## 项目更新日志
+- **Ver.1.3 Fixed 25**
+    - 修正 backport、normal、extra 脚本潜在的对4.4设备的判定错误
+    - 该补丁将是当前大版本的最后一次补丁
+
 - **Ver.1.3 Fixed 24**
     - 添加 小米5 Crdroid 设备
     - 修正 合并CONFIG 功能的执行错误
