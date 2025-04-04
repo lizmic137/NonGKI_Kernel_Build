@@ -32,7 +32,7 @@ Each profile consists of the following elements:
 **GCC_XX_SOURCE** - Location of GCC (supports git, tar.gz, zip).  
 **GCC_XX_BRANCH** - Required branch for GCC (only applicable if using git).  
 
-**DEFCONFIG_SOURCE** - If you need a custom DEFCONFIG file, provide the specific file path.  
+**DEFCONFIG_SOURCE** - If you require a custom DEFCONFIG file, you can provide a download link for the DEFCONFIG file.  
 **DEFCONFIG_NAME** - The required DEFCONFIG file for compilation, usually formatted as device_defconfig or vendor/device_defconfig.  
 **DEFCONFIG_ORIGIN_IMAGE** - (Experimental ⚠) If you do not need the default DEFCONFIG from the kernel source and cannot provide a custom DEFCONFIG, you can extract the DEFCONFIG file from the Image file you obtained (Image.gz and Image.gz-dtb need to be manually decompressed before uploading). **DEFCONFIG_NAME** must be specified and cannot be empty.  
 

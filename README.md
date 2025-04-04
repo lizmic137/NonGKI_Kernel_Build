@@ -32,7 +32,7 @@
 **GCC_XX_SOURCE** - GCC所在之处，但支持git、tar.gz、zip  
 **GCC_XX_BRANCH** - GCC所需分支，但前提是git  
 
-**DEFCONFIG_SOURCE** - 若有自定义DEFCONFIG文件需求可提供具体文件所在地址  
+**DEFCONFIG_SOURCE** - 若有自定义DEFCONFIG文件需求可提供DEFCONFIG文件的下载地址  
 **DEFCONFIG_NAME** - 不管是否自定义，都需要提供用于编译的必要DEFCONFIG文件，通常格式为：设备_defconfig、vendor/设备_defconfig  
 **DEFCONFIG_ORIGIN_IMAGE** - (实验性⚠)若你不需要内核源码中自带的DEFCONFIG，也无法提供自定义DEFCONFIG，则可以通过你所获取到的Image文件（Image.gz和Image.gz-dtb需要自行解压后上传文件）进行解包后获得defconfig文件，**DEFCONFIG_NAME**一定要填写，这不能为空
 

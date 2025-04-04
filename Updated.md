@@ -1,6 +1,10 @@
 ## 项目更新日志
+- **Ver.1.3 Fixed 24**
+    - 修正 说明文件 对获取DEFCONFIG步骤的说明
+    - 更新 一加8 OOS13 的KernelSU分支
+    
 - **Ver.1.3 Fixed 23**
-    - 修正了 生成DTB 步骤中遇到的潜在错误
+    - 修正 生成DTB 步骤中遇到的潜在错误
 
 - **Ver.1.3 Fixed 22**
     - 删除 小米Mix2s 设备中实验性启用 SukiSU-Ultra KPM 的内容
