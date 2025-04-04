@@ -72,9 +72,6 @@ for i in "${patch_files[@]}"; do
         if grep -q "void \*devpts_get_priv(struct dentry \*dentry)" fs/devpts/inode.c; then
             sed -i '/void \*devpts_get_priv(struct dentry \*dentry)/i\extern int ksu_handle_devpts(struct inode*);\n' fs/devpts/inode.c
             sed -i '/if (dentry->d_sb->s_magic != DEVPTS_SUPER_MAGIC)/i\    ksu_handle_devpts(dentry->d_inode);' fs/devpts/inode.c
-        else
-            sed -i '/void \*devpts_get_priv(struct inode \*pts_inode)/i\extern int ksu_handle_devpts(struct inode*);' fs/devpts/inode.c
-            sed -i '/BUG_ON(pts_inode->i_rdev == MKDEV(TTYAUX_MAJOR, PTMX_MINOR));/a \    ksu_handle_devpts(dentry->d_inode);' fs/devpts/inode.c
         fi
         ;;
 
