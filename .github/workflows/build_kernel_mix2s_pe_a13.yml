@@ -1,4 +1,4 @@
-name: Build Kernel mix2s SukiSU PE13
+name: Build Kernel Mix2s PE13 SukiSU
 on:
   workflow_call:
   workflow_dispatch:
@@ -11,7 +11,11 @@ env:
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
   PROFILE_NAME: "polaris_pe_a13.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
+  GENERATE_DTB: "false" # if u kernel need DTB , but cannot auto generate it. (Only Anykernel3).
+  GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
   BUILD_DEBUGGER: "false" # Output build errors.
+  BUILD_OTHER_CONFIG: "false" # Merge config files.
+
 
 jobs:
   build:
@@ -201,7 +205,7 @@ jobs:
             chmod +x antman
             bash antman -S
           else
-            echo "Not supported format of Clang!"
+            echo "You needn't clang!"
           fi
 
       - name: Get Kernel Source
@@ -273,13 +277,14 @@ jobs:
           elif [[ ${{ env.KERNELSU_METHOD }} == "manual" ]]; then
             rm -rf KernelSU && rm -rf KernelSU-Next
             git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
-            ln -sf "$(realpath --relative-to="$KERNEL_LOCATION/drivers" "$KERNEL_LOCATION/${{ env.KERNELSU_NAME }}/kernel")" "kernelsu"
-            grep -q "kernelsu" "$KERNEL_LOCATION/drivers/Makefile" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> $KERNEL_LOCATION/drivers/Makefile
-            grep -q "source \"drivers/kernelsu/Kconfig\"" "$KERNEL_LOCATION/drivers/Kconfig" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$KERNEL_LOCATION/drivers/Kconfig"
+            ln -sf "$(realpath --relative-to="$GITHUB_WORKSPACE/device_kernel/drivers" "$GITHUB_WORKSPACE/device_kernel/${{ env.KERNELSU_NAME }}/kernel")" "kernelsu"
+            grep -q "kernelsu" "$GITHUB_WORKSPACE/device_kernel/drivers/Makefile" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> $GITHUB_WORKSPACE/device_kernel/drivers/Makefile
+            grep -q "source \"drivers/kernelsu/Kconfig\"" "$GITHUB_WORKSPACE/device_kernel/drivers/Kconfig" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$GITHUB_WORKSPACE/device_kernel/drivers/Kconfig"
             echo "KernelSU Settings done."
           elif [[ ${{ env.KERNELSU_METHOD }} == "only" ]];then
-            rm -rf KernelSU && rm -rf KernelSU-Next
+            rm -rf *KernelSU* && rm -rf drivers/kernelsu
             git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
+            ln -sf ../${{ env.KERNELSU_NAME }}/kernel drivers/kernelsu
             echo "KernelSU git done."
           else
             false
@@ -287,6 +292,16 @@ jobs:
           echo "KERNELSU_METHOD=${{ env.KERNELSU_METHOD }}" >> $GITHUB_ENV
           KSU_VERSION=$(cd ${{ env.KERNELSU_NAME }} && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           echo "UPLOADNAME=-${{ env.KERNELSU_NAME }}_$KSU_VERSION" >> $GITHUB_ENV
+
+          ## KPM Checker
+          if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
+            if [[ -f "include/linux/set_memory.h" ]]; then
+                echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+                echo "Set KPM successfully !"
+            else
+                echo "Your kernel doesn't support KPM !"
+            fi
+          fi
 
           # Set SUSFS
           if [[ "${{ env.SUSFS_ENABLE }}" == true ]]; then
@@ -480,17 +495,45 @@ jobs:
 
       - name: Build Kernel
         run: |
+          MERGE_CONFIG_FILES=("vendor/debugfs.config" "vendor/lahaina_QGKI.config")
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
           if [ -z "${{ env.GCC_32 }}" ] && [ -z "${{ env.GCC_64 }}" ]; then
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.DEFCONFIG_NAME }}
+            if [[ "${{ env.BUILD_OTHER_CONFIG }}"  == "true" ]]; then
+                for FILES in "${MERGE_CONFIG_FILES[@]}"; do
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                done
+                make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} olddefconfig
+            fi
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }}
+          elif [ -z "${{ env.GCC_32 }}" ]; then
+            make O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.DEFCONFIG_NAME }}
+            if [[ "${{ env.BUILD_OTHER_CONFIG }}"  == "true" ]]; then
+                for FILES in "${MERGE_CONFIG_FILES[@]}"; do
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                done
+                make O=out ARCH=arm64 ${{ env.GCC_64 }} olddefconfig
+            fi
+            make -j$(nproc --all) O=out ARCH=arm64 ${{ env.GCC_64 }}
           elif [ -z "${{ env.CLANG_SOURCE }}" ]; then
-            make O=out ARCH=arm64 $${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
-            make -j$(nproc --all) O=out ARCH=arm64 ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
+            make O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
+            if [[ "${{ env.BUILD_OTHER_CONFIG }}"  == "true" ]]; then
+                for FILES in "${MERGE_CONFIG_FILES[@]}"; do
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                done
+                make O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }} olddefconfig
+            fi
+            make -j$(nproc --all) O=out ARCH=arm64 ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           else
             make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
-            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+            if [[ "${{ env.BUILD_OTHER_CONFIG }}"  == "true" ]]; then
+                for FILES in "${MERGE_CONFIG_FILES[@]}"; do
+                    ./scripts/kconfig/merge_config.sh -O out/ -m out/.config arch/arm64/configs/$FILES
+                done
+                make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} olddefconfig
+            fi
+            make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
           fi
 
       - name: Make Anykernel3 Flasher
@@ -534,6 +577,19 @@ jobs:
           if [ -f "$IMAGE_DIR/dtb" ]; then
             echo "Found DTB!"
             cp -fp $IMAGE_DIR/dtb tmp
+          elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
+            if [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
+                cp -fp $IMAGE_DIR/DTB tmp
+                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
+            elif [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
+                cp -fp $IMAGE_DIR/DTB tmp
+                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
+            else
+                echo "Missing .dtb file in dts or dts/vendor ! Generate Failed !"
+                false
+            fi
           else
             echo "Doesn't found DTB! Your device maybe needn't the file."
           fi
@@ -569,6 +625,26 @@ jobs:
             rm -f out/kernel
             cp -fp $IMAGE_DIR/Image out/kernel
             echo "Found Image !"
+          fi
+
+          if [ -f "$IMAGE_DIR/dtb" ]; then
+            echo "Found DTB!"
+            cp -fp $IMAGE_DIR/dtb out/dtb
+          elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
+            if [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
+                cp -fp $IMAGE_DIR/DTB out/dtb
+                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
+            elif [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
+                cp -fp $IMAGE_DIR/DTB out/dtb
+                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
+            else
+                echo "Missing .dtb file in dts or dts/vendor ! Generate Failed !"
+                false
+            fi
+          else
+            echo "Doesn't found DTB! Your device maybe needn't the file."
           fi
 
           eval "mkboottools/mkbootimg.py $FORMAT_MKBOOTING -o ${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}.img"
