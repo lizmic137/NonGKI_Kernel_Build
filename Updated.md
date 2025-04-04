@@ -1,5 +1,8 @@
 ## 项目更新日志
 - **Ver.1.3 Fixed 24**
+    - 添加 小米5 Crdroid 设备
+
+- **Ver.1.3 Fixed 24**
     - 修正 说明文件 对获取DEFCONFIG步骤的说明
     - 更新 一加8 OOS13 的KernelSU分支
     
