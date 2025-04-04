@@ -150,9 +150,10 @@ jobs:
 
           # Backport Testing
           cd device_kernel
-          git remote add caf https://github.com/KanishkTheDerp/msm-4.9.git
-          git fetch caf --depth 1
-          git cherry-pick bf067ef
+          git remote add kanishk https://github.com/KanishkTheDerp/msm-4.9.git
+          git fetch kanishk
+          git log kanishk/* --oneline | grep bf067ef
+          git cherry-pick bf067ef87dfdfdb84373814765afaa6eb0228693
 
       - name: Set KSU and SUSFS for DEFCONFIG
         run: |
