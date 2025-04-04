@@ -149,7 +149,8 @@ jobs:
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
 
           # Backport Testing
-          git remote add caf https://github.com/KanishkTheDerp/msm-4.9.git -b ksu/master
+          cd device_kernel
+          git remote add caf https://github.com/KanishkTheDerp/msm-4.9.git
           git fetch caf --depth 1
           git cherry-pick bf067ef
 
