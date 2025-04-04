@@ -1,4 +1,4 @@
-name: Build Kernel test
+name: Build Kernel Mix2S SukiSU
 on:
   workflow_call:
   workflow_dispatch:
