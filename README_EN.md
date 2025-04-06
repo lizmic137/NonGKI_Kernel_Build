@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [Supported Devices](Supported_Devices.md) | [中文文档](README.md) | English | [Updated Logs](Updated.md)  
 
-**Ver**.1.3
+**Ver**.1.4
 
 **Non-GKI**: What we commonly refer to as Non-GKI includes both GKI1.0 (kernel versions 4.19-5.4) (5.4 is QGKI) and true Non-GKI (kernel versions ≤ 4.14).  
 
@@ -51,6 +51,7 @@ Each profile consists of the following elements:
 **LXC_ENABLE** - (Experimental ⚠) Enable automated kernel support for LXC/Docker (true or false).  
 
 **HAVE_NO_DTBO** - (Experimental ⚠) If your kernel does not provide a dtbo.img but your device uses an A/B partitioning scheme with a dtbo partition, you can enable this option (true). The default is false.  
+**HAVE_NO_DTBO_TOOL** - (Experimental ⚠) After enabling the previous option, you can choose to enable this one to use a safer method for generating dtbo.img.  
 
 **ROM_TEXT** - Used in the final filename of the compiled kernel to indicate which ROM it is compatible with.  
 
@@ -59,6 +60,7 @@ We have provided example .env and .yml files for compilation. Below is an overvi
 Only key configurable sections are highlighted; modifying steps and sequences extensively is not recommended.  
 All patches provided by this project are not guaranteed to work properly on kernel versions ≤4.4.  
 These are the example files we provide: **codename_rom_template.env** and **build_kernel_template.yml**.  
+**build_kernel_arch_template.yml** is a sample YAML based on Arch Linux and is currently in **Beta** testing.  
 
 - **env:** - Define essential variables independently from the Profiles configuration.
     - **PYTHON_VERSION** - The default Python command in Ubuntu is Python 3, but Python 2 is still needed in some cases. This variable allows you to specify 2 or 3. If you only need to install Python 2 without changing the default Python version, you can add PYTHON=/usr/bin/python2 to EXTRA_CMDS to force Python 2 to be used during compilation.
@@ -74,6 +76,8 @@ These are the example files we provide: **codename_rom_template.env** and **buil
         - [vfs](https://github.com/backslashxx/KernelSU/issues/5): Minimal patching method, which may improve hiding KernelSU but might cause ISO compliance issues with older Clang versions，And there are issues with support for kernels ≤4.9. It is recommended to enable this only for higher kernel versions.
     - **PROFILE_NAME** - Enter the name of your modified ENV environment variable file, such as codename_rom_template.env.
     - **KERNELSU_SUS_PATCH** - If your KernelSU is not part of KernelSU-Next and does not have a patch branch for SuSFS, you can enable this option (true). However, we do not recommend doing so, as the KernelSU branches have been heavily modified, and manual patching is no longer suitable for the current era.
+    - **KPM_ENABLE** - (Experimental ⚠) Enables compilation support for KPM in SukiSU-Ultra. This is an experimental feature, so please enable it with caution.
+    - **KPM_PATCH_SOURCE** - (Experimental ⚠) You need to provide a download link for the patch binary file yourself.
     - **GENERATE_DTB** - If your kernel requires a DTB file after compilation (not .dtb, .dtbo, or .dtsi), you can enable this option to automatically generate the DTB file. 
     - **GENERATE_CHIP** - Specifies the CPU type for generating the DTB file. Typically supports qcom and mediatek, but compatibility with other CPUs is uncertain.
     - **BUILD_DEBUGGER** - Enables error reporting if needed. Currently, it provides output for patch error .rej files, with more features expected in future updates.
@@ -81,6 +85,7 @@ These are the example files we provide: **codename_rom_template.env** and **buil
 
 - **runs-on:** ubuntu-XX.XX 
     - Different kernels may require different Ubuntu versions. The default is 22.04, but support for both 22.04 and 24.04 is available. The system version determines which package installation method is used.
+    - If you are using the Arch Linux YAML, this feature is not applicable — please do not modify it.
 
 - **Set Compile Environment**
     - If no GCC is needed, Clang-only compilation is selected automatically.
@@ -113,4 +118,7 @@ These are the example files we provide: **codename_rom_template.env** and **buil
     - Whether these patches are applied depends on SUSFS_ENABLE and SUSFS_FIXED settings in the env.
     - SUSFS patching may cause issues, requiring additional fixes (under Fixed Kernel Patch).
 
+- **KPM Patcher (Experiment)**
+    - Provides KPM kernel patch support for SukiSU-Ultra. Currently, this feature does not support devices with kernel versions ≤ 4.9. If you have backported some functionality for KPM manually, please adjust this section accordingly — however, we do not offer support for experimental features.
+    
 Final Reminder⚠ : Unless otherwise mentioned, there is no need to modify any other sections of the .yml workflow. The setup is designed to automatically handle various conditions.

@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [支持列表](Supported_Devices.md) | 中文文档 | [English](README_EN.md) | [更新日志](Updated.md)  
 
-**Ver**.1.3
+**Ver**.1.4
 
 **Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）（5.4为QGKI）和真正Non-GKI（内核版本≤4.14）  
 
@@ -51,6 +51,7 @@
 **LXC_ENABLE** - (实验性⚠)启用自动化内核LXC/Docker支持，true或false  
 
 **HAVE_NO_DTBO** - (实验性⚠)若你的内核没有提供dtbo.img，且你的设备属于A/B分区且存在dtbo分区，则可启用本选项(true)，默认为false  
+**HAVE_NO_DTBO_TOOL** - (实验性⚠)在上一项启用后，你可以选择启用这项来获得更加安全的生成dtbo.img方案  
 
 **ROM_TEXT** - 用于编译成功后用于上传文件标题，声明内核可用的ROM  
 
@@ -59,6 +60,7 @@
 这里仅指出大概可供修改的地方，具体可按需求修改，我们不建议过度修改步骤和顺序  
 本项目提供的所有补丁均不能保证在≤4.4内核能够正常使用  
 这是我们提供的示例文件：**codename_rom_template.env**和**build_kernel_template.yml**  
+**build_kernel_arch_template.yml**为基于Arch Linux的示例YAML，当前为Beta测试  
 
 - **env:** - 设置必要修改的变量，独立于Profiles
   - **PYTHON_VERSION** - Ubuntu的Python命令默认为Python3，但2仍有需求，因此增加该变量，可填写**2**或**3**。如果你仅仅需要安装python2但不想修改默认python，那你可以在EXTRA_CMDS中增加PYTHON=/usr/bin/python2，便可以强制执行python2参与编译
@@ -74,6 +76,8 @@
     - [vfs](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，且对于版本≤4.9的内核的支持存在问题，仅更高版本内核建议启用
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
+  - **KPM_ENABLE** - (实验性⚠)启用对SukiSU-Ultra的KPM编译支持，该项为实验项，请小心启用
+  - **KPM_PATCH_SOURCE** - (实验性⚠)你需要自行提供patch二进制文件的下载链接
   - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dtb、.dtsi），则可以开启本项自动执行生成DTB步骤
   - **GENERATE_CHIP** - 生成DTB文件的对应设备CPU，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
   - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，其他功能可期待未来更新
@@ -81,6 +85,7 @@
 
 - **runs-on: ubuntu-XX.XX** 
   - 不同内核所需系统不同，默认为22.04，我们预先提供了两套包安装选项（适配22.04和24.04），我们通过检测系统版本进行决定包安装
+  - 若使用Arch Linux YAML则该功能不适用，请不要修改
 
 - **Set Compile Environment**
   - 这里分为无GCC和有GCC，Clang也有区分判定，请继续往下看
@@ -113,5 +118,8 @@
   - 一切基于env中SUSFS_ENABLE和env.SUSFS_FIXED为true，但不一定都为true
   - SUSFS修补大概率会产生问题，因此通常情况下需要补充修补
   - 补充修补需要执行你重新制作的patch补丁（步骤为：Fixed Kernel Patch）
+  
+- **KPM Patcher (Experiment)**
+  - 为SukiSU-Ultra提供KPM内核Patch功能，该功能目前暂不支持内核版本≤4.9的设备，若你已经反向移植部分功能用于KPM功能，请自行参照修改这个部分，但我们对实验性功能不提供支持
   
 最后提醒⚠️：非上述提示的步骤理论上不需要你做任何修改，我已经尽可能实现多情况判定

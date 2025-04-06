@@ -1,4 +1,20 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 1**
+    - 修正 小米5 YAML的标题错误
+
+- **Ver.1.4**
+    - 增加 生成DTBO 的新方法
+    - 增加 SukiSU-Ultra KPM 注入功能（有限）
+    - 增加 基于Arch Linux 的 新版示例YAML
+    - 增加 说明文件 对Arch Linux YAML的说明
+    - 调整 安装GNU GCC 的顺位
+    - 修改 发布Tag至 1.4-r1
+    - 切换 小米5 KernelSU分支至rsuntk
+    - 切换 小米5 至 Arch Linux YAML
+    - 删除 打包Anykernel3 中自动转换Image成Image.gz的部分
+
+---
+
 - **Ver.1.3 Fixed 26**
     - 修正 backport、normal、extra 脚本潜在的对4.4设备的判定错误
     - 该项目补丁将是当前大版本的最后一次补丁
