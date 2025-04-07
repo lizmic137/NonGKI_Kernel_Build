@@ -1,4 +1,16 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 4**
+    - 修正 KPM Patcher 部分执行内容
+    - 增加 KPM Patcher 部分判定
+
+- **Ver.1.4 Fixed 3**
+    - 修正 说明文件 部分文本
+
+- **Ver.1.4 Fixed 2**
+    - 增加 谷歌Pixel 9 Series 设备
+    - 对 Arch Linux 示例YAML 增加rustup
+    - 增加 支持列表 部分词条
+
 - **Ver.1.4 Fixed 1**
     - 修正 小米5 YAML的标题错误
 

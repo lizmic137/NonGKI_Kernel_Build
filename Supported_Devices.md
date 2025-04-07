@@ -4,7 +4,7 @@
 | 一加 8 (CN) | instantnoodle | 4.19/ppajda/XTD | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | Magic | ✅ | ❌ | ❌ | Stable |  
 | 一加 8 (All) | instantnoodle | 4.19/Nameless/Nameless | Nameless 15 | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | Beta |  
 | 一加 8 (All) | instantnoodle | 4.19/Rohail33/Realking | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | Suspend |  
-| 小米 MIX2S (CN) | polaris | 4.9/EvoX/EvoX | Evolution X 10.2.1 | 15 | Boot Image | SukiSU | ✅ | ❌ | ❌ | Stable |  
+| 小米 MIX2S (CN) | polaris | 4.9/EvoX/EvoX | Evolution X 10.2.1 | 15 | Boot Image | SukiSU(U) | ✅ | ❌ | ❌ | Stable |  
 | 红米 K20 Pro (CN) | raphael | 4.14/SOVIET-ANDROID/SOVIET-STAR-OSS | Based-AOSP | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | Stable |  
 | 红米 Note 4X (CN) | mido | 4.9/RaidenShogunSeggs/(Nothing) | Based-AOSP | 13 | AnyKernel3 | Next | ✅ | ❌ | ❌ | Suspend |  
 | 黑鲨 4 | penrose | 4.19/DtHnAme/(Nothing) | MIUI/JoyUI 12 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ✅ | Stable |  
@@ -13,9 +13,10 @@
 | 三星 S20 5G | x1q | 4.19/官方内核 | OneUI 5.1/6.1 | 13/14 | Boot Image | rsuntk | ❌ | ❌ | ❌ | Beta |  
 | 红米 Note 7 | lavender | 4.4/Stormbreaker/Predator | MIUI 12 | 10 | Boot Image | rsuntk | ❌ | ❌ | ❌ | Suspend |  
 | 小米 5 | gemini | 4.4/crdroidandroid/crdroid | Crdroid 9 | 13 | Anykernel3 | rsuntk | ❌ | ❌ | ❌ | Suspend |  
+| 谷歌 Pixel 9 Series | zumapro | 6.1/kerneltoast/kerneltoast | Pixel | 15 | Anykernel3 | SukiSU | ✅ | ❌ | ❌ | Suspend |  
 
 特别说明：
-  - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU](https://github.com/ShirkNeko/SukiSU-Ultra)
+  - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)
   - 打包方式：Anykernel3请在Recovery下刷入，Boot Image请在Recovery/Fastboot下选择刷入Boot分区
   - 部分机型由于内核问题将暂停（Suspend）维护，但仍可通过Action的方式Fork后自行编译
   - All-代表该机型所有地区可用，CN-代表国区机型可用，其他同理
@@ -26,3 +27,4 @@
   - 中兴 Z201ZT 由于源代码并非Git方式获得，因此修改了yml文件中对应的获取方式，由于存在较多未知信息，因此该内核仅研究学习使用，若有需要可自行Fork编译
   - 三星 S20 5G 仅支持**高通版本**，猎户座版本请勿尝试
   - 红米 Note 7 需要在内核刷入后再刷入[Oldcam+WiFi补丁](https://sourceforge.net/projects/syylg/files/MengT/MIUI_Q_PATCH/OldCam%2BWiFi-Patch-v2.zip/download)才能正常使用
+  - 谷歌 Pixel 9 Series 指 9代全系列设备，该内核目前尚未经过测试

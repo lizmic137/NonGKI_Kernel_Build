@@ -81,7 +81,10 @@ jobs:
           cat /etc/os-release
 
           pacman -Syyu
-          pacman -S git base-devel systemd wget curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which --noconfirm
+          pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which --noconfirm
+
+          # Update Rust Toolchain
+          rustup default stable
 
       - name: Install GNU GCC
         if: env.GCC_GNU == 'true'
@@ -517,16 +520,49 @@ jobs:
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
 
           if [[ -f "$IMAGE_DIR/Image.gz-dtb" ]]; then
-            echo "Not supported for old kernel !"
+            if [ -f "include/linux/set_memory.h" ]; then
+                    if [ -d "out/arch/arm64/boot/dts" ]; then
+                    rm -f $IMAGE_DIR/Image.gz-dtb
+                    rm -f $IMAGE_DIR/Image.gz
+                    cp patch $IMAGE_DIR/
+                    cd $IMAGE_DIR/
+                    ./patch
+                    rm -f Image
+                    mv oImage Image
+                    gzip -c Image > Image.gz
+                    cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                    echo "Hook Image successfully !"
+                elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
+                    if [ -d "out/arch/arm64/boot/dts" ]; then
+                    rm -f $IMAGE_DIR/Image.gz-dtb
+                    rm -f $IMAGE_DIR/Image.gz
+                    cp patch $IMAGE_DIR/
+                    cd $IMAGE_DIR/
+                    ./patch
+                    rm -f Image
+                    mv oImage Image
+                    gzip -c Image > Image.gz
+                    cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                    echo "Hook Image successfully !"
+                else
+                    echo "Not found dts folder, abort."
+                fi
+            else
+                echo "Not supported for your kernel !"
+            fi
           elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
             rm -f $IMAGE_DIR/Image.gz
             cp patch $IMAGE_DIR/
+            cd $IMAGE_DIR/
             ./patch
+            rm -f Image
+            mv oImage Image
             gzip -c Image > Image.gz
             echo "Hook Image successfully !"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
             cp patch $IMAGE_DIR/
             ./patch
+            mv oImage Image
             echo "Hook Image successfully !"
           fi
 

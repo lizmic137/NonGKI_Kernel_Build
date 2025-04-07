@@ -1,4 +1,4 @@
-name: Build Kernel Template (Cannot be used for compilation directly)
+name: Build Kernel Arch Google Pixel 9 Series (Official A15) with KSU and SUSFS
 on:
   workflow_call:
   workflow_dispatch:
@@ -6,10 +6,10 @@ env:
   PYTHON_VERSION: "3" # Only 2(Ubuntu 22.04) or 3(Any OS Versions).
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
   KERNELSU_METHOD: "shell" # shell, manual and only.
-  PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
-  PATCHES_BRANCH: "branch" # [your_branch] -> main
+  PATCHES_SOURCE: "JackA1ltman/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
+  PATCHES_BRANCH: "pixel_kernel" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
-  PROFILE_NAME: "codename_rom_template.env" # your profile name.
+  PROFILE_NAME: "zumapro_pixel_a15.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
@@ -21,8 +21,9 @@ env:
 
 jobs:
   build:
-    name: Build Kernel by ${{ github.actor }}
-    runs-on: ubuntu-22.04
+    name: Build Kernel by ${{ github.actor }} in Arch Linux
+    runs-on: ubuntu-latest
+    container: archlinux/archlinux:latest
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -75,66 +76,24 @@ jobs:
           # Move patch folder to tmp
           mv $GITHUB_WORKSPACE/Patches /tmp/
 
-      - name: Free Disk Space (Ubuntu)
-        if: env.LXC_ENABLE == 'true'
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-
-      - name: Maximize build space
-        if: env.LXC_ENABLE != 'true'
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 20480
-          temp-reserve-mb: 4096
-          swap-size-mb: 8192
-          remove-dotnet: "true"
-          remove-android: "false"
-          remove-haskell: "true"
-          remove-codeql: "true"
-
       - name: Install necessary packages
         run: |
-          lsb_release -a
-          UBUNTU_VERSION=$(lsb_release -sr)
-          sudo apt-get update
+          cat /etc/os-release
 
-          if [ $UBUNTU_VERSION == "22.04" ]; then
-            sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler
-            sudo apt-get install p7zip p7zip-full -y
-            if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
-                sudo apt install python2 python3 -y
-            elif [ "${{ env.PYTHON_VERSION }}" == "2" ]; then
-                sudo apt install python2 -y
-                sudo rm /usr/bin/python
-                sudo ln -s /usr/bin/python2.7 /usr/bin/python
-            else
-                echo "You need choose a python version."
-                false
-            fi
-          else
-            sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3
-            sudo apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full -y
-          fi
+          pacman -Syyu
+          pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which --noconfirm
+
+          # Update Rust Toolchain
+          rustup default stable
 
       - name: Install GNU GCC
         if: env.GCC_GNU == 'true'
         run: |
           if [ -z ${{ env.GCC_64_SOURCE }} ] && [ -z ${{ env.GCC_32_SOURCE }} ]; then
-            sudo apt-get install binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi -y
+            pacman -S aarch64-linux-gnu-binutils aarch64-linux-gnu-gcc aarch64-linux-gnu-glibc aarch64-linux-gnu-linux-api-headers --noconfirm
+            pacman -S arm-none-eabi-binutils arm-none-eabi-gcc --noconfirm
             echo "GCC_64=CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-            echo "GCC_32=CROSS_COMPILE_ARM32=arm-linux-gnueabi-" >> $GITHUB_ENV
+            echo "GCC_32=CROSS_COMPILE_ARM32=arm-none-eabi-" >> $GITHUB_ENV
           else
             echo "You needn't gcc powered by system."
           fi
@@ -255,7 +214,7 @@ jobs:
         run: |
           # Variable
           SUSFS_SOURCE=https://gitlab.com/simonpunk/susfs4ksu.git
-          SUSFS_BRANCH=kernel-${{ env.KERNEL_VERSION }}
+          SUSFS_BRANCH=gki-android14-${{ env.KERNEL_VERSION }}
 
           # Set ${{ env.PACK_METHOD }} and KernelSU
           if [[ ${{ env.PACK_METHOD }} == "Anykernel3" ]]; then
@@ -331,6 +290,7 @@ jobs:
           fi
 
       - name: Patch Kernel for no-kprobe
+        if: env.NOT_RUN == 'true'
         run: |
           cd $GITHUB_WORKSPACE
           KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
@@ -392,11 +352,11 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          # echo "CONFIG_CPU_BIG_ENDIAN=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # echo "CONFIG_COMPAT_VDSO=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # echo "CONFIG_LTO_NONE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # echo "CONFIG_INIT_STACK_NONE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # sed -i 's/# CONFIG_SECCOMP is not set/CONFIG_SECCOMP=y/' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KPROBE_EVENTS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_HAVE_KPROBES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KPROBES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_MODULES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
@@ -449,9 +409,9 @@ jobs:
         if: env.SUSFS_ENABLE == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-          cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
+          cp susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-${{ env.KERNEL_VERSION }}.patch ./
 
-          patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true
+          patch -p1 < 50_add_susfs_in_gki-android14-${{ env.KERNEL_VERSION }}.patch || true
 
           if [[ "${{ env.KERNELSU_NAME }}"  == "KernelSU-Next" ]]; then
             if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
@@ -486,9 +446,9 @@ jobs:
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-          cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
+          cp NonGKI_Kernel_Patches/pixel_9_series_official/sys_fixed.patch ./
 
-          patch -p1 < [patch_file].patch || true
+          patch -p1 < sys_fixed.patch || true
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -561,49 +521,16 @@ jobs:
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
 
           if [[ -f "$IMAGE_DIR/Image.gz-dtb" ]]; then
-            if [ -f "include/linux/set_memory.h" ]; then
-                    if [ -d "out/arch/arm64/boot/dts" ]; then
-                    rm -f $IMAGE_DIR/Image.gz-dtb
-                    rm -f $IMAGE_DIR/Image.gz
-                    cp patch $IMAGE_DIR/
-                    cd $IMAGE_DIR/
-                    ./patch
-                    rm -f Image
-                    mv oImage Image
-                    gzip -c Image > Image.gz
-                    cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
-                    echo "Hook Image successfully !"
-                elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
-                    if [ -d "out/arch/arm64/boot/dts" ]; then
-                    rm -f $IMAGE_DIR/Image.gz-dtb
-                    rm -f $IMAGE_DIR/Image.gz
-                    cp patch $IMAGE_DIR/
-                    cd $IMAGE_DIR/
-                    ./patch
-                    rm -f Image
-                    mv oImage Image
-                    gzip -c Image > Image.gz
-                    cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
-                    echo "Hook Image successfully !"
-                else
-                    echo "Not found dts folder, abort."
-                fi
-            else
-                echo "Not supported for your kernel !"
-            fi
+            echo "Not supported for old kernel !"
           elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
             rm -f $IMAGE_DIR/Image.gz
             cp patch $IMAGE_DIR/
-            cd $IMAGE_DIR/
             ./patch
-            rm -f Image
-            mv oImage Image
             gzip -c Image > Image.gz
             echo "Hook Image successfully !"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
             cp patch $IMAGE_DIR/
             ./patch
-            mv oImage Image
             echo "Hook Image successfully !"
           fi
 
