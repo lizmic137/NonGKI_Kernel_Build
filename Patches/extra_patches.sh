@@ -11,7 +11,7 @@ patch_files=(
 
 for i in "${patch_files[@]}"; do
 
-    if grep -q "ksu" "$i"; then
+    if grep -q "ksu_sid" "$i"; then
         echo "Warning: $i contains KernelSU"
         continue
     fi

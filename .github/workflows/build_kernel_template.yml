@@ -110,7 +110,7 @@ jobs:
           UBUNTU_VERSION=$(lsb_release -sr)
           sudo apt-get update
 
-          if [ $UBUNTU_VERSION == "22.04" ]; then
+          if [ $UBUNTU_VERSION == "22.04" ] || [ $UBUNTU_VERSION == "20.04" ]; then
             sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler
             sudo apt-get install p7zip p7zip-full -y
             if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
@@ -144,7 +144,11 @@ jobs:
           cd $GITHUB_WORKSPACE
 
           # Set GCC Aarch64
-          if [ -z "${{ env.GCC_64_SOURCE }}" ]; then
+          if [ "${{ env.CLANG_SOURCE }}" == *proton* ]; then
+            echo "Detected Proton Clang. Not use GCC Source."
+            GCC_64_BIN=aarch64-linux-gnu-
+            echo "GCC_64=CROSS_COMPILE=$GCC_64_BIN" >> $GITHUB_ENV
+          elif [ -z "${{ env.GCC_64_SOURCE }}" ]; then
             echo "Not set GCC 64!"
           else
             if [[ "${{ env.GCC_64_SOURCE }}" == *".git" ]]; then
@@ -166,7 +170,11 @@ jobs:
 
 
           # Set GCC ARM32
-          if [ -z "${{ env.GCC_32_SOURCE }}" ]; then
+          if [ "${{ env.CLANG_SOURCE }}" == *proton* ]; then
+            echo "Detected Proton Clang. Not use GCC Source."
+            GCC_32_BIN=arm-linux-gnueabi-
+            echo "GCC_32=CROSS_COMPILE=$GCC_32_BIN" >> $GITHUB_ENV
+          elif [ -z "${{ env.GCC_32_SOURCE }}" ]; then
             echo "Not set GCC 32!"
           else
             if [[ "${{ env.GCC_32_SOURCE }}" == *".git" ]]; then

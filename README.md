@@ -93,6 +93,7 @@
   - 若有GCC，则需填写GCC 64位和32位的版本，对于GCC我们建议git形式，但同时支持tar.gz和zip
   - 你可以选择仅使用GCC而不启用Clang，并且GCC允许使用系统默认安装的GCC，可在yaml文件变量中开启
   - 根据本人的使用情况，我们对于Clang支持为git、tar.gz、tar.xz、zip以及上述提到的antman管理软件
+  - 如果你计划使用[Proton Clang 13](https://github.com/kdrag0n/proton-clang)，则需要在将系统设置为**Ubuntu-20.04**（我们不推荐Arch Linux，可能会导致glibc问题），我们已经预先适配了Proton Clang Toolchain，会在检测到Proton Clang后自动识别附带的GCC，但也记得不要填写GCC
 
 - **Get Kernel Source**
   - 正常来说内核源码都可以通过Git方式获得，所以基本不需要修改

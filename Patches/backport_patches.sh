@@ -14,6 +14,17 @@ patch_files=(
 
 for i in "${patch_files[@]}"; do
 
+    if grep -q "path_umount" "$i"; then
+        echo "Warning: $i contains KernelSU"
+        continue
+    elif grep -q "get_cred_rcu" "$i"; then
+        echo "Warning: $i contains KernelSU"
+        continue
+    elif grep -q "strncpy_from_user_nofault" "$i"; then
+        echo "Warning: $i contains KernelSU"
+        continue
+    fi
+
     case $i in
 
     # fs/ changes

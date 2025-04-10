@@ -6,9 +6,9 @@ env:
   PYTHON_VERSION: "3" # Only 2(Ubuntu 22.04) or 3(Any OS Versions).
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
   KERNELSU_METHOD: "shell" # shell, manual and only.
-  PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
-  PATCHES_BRANCH: "branch" # [your_branch] -> main
-  HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
+  PATCHES_SOURCE: "JackA1ltman/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
+  PATCHES_BRANCH: "op_kernel" # [your_branch] -> main
+  HOOK_METHOD: "vfs" # manual hook method,can choice vfs and normal.
   PROFILE_NAME: "instantnoodle_oos_realking.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   BUILD_DEBUGGER: "false" # Output build errors.
@@ -97,17 +97,6 @@ jobs:
           remove-haskell: "true"
           remove-codeql: "true"
 
-      - name: Install GNU GCC
-        if: env.GCC_GNU == 'true'
-        run: |
-          if [ -z ${{ env.GCC_64_SOURCE }} ] && [ -z ${{ env.GCC_32_SOURCE }} ]; then
-            sudo apt-get install binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi -y
-            echo "GCC_64=CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-            echo "GCC_32=CROSS_COMPILE_ARM32=arm-linux-gnueabi-" >> $GITHUB_ENV
-          else
-            echo "You needn't gcc powered by system."
-          fi
-
       - name: Install necessary packages
         run: |
           lsb_release -a
@@ -130,6 +119,17 @@ jobs:
           else
             sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3
             sudo apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full -y
+          fi
+
+      - name: Install GNU GCC
+        if: env.GCC_GNU == 'true'
+        run: |
+          if [ -z ${{ env.GCC_64_SOURCE }} ] && [ -z ${{ env.GCC_32_SOURCE }} ]; then
+            sudo apt-get install binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi -y
+            echo "GCC_64=CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
+            echo "GCC_32=CROSS_COMPILE_ARM32=arm-linux-gnueabi-" >> $GITHUB_ENV
+          else
+            echo "You needn't gcc powered by system."
           fi
 
       - name: Set Compile Environment
@@ -311,6 +311,12 @@ jobs:
             echo "Disabled SUSFS !"
           fi
 
+          # Remove Patch
+          git clone https://github.com/${{ env.PATCHES_SOURCE }}.git -b ${{ env.PATCHES_BRANCH }} NonGKI_Kernel_Patches --depth=1 # It's not necessary.
+          cp NonGKI_Kernel_Patches/kona_oos/realking_op8_rm_all_normal_patch.patch ./
+
+          patch -p1 < realking_op8_rm_all_normal_patch.patch || true
+
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
@@ -378,6 +384,7 @@ jobs:
           # echo "CONFIG_LTO_NONE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # echo "CONFIG_INIT_STACK_NONE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # sed -i 's/# CONFIG_SECCOMP is not set/CONFIG_SECCOMP=y/' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true'
@@ -462,6 +469,15 @@ jobs:
             done
             false
           fi
+
+      - name: ReKernel Supported
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp NonGKI_Kernel_Patches/kona_oos/4_19_rekernel.patch ./
+          cp NonGKI_Kernel_Patches/kona_oos/rekernel_fixed.patch ./
+
+          patch -p1 < 4_19_rekernel.patch || true
+          patch -p1 < rekernel_fixed.patch || true
 
       - name: Fixed Kernel Patch
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'

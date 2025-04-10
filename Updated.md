@@ -1,4 +1,24 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 9**
+    - 增加 一加8 Realking 移除自带no-kprobe patch
+    - 切换 一加8 Realking no-kprobe 至 VFS
+    
+- **Ver.1.4 Fixed 8**
+    - 修正 支持列表 显示错误
+    
+- **Ver.1.4 Fixed 7**
+    - 为 支持列表 增加 Re:Kernel、KPM 显示
+    - 为 一加8 Realking 增加 Re:Kernel 支持
+    - 将 一加8 Realking KernelSU分支切换至magic
+
+- **Ver.1.4 Fixed 6**
+    - 增加 部分patch补丁 对已存在修补的判定
+
+- **Ver.1.4 Fixed 5**
+    - 增加 说明文件 对 Proton Clang 13 的说明
+    - 修改 支持列表 和 发布列表 对部分机型的描述
+    - 调整 Clang 相关的部分判定顺序
+
 - **Ver.1.4 Fixed 4**
     - 修正 KPM Patcher 部分执行内容
     - 增加 KPM Patcher 部分判定
