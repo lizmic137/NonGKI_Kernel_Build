@@ -1,4 +1,4 @@
-name: Build Kernel Mix2s PE13 SukiSU
+name: Build Kernel Mix2s PE13 SukiSU Beta
 on:
   workflow_call:
   workflow_dispatch:
