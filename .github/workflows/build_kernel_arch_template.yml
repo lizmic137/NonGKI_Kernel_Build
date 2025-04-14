@@ -520,51 +520,64 @@ jobs:
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
 
           if [[ -f "$IMAGE_DIR/Image.gz-dtb" ]]; then
-            if [ -f "include/linux/set_memory.h" ]; then
-                    if [ -d "out/arch/arm64/boot/dts" ]; then
-                    rm -f $IMAGE_DIR/Image.gz-dtb
-                    rm -f $IMAGE_DIR/Image.gz
-                    cp patch $IMAGE_DIR/
-                    cd $IMAGE_DIR/
-                    ./patch
-                    rm -f Image
-                    mv oImage Image
-                    gzip -c Image > Image.gz
-                    cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
-                    echo "Hook Image successfully !"
-                elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
-                    if [ -d "out/arch/arm64/boot/dts" ]; then
-                    rm -f $IMAGE_DIR/Image.gz-dtb
-                    rm -f $IMAGE_DIR/Image.gz
-                    cp patch $IMAGE_DIR/
-                    cd $IMAGE_DIR/
-                    ./patch
-                    rm -f Image
-                    mv oImage Image
-                    gzip -c Image > Image.gz
-                    cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
-                    echo "Hook Image successfully !"
-                else
-                    echo "Not found dts folder, abort."
-                fi
-            else
-                echo "Not supported for your kernel !"
-            fi
+              MODE="gz-dtb"
           elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
-            rm -f $IMAGE_DIR/Image.gz
-            cp patch $IMAGE_DIR/
-            cd $IMAGE_DIR/
-            ./patch
-            rm -f Image
-            mv oImage Image
-            gzip -c Image > Image.gz
-            echo "Hook Image successfully !"
+              MODE="gz"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
-            cp patch $IMAGE_DIR/
-            ./patch
-            mv oImage Image
-            echo "Hook Image successfully !"
+              MODE="plain"
+          else
+              echo "No valid Image file found."
+              exit 1
           fi
+
+          case "$MODE" in
+            gz-dtb)
+              if [ -f "include/linux/set_memory.h" ]; then
+                  if [ -d "out/arch/arm64/boot/dts" ]; then
+                      rm -f "$IMAGE_DIR/Image.gz-dtb" "$IMAGE_DIR/Image.gz"
+                      cp patch "$IMAGE_DIR/"
+                      cd "$IMAGE_DIR/" || exit 1
+                      ./patch
+                      rm -f Image
+                      mv oImage Image
+                      gzip -c Image > Image.gz
+                      cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                      echo "Hook Image successfully !"
+                  elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
+                      rm -f "$IMAGE_DIR/Image.gz-dtb" "$IMAGE_DIR/Image.gz"
+                      cp patch "$IMAGE_DIR/"
+                      cd "$IMAGE_DIR/" || exit 1
+                      ./patch
+                      rm -f Image
+                      mv oImage Image
+                      gzip -c Image > Image.gz
+                      cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                      echo "Hook Image successfully !"
+                  else
+                      echo "Not found dts folder, abort."
+                  fi
+              else
+                  echo "Not supported for your kernel !"
+              fi
+              ;;
+            gz)
+              rm -f "$IMAGE_DIR/Image.gz"
+              cp patch "$IMAGE_DIR/"
+              cd "$IMAGE_DIR/" || exit 1
+              ./patch
+              rm -f Image
+              mv oImage Image
+              gzip -c Image > Image.gz
+              echo "Hook Image successfully !"
+              ;;
+            plain)
+              cp patch "$IMAGE_DIR/"
+              cd "$IMAGE_DIR/" || exit 1
+              ./patch
+              mv oImage Image
+              echo "Hook Image successfully !"
+              ;;
+          esac
 
       - name: Make Anykernel3 Flasher
         if: env.PACK_METHOD == 'Anykernel3'

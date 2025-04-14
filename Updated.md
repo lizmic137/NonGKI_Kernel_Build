@@ -1,4 +1,10 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 12**
+    - 修改 示例YAML 中对KPM Hook执行的判定，从IF改为CASE
+
+- **Ver.1.4 Fixed 11**
+    - 移植 一加8 Realking YAML文件的KPM相关功能
+
 - **Ver.1.4 Fixed 10**
     - 修正 Arch Linux YAML 对更新无法执行的错误
     - 修正 小米5 Crdroid 对更新无法执行的错误
