@@ -1,4 +1,21 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 17**
+    - 补充 说明文件 部分说明内容
+
+- **Ver.1.4 Fixed 16**
+    - 增加 示例YAML文件 对于KernelSU地址的判断
+
+- **Ver.1.4 Fixed 15**
+    - 切换 一加8 Realking KernelSU分支至SukiSU-Ultra
+
+- **Ver.1.4 Fixed 14**
+    - 增加 支持列表 部分文本说明
+    - 取消 支持列表 中 一加8 Realking 对VFS Hook的支持
+
+- **Ver.1.4 Fixed 13**
+    - 切换 一加8 OOS13 Kernel分支
+    - 增加 说明文件 对于KPM Patcher部分的说明
+
 - **Ver.1.4 Fixed 12**
     - 修改 示例YAML 中对KPM Hook执行的判定，从IF改为CASE
 

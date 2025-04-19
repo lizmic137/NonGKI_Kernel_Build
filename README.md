@@ -41,7 +41,7 @@
 **KERNELSU_NAME** - 部分KernelSU分支存在不同的名称，所以你需要填写正确名称，默认为KernelSU  
 
 **SUSFS_ENABLE** - 是否在编译时启用SUSFS，true或false  
-**SUSFS_FIXED** - 是否启用SUSFS错误修补，一般用于内核修补时产生错误后，二次补充修补  
+**SUSFS_FIXED** - 是否启用SUSFS错误修补，一般用于内核修补时产生错误后，二次补充修补。若该项为true，若**PATCHES_SOURCE**和**PATCHES_BRANCH**不正确，则会导致错误  
 
 **AK3_SOURCE** - Anykernel3所在之处，若需要的话，仅支持git  
 **AK3_BRANCH** - Anykernel3所需分支  
@@ -119,8 +119,10 @@
   - 一切基于env中SUSFS_ENABLE和env.SUSFS_FIXED为true，但不一定都为true
   - SUSFS修补大概率会产生问题，因此通常情况下需要补充修补
   - 补充修补需要执行你重新制作的patch补丁（步骤为：Fixed Kernel Patch）
+  - 切记填写好**PATCHES_SOURCE**和**PATCHES_BRANCH**，否则会导致错误
   
 - **KPM Patcher (Experiment)**
   - 为SukiSU-Ultra提供KPM内核Patch功能，该功能目前暂不支持内核版本≤4.9的设备，若你已经反向移植部分功能用于KPM功能，请自行参照修改这个部分，但我们对实验性功能不提供支持
+  - 该功能在**Arch Linux**下可以正常执行，在**Ubuntu22.04下异常**，建议使用**最新版Ubuntu或者Arch Linux YAML**
   
 最后提醒⚠️：非上述提示的步骤理论上不需要你做任何修改，我已经尽可能实现多情况判定

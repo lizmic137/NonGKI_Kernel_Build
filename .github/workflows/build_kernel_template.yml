@@ -284,19 +284,34 @@ jobs:
           echo "PACK_METHOD=${{ env.PACK_METHOD }}" >> $GITHUB_ENV
 
           if [[ ${{ env.KERNELSU_METHOD }} == "shell" ]]; then
-            curl -sSL ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
+            if [[ "${{ env.KERNELSU_SOURCE }}" != *".sh" ]]; then
+                echo "You need to provide a link ending with .sh, not one ending with .git or any other extension !"
+                false
+            else
+                curl -sSL ${{ env.KERNELSU_SOURCE }} | bash -s ${{ env.KERNELSU_BRANCH }}
+            fi
           elif [[ ${{ env.KERNELSU_METHOD }} == "manual" ]]; then
-            rm -rf KernelSU && rm -rf KernelSU-Next
-            git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
-            ln -sf "$(realpath --relative-to="$GITHUB_WORKSPACE/device_kernel/drivers" "$GITHUB_WORKSPACE/device_kernel/${{ env.KERNELSU_NAME }}/kernel")" "kernelsu"
-            grep -q "kernelsu" "$GITHUB_WORKSPACE/device_kernel/drivers/Makefile" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> $GITHUB_WORKSPACE/device_kernel/drivers/Makefile
-            grep -q "source \"drivers/kernelsu/Kconfig\"" "$GITHUB_WORKSPACE/device_kernel/drivers/Kconfig" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$GITHUB_WORKSPACE/device_kernel/drivers/Kconfig"
-            echo "KernelSU Settings done."
+            if [[ "${{ env.KERNELSU_SOURCE }}" != *".git" ]]; then
+                echo "You need to provide a link ending with .git, not one ending with .sh or any other extension !"
+                false
+            else
+                rm -rf KernelSU && rm -rf KernelSU-Next
+                git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
+                ln -sf "$(realpath --relative-to="$GITHUB_WORKSPACE/device_kernel/drivers" "$GITHUB_WORKSPACE/device_kernel/${{ env.KERNELSU_NAME }}/kernel")" "kernelsu"
+                grep -q "kernelsu" "$GITHUB_WORKSPACE/device_kernel/drivers/Makefile" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> $GITHUB_WORKSPACE/device_kernel/drivers/Makefile
+                grep -q "source \"drivers/kernelsu/Kconfig\"" "$GITHUB_WORKSPACE/device_kernel/drivers/Kconfig" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$GITHUB_WORKSPACE/device_kernel/drivers/Kconfig"
+                echo "KernelSU Settings done."
+            fi
           elif [[ ${{ env.KERNELSU_METHOD }} == "only" ]];then
-            rm -rf *KernelSU* && rm -rf drivers/kernelsu
-            git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
-            ln -sf ../${{ env.KERNELSU_NAME }}/kernel drivers/kernelsu
-            echo "KernelSU git done."
+            if [[ "${{ env.KERNELSU_SOURCE }}" != *".git" ]]; then
+                echo "You need to provide a link ending with .git, not one ending with .sh or any other extension !"
+                false
+            else
+                rm -rf *KernelSU* && rm -rf drivers/kernelsu
+                git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }} ${{ env.KERNELSU_NAME }}
+                ln -sf ../${{ env.KERNELSU_NAME }}/kernel drivers/kernelsu
+                echo "KernelSU git done."
+            fi
           else
             false
           fi

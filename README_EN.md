@@ -41,7 +41,7 @@ Each profile consists of the following elements:
 **KERNELSU_NAME** - Some KernelSU branches have different names, so you must specify the correct name. The default is KernelSU.  
 
 **SUSFS_ENABLE** - Whether to enable SUSFS during compilation (true or false).  
-**SUSFS_FIXED** - Whether to apply additional patches to fix SUSFS-related issues during kernel compilation.  
+**SUSFS_FIXED** - Whether to apply additional patches to fix SUSFS-related issues during kernel compilation. If this option is set to true, incorrect **PATCHES_SOURCE** and **PATCHES_BRANCH** values may cause errors.  
 
 **AK3_SOURCE** - Location of AnyKernel3 (if needed, only supports git).  
 **AK3_BRANCH** - Required branch for AnyKernel3.  
@@ -117,8 +117,10 @@ These are the example files we provide: **codename_rom_template.env** and **buil
     - Two types of patches are included: SUSFS patches and additional kernel patches.
     - Whether these patches are applied depends on SUSFS_ENABLE and SUSFS_FIXED settings in the env.
     - SUSFS patching may cause issues, requiring additional fixes (under Fixed Kernel Patch).
+    - Make sure to correctly fill in **PATCHES_SOURCE** and **PATCHES_BRANCH**, otherwise it will result in errors.
 
 - **KPM Patcher (Experiment)**
     - Provides KPM kernel patch support for SukiSU-Ultra. Currently, this feature does not support devices with kernel versions ≤ 4.9. If you have backported some functionality for KPM manually, please adjust this section accordingly — however, we do not offer support for experimental features.
+    - This feature works correctly under **Arch Linux** but behaves **abnormally on Ubuntu 22.04**. It is recommended to use the latest version of **Ubuntu or the Arch Linux YAML**.
     
 Final Reminder⚠ : Unless otherwise mentioned, there is no need to modify any other sections of the .yml workflow. The setup is designed to automatically handle various conditions.
