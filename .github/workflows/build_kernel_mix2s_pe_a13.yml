@@ -532,8 +532,8 @@ jobs:
         run: |
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
-          make CC=clang O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.DEFCONFIG_NAME }}
-          make -j$(nproc --all) CC=clang O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} CROSS_COMPILE_ARM32=arm-linux-gnueabi
+          make CC=clang O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
+          make -j$(nproc --all) CC=clang O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE_ARM32=arm-linux-gnueabi- KCFLAGS+=-Wno-error
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
