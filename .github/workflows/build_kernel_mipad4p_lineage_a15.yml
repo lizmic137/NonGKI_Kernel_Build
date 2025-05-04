@@ -1,4 +1,4 @@
-name: Build Kernel MiPad 4 (Plus) LineageOS A15 with SukiSU-Ultra(with KPM) and SUSFS
+name: Build Kernel MiPad 4 (Plus) (LineageOS A15) with SukiSU-Ultra(with KPM) and SUSFS
 on:
   workflow_call:
   workflow_dispatch:
