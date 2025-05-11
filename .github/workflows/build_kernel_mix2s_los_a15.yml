@@ -1,4 +1,4 @@
-name: Build Kernel Mix2s LosA15
+name: Build Kernel Mix2s Los A15
 on:
   workflow_call:
   workflow_dispatch:
