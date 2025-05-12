@@ -533,7 +533,7 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
           make CC="ccache clang" O=out ARCH=arm64 polaris_defconfig
-          make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE_ARM32=arm-linux-gnueabi- KCFLAGS="-mllvm -polly -mllvm -polly-loopfusion-greedy=true -mllvm -polly-vectorizer=stripmine"
+          make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE_ARM32=arm-linux-gnueabi- V=1
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
