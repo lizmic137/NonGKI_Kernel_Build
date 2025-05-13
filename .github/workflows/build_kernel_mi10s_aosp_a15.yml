@@ -418,6 +418,14 @@ jobs:
 
           patch -p1 < [patch_file].patch || true
 
+      - name: Upgrade SUSFS Version
+        run: |
+          # Upgrade SUSFS Version
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp /tmp/Patches/susfs_upgrade_to_157.patch ./
+
+          patch -p1 < susfs_upgrade_to_157.patch || true
+
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:

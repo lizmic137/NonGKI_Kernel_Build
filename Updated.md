@@ -1,17 +1,31 @@
 ## 项目更新日志
-- **Ver.1.4 Fixed 27**
+- **Ver.1.4 Fixed 30**
+    - 撤回 一加8 Nameless KernelSU分支至susfs-v1.5.7
+
+- **Ver.1.4 Fixed 29**
+    - 增加 支持列表 有关Non-GKI内核使用SUSFS v1.5.7的说明
+    - 切换 一加8 Nameless 从Beta状态转入Stable状态
+    - 增加 发布列表 有关黑鲨4机型的说明
+    - 增加 支持列表 有关黑鲨4机型的说明
+    - 增加 补丁 SUSFS更新至v1.5.7补丁
+    - 切换 一加8 Nameless KernelSU分支至susfs-v1.5.7
+    - 更新 一加8 Nameless SUSFS更新至v1.5.7
+    - 更新 红米 K20Pro SUSFS更新至v1.5.7
+    - 更新 小米 10S SUSFS更新至v1.5.7
+
+- **Ver.1.4 Fixed 28**
     - 修正 发布列表 发布Tag错误
 
-- **Ver.1.4 Fixed 26**
+- **Ver.1.4 Fixed 27**
     - 切换 黑鲨4 KernelSU分支切换至magic
 
-- **Ver.1.4 Fixed 25**
+- **Ver.1.4 Fixed 26**
     - 更新 部分设备 KernelSU分支版本
     - 将 小米平板4(Plus) 加入官方维护
     - 修改 支持列表 中 小米平板4(Plus) 的顺位
     - 修改 发布列表 部分KernelSU分支的获取版本
 
-- **Ver.1.4 Fixed 24**
+- **Ver.1.4 Fixed 25**
     - 切换 小米11 Ultra HyperOS A14 KernelSU分支至rsuntk
     
 - **Ver.1.4 Fixed 24**
