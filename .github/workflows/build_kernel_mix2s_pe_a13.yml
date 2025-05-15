@@ -477,8 +477,22 @@ jobs:
         if: env.SUSFS_ENABLE == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/0001-sukisu-susfs-v1.5.7.patch
-          patch -p1 < 0001-sukisu-susfs-v1.5.7.patch || true
+          cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
+
+          patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true
+
+          if [[ "${{ env.KERNELSU_NAME }}"  == "KernelSU-Next" ]]; then
+            if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
+                echo "KernelSU-Next SuSFS Branch detected!"
+            elif [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" ]]; then
+                git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }}-susfs susfs_fixed
+                rsync -av --exclude='.git' susfs_fixed/kernel/ KernelSU-Next/kernel/
+            fi
+          elif [[ "${{ env.KERNELSU_SUS_PATCH }}" == "true" ]]; then
+            cp susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./${{ env.KERNELSU_NAME }}
+            cd ${{ env.KERNELSU_NAME }}
+            patch -p1 < 10_enable_susfs_for_ksu.patch || true
+          fi
 
       - name: Patch Debugger
         if: env.BUILD_DEBUGGER == 'true'
