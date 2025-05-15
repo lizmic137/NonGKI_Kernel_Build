@@ -514,6 +514,7 @@ jobs:
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
+          wget https://raw.githubusercontent.com/ShirkNeko/SukiSU_patch/refs/heads/main/other/0001-lz4-Update-to-version-1.9.4.patch
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/cmdline_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/task_mmu_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/fdinfo_fixed.patch ./
@@ -521,6 +522,7 @@ jobs:
           patch -p1 < cmdline_fixed.patch || true
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
+          patch -p1 < 0001-lz4-Update-to-version-1.9.4.patch || true
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
