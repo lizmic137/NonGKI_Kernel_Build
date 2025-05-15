@@ -535,7 +535,7 @@ jobs:
           wget https://raw.githubusercontent.com/ShirkNeko/SukiSU_patch/refs/heads/main/other/0001-lz4-Update-to-version-1.9.4.patch
           patch -p1 < 0001-lz4-Update-to-version-1.9.4.patch || true
           make CC="ccache clang" O=out ARCH=arm64 polaris_defconfig
-          make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE_ARM32=arm-linux-gnueabi- V=1
+          make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
