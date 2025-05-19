@@ -1,4 +1,11 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 36**
+    - 修改 支持列表 有关susfs更新的说明
+
+- **Ver.1.4 Fixed 35**
+    - 修正 支持列表 黑鲨4 对应KernelSU分支错误
+    - 修正 发布列表 黑鲨4 对应KernelSU分支错误
+
 - **Ver.1.4 Fixed 34**
     - 增加 小米Mix2s 有关手动修补所需config项目的判定
     - 增加 一加8 Nameless 有关手动修补所需config项目的判定
