@@ -195,6 +195,9 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
+            echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          fi
           if [[ "${{ env.SUSFS_ENABLE }}" == "true" ]]; then
             echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
             echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -405,11 +408,11 @@ jobs:
           patch -p1 < task_mmu_fixed.patch || true
 
           # Upgrade SUSFS Version
-          # cp /tmp/Patches/susfs_upgrade_to_157.patch ./
-          # cp NonGKI_Kernel_Patches/kona_oos/susfs_upgrade_fixed.patch ./
+          cp /tmp/Patches/susfs_upgrade_to_157.patch ./
+          cp NonGKI_Kernel_Patches/kona_oos/susfs_upgrade_fixed.patch ./
 
-          # patch -p1 < susfs_upgrade_to_157.patch || true
-          # patch -p1 < susfs_upgrade_fixed.patch || true
+          patch -p1 < susfs_upgrade_to_157.patch || true
+          patch -p1 < susfs_upgrade_fixed.patch || true
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2

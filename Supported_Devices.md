@@ -7,7 +7,7 @@
 | 小米 MIX2S  | polaris | 4.9/EvoX/EvoX | Evolution X 10.2.1 | 15 | Boot Image | SukiSU(U) | ✅ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 红米 K20 Pro  | raphael | 4.14/SOVIET-ANDROID/SOVIET-STAR-OSS | Based-AOSP | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 红米 Note 4X  | mido | 4.9/RaidenShogunSeggs/(Nothing) | Based-AOSP | 13 | AnyKernel3 | Next | ✅ | ❌ | ❌ | ❌ | ❌ | Suspend |  
-| 黑鲨 4 | penrose | 4.19/DtHnAme/(Nothing) | MIUI/JoyUI 12 | 11 | AnyKernel3 | Magic | ❌ | ❌ | ❌ | ❌ | ❌ | Stable |  
+| 黑鲨 4 | penrose | 4.19/DtHnAme/(Nothing) | MIUI/JoyUI 12 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 小米 10S | thyme | 4.19/TIMISONG-dev/MagicTime | Based-AOSP | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 中兴 A201ZT | a201zt | 4.19/官方内核 | 未知 | Null | AnyKernel3 | Next | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 三星 S20 5G | x1q | 4.19/官方内核 | OneUI 5.1/6.1 | 13/14 | Boot Image | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Beta |  
@@ -28,7 +28,6 @@
   - 一加8 OxygenOS/ColorOS 13.1 经测试8、8t、8Pro、9r都可用，且该内核类原生设备同样可用（但会有某些Bugs）
   - 红米 Note 4X 通常仅**高通**可用，联发科设备不支持
   - 黑鲨4 因机型内核缺陷（缺少ANDROID_KABI）无法修补SuSFS，为了提高隐藏性和安全性，因此是首款将常规手动Hook切换至[VFS Hook](https://github.com/backslashxx/KernelSU/issues/5)的设备
-    - 黑鲨4 因为无法解决的编译错误因此切换KernelSU分支至Magic
   - 一加8 Nameless 15 ~~存在WiFi失效的问题，请谨慎刷入~~我们更换defconfig文件后解决该问题，但目前仍在测试阶段
   - 中兴 Z201ZT 由于源代码并非Git方式获得，因此修改了yml文件中对应的获取方式，由于存在较多未知信息，因此该内核仅研究学习使用，若有需要可自行Fork编译
   - 三星 S20 5G 仅支持**高通版本**，猎户座版本请勿尝试
