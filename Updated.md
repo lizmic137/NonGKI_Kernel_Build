@@ -1,6 +1,27 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 40**
+    - 增加 小米Mix2s KPM Fixed补丁
+
+- **Ver.1.4 Fixed 39**
+    - 增加 示例YAML文件 KPM Patch默认链接
+    - 修改 说明文件 有关KPM变量的说明
+    - 移植 小米Mix2s KPM相关功能
+    - 删除 Older YAML 无效变量
+
+- **Ver.1.4 Fixed 38**
+    - 修正 示例YAML SUSFS更新无法执行的错误
+    - 修正 小米Mix2s SUSFS更新无法执行的错误
+
+- **Ver.1.4 Fixed 37**
+    - 修改 支持列表 有关SUSFS更新的说明
+    - 增加 示例YAML文件 SUSFS更新步骤
+    - 增加 示例ENV文件 SUSFS更新步骤所需变量
+    - 增加 说明文件 有关SUSFS更新的说明
+    - 增加 英文说明文件 缺失的内容
+    - 启用 小米Mix2s SUSFS更新至v1.5.7补丁
+
 - **Ver.1.4 Fixed 36**
-    - 修改 支持列表 有关susfs更新的说明
+    - 修改 支持列表 有关SUSFS更新的说明
 
 - **Ver.1.4 Fixed 35**
     - 修正 支持列表 黑鲨4 对应KernelSU分支错误

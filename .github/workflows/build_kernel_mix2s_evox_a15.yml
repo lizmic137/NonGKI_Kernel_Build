@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
 env:
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
+  KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
+  KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
 
 jobs:
   build:
@@ -38,6 +40,7 @@ jobs:
               KERNELSU_NAME
               SUSFS_ENABLE
               SUSFS_FIXED
+              SUSFS_UPDATE
               BOOT_SOURCE
               ROM_TEXT
 
@@ -148,12 +151,6 @@ jobs:
           fi
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
 
-          # Backport Testing
-          # cd device_kernel
-          # mv /tmp/Patches/backport_set_memory.patch ./
-          # patch -p1 < backport_set_memory.patch || true
-          # wget https://raw.githubusercontent.com/KanishkTheDerp/msm-4.9/refs/heads/ksu/master/drivers/scsi/ufs/ufshpb.h -o drivers/scsi/ufs/ufshpb.h
-
       - name: Set KSU and SUSFS for DEFCONFIG
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
@@ -197,6 +194,24 @@ jobs:
           KSU_VERSION=$(cd ${{ env.KERNELSU_NAME }} && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           echo "UPLOADNAME=-${{ env.KERNELSU_NAME }}_$KSU_VERSION" >> $GITHUB_ENV
           echo "PACK_METHOD=MKBOOTIMG" >> $GITHUB_ENV
+
+          # Patch set_memory
+          cp /tmp/Patches/backport_set_memory.patch ./
+          patch -p1 < backport_set_memory.patch || true
+
+          # KPM Checker
+          if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
+            if [ -f "include/linux/set_memory.h" ] && [ "${{ env.KPM_ENABLE }}" == "true" ]; then
+                echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+                wget "${{ env.KPM_PATCH_SOURCE }}" -o patch
+                chmod a+x patch
+                echo "Set KPM successfully !"
+            elif [ "$KPM_ENABLE" == "true" ]; then
+                echo "Your kernel doesn't support KPM !"
+            else
+                echo "Doesn't enable KPM !"
+            fi
+          fi
 
           # Set SUSFS
           git clone $SUSFS_SOURCE -b $SUSFS_BRANCH susfs4ksu --depth=1
@@ -300,6 +315,24 @@ jobs:
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
 
+          # Fixed KPM
+          cp NonGKI_Kernel_Patches/mix2s_evox_a15/set_momery_fixed.patch ./
+
+          patch -p1 < set_momery_fixed.patch
+
+      - name: Updated SUSFS Version
+        if: env.SUSFS_UPDATE == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp /tmp/Patches/susfs_upgrade_to_157.patch ./
+
+          patch -p1 < susfs_upgrade_to_157.patch || true
+
+          # Extra SUSFS Patch
+          # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
+
+          # patch -p1 < [patch_file].patch || true
+
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
@@ -312,6 +345,72 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel/
           make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
+
+      - name: KPM Patcher (Experiment)
+        if: env.KPM_ENABLE == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
+
+          if [[ -f "$IMAGE_DIR/Image.gz-dtb" ]]; then
+              MODE="gz-dtb"
+          elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
+              MODE="gz"
+          elif [[ -f "$IMAGE_DIR/Image" ]]; then
+              MODE="plain"
+          else
+              echo "No valid Image file found."
+              exit 1
+          fi
+
+          case "$MODE" in
+            gz-dtb)
+              if [ -f "include/linux/set_memory.h" ]; then
+                  if [ -d "out/arch/arm64/boot/dts" ]; then
+                      rm -f "$IMAGE_DIR/Image.gz-dtb" "$IMAGE_DIR/Image.gz"
+                      cp patch "$IMAGE_DIR/"
+                      cd "$IMAGE_DIR/" || exit 1
+                      ./patch
+                      rm -f Image
+                      mv oImage Image
+                      gzip -c Image > Image.gz
+                      cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                      echo "Hook Image successfully !"
+                  elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
+                      rm -f "$IMAGE_DIR/Image.gz-dtb" "$IMAGE_DIR/Image.gz"
+                      cp patch "$IMAGE_DIR/"
+                      cd "$IMAGE_DIR/" || exit 1
+                      ./patch
+                      rm -f Image
+                      mv oImage Image
+                      gzip -c Image > Image.gz
+                      cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                      echo "Hook Image successfully !"
+                  else
+                      echo "Not found dts folder, abort."
+                  fi
+              else
+                  echo "Not supported for your kernel !"
+              fi
+              ;;
+            gz)
+              rm -f "$IMAGE_DIR/Image.gz"
+              cp patch "$IMAGE_DIR/"
+              cd "$IMAGE_DIR/" || exit 1
+              ./patch
+              rm -f Image
+              mv oImage Image
+              gzip -c Image > Image.gz
+              echo "Hook Image successfully !"
+              ;;
+            plain)
+              cp patch "$IMAGE_DIR/"
+              cd "$IMAGE_DIR/" || exit 1
+              ./patch
+              mv oImage Image
+              echo "Hook Image successfully !"
+              ;;
+          esac
 
       - name: Make Latest Boot Image
         run: |

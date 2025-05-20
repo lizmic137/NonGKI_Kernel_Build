@@ -12,7 +12,7 @@ env:
   PROFILE_NAME: "codename_rom_template.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
-  KPM_PATCH_SOURCE: "" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
+  KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
   GENERATE_DTB: "false" # if u kernel need DTB , but cannot auto generate it. (Only Anykernel3).
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
   BUILD_DEBUGGER: "false" # Output build errors.
@@ -77,6 +77,7 @@ jobs:
               KERNELSU_NAME
               SUSFS_ENABLE
               SUSFS_FIXED
+              SUSFS_UPDATE
               AK3_SOURCE
               AK3_BRANCH
               BOOT_SOURCE
@@ -520,6 +521,19 @@ jobs:
           cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
 
           patch -p1 < [patch_file].patch || true
+
+      - name: Updated SUSFS Version
+        if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp /tmp/Patches/susfs_upgrade_to_157.patch ./
+
+          patch -p1 < susfs_upgrade_to_157.patch || true
+
+          # Extra SUSFS Patch
+          # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
+
+          # patch -p1 < [patch_file].patch || true
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
