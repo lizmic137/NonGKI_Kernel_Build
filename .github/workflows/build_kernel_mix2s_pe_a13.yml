@@ -332,7 +332,7 @@ jobs:
           if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
             if [ -f "include/linux/set_memory.h" ] && [ "${{ env.KPM_ENABLE }}" == "true" ]; then
                 echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-                wget "${{ env.KPM_PATCH_SOURCE }}" -o patch
+                wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
                 chmod a+x patch
                 echo "Set KPM successfully !"
             elif [ "$KPM_ENABLE" == "true" ]; then
