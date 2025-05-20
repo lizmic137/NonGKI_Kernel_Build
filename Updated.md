@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 41**
+    - 修改 支持列表 小米Mix2s KPM支持
+
 - **Ver.1.4 Fixed 40**
     - 增加 小米Mix2s KPM Fixed补丁
 

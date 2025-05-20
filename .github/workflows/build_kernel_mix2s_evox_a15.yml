@@ -6,6 +6,7 @@ env:
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
   KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
+  GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
 
 jobs:
   build:
@@ -203,7 +204,7 @@ jobs:
           if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
             if [ -f "include/linux/set_memory.h" ] && [ "${{ env.KPM_ENABLE }}" == "true" ]; then
                 echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-                wget "${{ env.KPM_PATCH_SOURCE }}" -o patch
+                wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
                 chmod a+x patch
                 echo "Set KPM successfully !"
             elif [ "$KPM_ENABLE" == "true" ]; then
@@ -348,6 +349,7 @@ jobs:
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
