@@ -357,6 +357,7 @@ jobs:
           echo "CONFIG_KPROBES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_MODULES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          sed -i '1i #include <linux/magic.h>' fs/susfs.c
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'

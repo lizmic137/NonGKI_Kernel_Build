@@ -1,6 +1,6 @@
 #!/bin/bash
 # Patches author: backslashxx @Github
-# Shell authon: JackA1ltman <cs2dtzq@163.com>
+# Shell author: JackA1ltman <cs2dtzq@163.com>
 # Tested kernel versions: 5.4, 4.19, 4.14, 4.9, 4.4
 # 20250323
 patch_files=(
