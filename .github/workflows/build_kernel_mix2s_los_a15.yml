@@ -554,9 +554,6 @@ jobs:
           echo "CONFIG_CRYPTO_LZ4=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_LZ4_COMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_LZ4_DECOMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_CRYPTO_ZSTD=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_ZSTD_COMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_ZSTD_DECOMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
           echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
