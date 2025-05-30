@@ -545,10 +545,6 @@ jobs:
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
 
-          # Patch Cgroup V2
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroupv2_to_49.patch
-          patch -p1 < cgroupv2_to_49.patch
-
       - name: Updated SUSFS Version
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
         run: |
@@ -572,6 +568,8 @@ jobs:
         run: |
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/cgroupv2_to_49.patch
+          patch -p1 < cgroupv2_to_49.patch
           make CC="ccache clang" O=out ARCH=arm64 polaris_defconfig
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
