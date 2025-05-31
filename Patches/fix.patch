@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Your Name <your.email@example.com>
-Date: Fri, 31 May 2025 07:30:00 +0000
+Date: Fri, 31 May 2025 10:45:00 +0000
 Subject: [PATCH] Combined fixes for vmalloc and WireGuard ratelimiter
 
 1. Remove VM_LOWMEM filtering in vmalloc procfs
@@ -9,9 +9,9 @@ Subject: [PATCH] Combined fixes for vmalloc and WireGuard ratelimiter
 
 Signed-off-by: Your Name <your.email@example.com>
 ---
- mm/vmalloc.c                | 148 +++++++++++++++++++++++-------------
+ mm/vmalloc.c                | 148 ++++++++++++++++++++++++++---------
  net/wireguard/ratelimiter.c |  13 ++-
- 2 files changed, 102 insertions(+), 59 deletions(-)
+ 2 files changed, 121 insertions(+), 40 deletions(-)
 
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
 index 75081da0bf19..8e9b7d8b9a19 100644
@@ -204,7 +204,7 @@ index 75081da0bf19..8e9b7d8b9a19 100644
 +			vb->free = 0; /* prevent further allocs after releasing lock */
  			vb->dirty = VMAP_BBMAP_BITS; /* prevent purging it again */
  			vb->dirty_min = 0;
- 			vb->dirty_max = VMAP_BBMAP_BITS;
+ 			vb->dirty_max = VMALLOC_END;
 diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
 index [原索引]..[新索引] 100644
 --- a/net/wireguard/ratelimiter.c
