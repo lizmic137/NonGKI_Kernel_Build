@@ -28,4 +28,3 @@
  		vunmap_page_range(addr, addr + size);
 +#endif
  }
- #endif
