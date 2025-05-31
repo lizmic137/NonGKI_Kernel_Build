@@ -12,22 +12,24 @@ index 75081da0bf19..8e9b7d8b9a19 100644
  	seq_printf(m, "0x%pK-0x%pK %7ld",
  		v->addr, v->addr + v->size, v->size);
  
-diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
-index 9e5c4f0..a1b1a2f 100644
 --- a/net/wireguard/ratelimiter.c
 +++ b/net/wireguard/ratelimiter.c
-@@ -182,9 +182,11 @@ int wg_ratelimiter_init(void)
- 	struct wg_peer *peer;
- 	int ret = -ENOMEM;
- 	u32 i;
-+	unsigned long totalram = totalram_pages();
+@@ -184,6 +184,7 @@ int wg_ratelimiter_init(void)
+ 	if (++init_refcnt != 1)
+ 		goto out;
  
++	unsigned long totalram = totalram_pages();
+ 	entry_cache = KMEM_CACHE(ratelimiter_entry, 0);
+ 	if (!entry_cache)
+ 		goto err;
+@@ -193,9 +194,9 @@ int wg_ratelimiter_init(void)
+ 	 * we borrow their wisdom about good table sizes on different systems
+ 	 * dependent on RAM. This calculation here comes from there.
+ 	 */
 -	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
--                     max_t(unsigned long, 16, roundup_pow_of_two(
--                         (totalram_pages() << PAGE_SHIFT) /
--                         (1U << 14) / sizeof(struct wg_peer *) * 8));
 +	table_size = (totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
-+                     max_t(unsigned long, 16, roundup_pow_of_two((
-+                         (totalram << PAGE_SHIFT) /
-+                         (1U << 14) / sizeof(struct wg_peer *) * 8)));
+ 		max_t(unsigned long, 16, roundup_pow_of_two(
+-			(totalram_pages() << PAGE_SHIFT) /
++			(totalram << PAGE_SHIFT) /
+ 			(1U << 14) / sizeof(struct hlist_head)));
  	max_entries = table_size * 8;
