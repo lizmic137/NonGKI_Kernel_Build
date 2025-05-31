@@ -1,30 +1,14 @@
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index f79d944d7fa7..8e9b7d8b9a19 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
-@@ -3440,7 +3440,7 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
-  * and that the caller has preempt disabled.
-  */
- static void free_unmap_vmap_area_addr(unsigned long addr)
--{
-+{
- 	struct vmap_area *va;
+@@ -3451,9 +3451,6 @@ static int s_show(struct seq_file *m, void *p)
  
- 	va = find_vmap_area(addr);
-@@ -3443,10 +3443,16 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
- #ifdef CONFIG_KPM
- static void free_unmap_vmap_area(struct vmap_area *va)
- {
+ 	v = va->vm;
+ 
 -	if (v->flags & VM_LOWMEM)
-+	/* 使用 VM_MAP 替代 VM_LOWMEM */
-+#ifdef VM_LOWMEM
-+	if (v->flags & VM_LOWMEM) 
- 		kpm_free_page(addr, size);
--	else
-+	else 
-+		vunmap_page_range(addr, addr + size);
-+#else
-+	if (v->flags & VM_MAP)
-+		kpm_free_page(addr, size);
-+	else
- 		vunmap_page_range(addr, addr + size);
-+#endif
- }
+-		return 0;
+-
+ 	seq_printf(m, "0x%pK-0x%pK %7ld",
+ 		v->addr, v->addr + v->size, v->size);
+ 
