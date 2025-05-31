@@ -436,6 +436,15 @@ jobs:
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix.patch
           patch -p1 < fix.patch
 
+      - name: Show reject files
+        run: |
+          echo "===== mm/vmalloc.c.rej content ====="
+          if [ -f mm/vmalloc.c.rej ]; then
+            cat mm/vmalloc.c.rej
+          else
+            echo "No reject files found"
+          fi
+
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
         run: |
