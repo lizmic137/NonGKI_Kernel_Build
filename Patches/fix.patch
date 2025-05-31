@@ -1,5 +1,14 @@
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
+@@ -3440,7 +3440,7 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
+  * and that the caller has preempt disabled.
+  */
+ static void free_unmap_vmap_area_addr(unsigned long addr)
+-{
++{
+ 	struct vmap_area *va;
+ 
+ 	va = find_vmap_area(addr);
 @@ -3443,10 +3443,16 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
  #ifdef CONFIG_KPM
  static void free_unmap_vmap_area(struct vmap_area *va)
