@@ -548,9 +548,9 @@ jobs:
 
       - name: Show reject files
         run: |
-          echo "===== cmdline.c.rej content ====="
-          if [ -f cmdline.c.rej ]; then
-            cat cmdline.c.rej
+          echo "===== fs/proc/cmdline.c.rej content ====="
+          if [ -f fs/proc/cmdline.c.rej ]; then
+            cat fs/proc/cmdline.c.rej
           else
             echo "No reject files found"
           fi
