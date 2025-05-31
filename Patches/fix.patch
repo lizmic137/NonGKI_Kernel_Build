@@ -1,58 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Fri, 31 May 2025 07:30:00 +0000
+Subject: [PATCH] Combined fixes for vmalloc and WireGuard ratelimiter
+
+1. Remove VM_LOWMEM filtering in vmalloc procfs
+2. Fix memory calculation in WireGuard ratelimiter init
+3. Rewrite vmalloc area management for better performance
+
+Signed-off-by: Your Name <your.email@example.com>
+---
+ mm/vmalloc.c                | 148 +++++++++++++++++++++++-------------
+ net/wireguard/ratelimiter.c |  13 ++-
+ 2 files changed, 102 insertions(+), 59 deletions(-)
+
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
 index 75081da0bf19..8e9b7d8b9a19 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -3451,9 +3451,6 @@ static int s_show(struct seq_file *m, void *p)
-
+ 
  	v = va->vm;
-
+ 
 -	if (v->flags & VM_LOWMEM)
 -		return 0;
 -
  	seq_printf(m, "0x%pK-0x%pK %7ld",
  		v->addr, v->addr + v->size, v->size);
-
-diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
-index [原索引]..[新索引] 100644
---- a/net/wireguard/ratelimiter.c
-+++ b/net/wireguard/ratelimiter.c
-@@ -18,6 +18,7 @@
- #include "ratelimiter.h"
- #include <linux/siphash.h>
- #include <linux/mm.h>
-+#include <linux/sysinfo.h>
- #include <linux/slab.h>
- #include <net/ip.h>
-
-@@ -174,6 +175,7 @@ void wg_ratelimiter_uninit(void)
-
- int wg_ratelimiter_init(void)
- {
-+	struct sysinfo i;
- 	mutex_lock(&init_lock);
- 	if (++init_refcnt != 1)
- 		goto out;
-@@ -185,10 +187,10 @@ int wg_ratelimiter_init(void)
- 	 * we borrow their wisdom about good table sizes on different systems
- 	 * dependent on RAM. This calculation here comes from there.
- 	 */
--	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
--		max_t(unsigned long, 16, roundup_pow_of_two(More actions
--			(totalram_pages() << PAGE_SHIFT) /
--			(1U << 14) / sizeof(struct hlist_head)));
-+	si_meminfo(&i);
-+	table_size = (i.totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
-+		     max_t(unsigned long, 16, roundup_pow_of_two(
-+			     (i.totalram << PAGE_SHIFT) / (1U << 14) / sizeof(struct hlist_head)));
- 	max_entries = table_size * 8;
-
- 	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
-
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index abcdef1..1234567 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -575,47 +575,104 @@ int unregister_vmap_purge_notifier(struct notifier_block *nb)
+ 
+@@ -575,47 +572,104 @@ int unregister_vmap_purge_notifier(struct notifier_block *nb)
  	return blocking_notifier_chain_unregister(&vmap_notify_list, nb);
  }
  
@@ -216,7 +191,7 @@ index abcdef1..1234567 100644
  }
  
  /*
-@@ -1789,10 +1846,10 @@ static void purge_fragmented_blocks(int cpu)
+@@ -1789,10 +1843,10 @@ static void purge_fragmented_blocks(int cpu)
  	list_for_each_entry_rcu(vb, &vbq->free, free_list) {
  
  		if (!(vb->free + vb->dirty == VMAP_BBMAP_BITS && vb->dirty != VMAP_BBMAP_BITS))
@@ -230,3 +205,43 @@ index abcdef1..1234567 100644
  			vb->dirty = VMAP_BBMAP_BITS; /* prevent purging it again */
  			vb->dirty_min = 0;
  			vb->dirty_max = VMAP_BBMAP_BITS;
+diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
+index [原索引]..[新索引] 100644
+--- a/net/wireguard/ratelimiter.c
++++ b/net/wireguard/ratelimiter.c
+@@ -18,6 +18,7 @@
+ #include "ratelimiter.h"
+ #include <linux/siphash.h>
+ #include <linux/mm.h>
++#include <linux/sysinfo.h>
+ #include <linux/slab.h>
+ #include <net/ip.h>
+ 
+@@ -174,6 +175,7 @@ void wg_ratelimiter_uninit(void)
+ 
+ int wg_ratelimiter_init(void)
+ {
++	struct sysinfo i;
+ 	mutex_lock(&init_lock);
+ 	if (++init_refcnt != 1)
+ 		goto out;
+@@ -185,10 +187,13 @@ int wg_ratelimiter_init(void)
+ 	 * we borrow their wisdom about good table sizes on different systems
+ 	 * dependent on RAM. This calculation here comes from there.
+ 	 */
+-	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
+-		max_t(unsigned long, 16, roundup_pow_of_two(
+-			(totalram_pages() << PAGE_SHIFT) /
+-			(1U << 14) / sizeof(struct hlist_head)));
++	si_meminfo(&i);
++	table_size = (i.totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
++		     max_t(unsigned long, 16, roundup_pow_of_two(
++			     (i.totalram << PAGE_SHIFT) / 
++			     (1U << 14) / 
++			     sizeof(struct hlist_head)));
++			     
+ 	max_entries = table_size * 8;
+ 
+ 	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
+-- 
+2.34.1
