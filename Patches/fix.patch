@@ -24,8 +24,10 @@ index 9e5c4f0..a1b1a2f 100644
  
 -	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
 -                     max_t(unsigned long, 16, roundup_pow_of_two(
+-                         (totalram_pages() << PAGE_SHIFT) /
+-                         (1U << 14) / sizeof(struct wg_peer *) * 8));
 +	table_size = (totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
 +                     max_t(unsigned long, 16, roundup_pow_of_two((
-                          (totalram_pages() << PAGE_SHIFT) /
--                         (1U << 14) / sizeof(struct wg_peer *) * 8));
++                         (totalram << PAGE_SHIFT) /
 +                         (1U << 14) / sizeof(struct wg_peer *) * 8)));
+ 	max_entries = table_size * 8;
