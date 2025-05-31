@@ -1,26 +1,27 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Your Name <your.email@example.com>
-Date: Mon, 20 May 2025 15:30:00 +0800
-Subject: [PATCH] Add VM_LOWMEM definition to vmalloc.h
+Date: Mon, 20 May 2025 15:45:00 +0800
+Subject: [PATCH] Replace VM_LOWMEM with VM_MAP in vmalloc.c
 
-This fixes compilation error in vmalloc.c when using KPM patches
+This works around the missing VM_LOWMEM definition
 
 Signed-off-by: Your Name <your.email@example.com>
 ---
- include/linux/vmalloc.h | 1 +
- 1 file changed, 1 insertion(+)
+ mm/vmalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 3b9e6a1c..e5e8e9b1 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -100,6 +100,7 @@
- #define VM_UNINITIALIZED	0x00000020	/* vm_struct is not fully initialized */
- #define VM_NO_GUARD		0x00000040      /* don't add guard page */
- #define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
-+#define VM_LOWMEM         0x00000008      /* Low memory mapping */
- 
- /* bits [20..32] reserved for arch specific ioremap internals */
- 
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 7aad09b65..40292b158 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -3446,7 +3446,7 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
+ #ifdef CONFIG_KPM
+ static void free_unmap_vmap_area(struct vmap_area *va)
+ {
+-	if (v->flags & VM_LOWMEM)
++	if (v->flags & VM_MAP)  /* 使用现有的 VM_MAP 标志 */
+ 		kpm_free_page(addr, size);
+ 	else
+ 		vunmap_page_range(addr, addr + size);
 -- 
 2.39.2
