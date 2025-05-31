@@ -546,6 +546,15 @@ jobs:
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
 
+      - name: Show reject files
+        run: |
+          echo "===== cmdline.c.rej content ====="
+          if [ -f cmdline.c.rej ]; then
+            cat cmdline.c.rej
+          else
+            echo "No reject files found"
+          fi
+
       - name: Updated SUSFS Version
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
         run: |
