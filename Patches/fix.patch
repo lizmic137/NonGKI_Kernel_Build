@@ -1,27 +1,37 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Your Name <your.email@example.com>
-Date: Mon, 20 May 2025 15:45:00 +0800
-Subject: [PATCH] Replace VM_LOWMEM with VM_MAP in vmalloc.c
+From: Fix Bot <fix@example.com>
+Date: $(date +'%a, %d %b %Y %H:%M:%S %z')
+Subject: [PATCH] Fix VM_LOWMEM compilation error
 
-This works around the missing VM_LOWMEM definition
-
-Signed-off-by: Your Name <your.email@example.com>
+- Replace VM_LOWMEM with VM_MAP for compatibility
+- Add fallback for older kernel versions
 ---
- mm/vmalloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/vmalloc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
 index 7aad09b65..40292b158 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
-@@ -3446,7 +3446,7 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
+@@ -3443,10 +3443,16 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
  #ifdef CONFIG_KPM
  static void free_unmap_vmap_area(struct vmap_area *va)
  {
 -	if (v->flags & VM_LOWMEM)
-+	if (v->flags & VM_MAP)  /* 使用现有的 VM_MAP 标志 */
++	/* 使用 VM_MAP 替代 VM_LOWMEM */
++#ifdef VM_LOWMEM
++	if (v->flags & VM_LOWMEM) 
  		kpm_free_page(addr, size);
- 	else
+-	else
++	else 
  		vunmap_page_range(addr, addr + size);
++#else
++	if (v->flags & VM_MAP)
++		kpm_free_page(addr, size);
++	else
+ 		vunmap_page_range(addr, addr + size);
++#endif
+ }
+ #endif
 -- 
 2.39.2
