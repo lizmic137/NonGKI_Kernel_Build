@@ -13,19 +13,21 @@ index f79d944d7fa7..8e9b7d8b9a19 100644
  		v->addr, v->addr + v->size, v->size);
 
 diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
-index 9e5c4f0..a1b1a2f 100644
+index 9e5c4f0..e9d0f6f 100644
 --- a/net/wireguard/ratelimiter.c
 +++ b/net/wireguard/ratelimiter.c
-@@ -182,9 +182,11 @@ int wg_ratelimiter_init(void)
+@@ -182,9 +182,12 @@ int wg_ratelimiter_init(void)
  	struct wg_peer *peer;
  	int ret = -ENOMEM;
  	u32 i;
+-
 +	unsigned long totalram;
- 
++
 +	totalram = totalram_pages();
  	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
 -                     max_t(unsigned long, 16, roundup_pow_of_two(
 +                     max_t(unsigned long, 16, roundup_pow_of_two((
                           (totalram_pages() << PAGE_SHIFT) /
-                          (1U << 14) / sizeof(struct wg_peer *) * 8));
+-                         (1U << 14) / sizeof(struct wg_peer *) * 8));
++                         (1U << 14) / sizeof(struct wg_peer *) * 8)));
  	max_entries = table_size * 8;
