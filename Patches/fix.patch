@@ -1,0 +1,11 @@
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1927,9 +1927,6 @@ static int show_vmalloc_info(struct seq_file *m, void *p)
+ 		if (!v)
+ 			continue;
+ 
+-		if (v->flags & VM_LOWMEM)
+-			continue;
+-
+ 		seq_printf(m, "0x%pK-0x%pK %7ld",
+ 			v->addr, v->addr + v->size, v->size);
