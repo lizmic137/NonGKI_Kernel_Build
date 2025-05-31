@@ -428,8 +428,6 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
-          wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
-          chmod a+x patch
           cp /tmp/Patches/backport_set_memory.patch ./
           patch -p1 < backport_set_memory.patch || true
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix.patch
