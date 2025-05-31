@@ -12,17 +12,6 @@ index b2391b829169..cb8862659178 100644
  - ``kmemleak_free_percpu``	 - notify of a percpu memory block freeing
 diff --git a/arch/Kconfig b/arch/Kconfig
 index 9a981708d5ee..a02121233811 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1927,9 +1927,6 @@ static int show_vmalloc_info(struct seq_file *m, void *p)
- 		if (!v)
- 			continue;
- 
--		if (v->flags & VM_LOWMEM)
--			continue;
--
- 		seq_printf(m, "0x%pK-0x%pK %7ld",
- 			v->addr, v->addr + v->size, v->size);
 --- a/arch/Kconfig
 +++ b/arch/Kconfig
 @@ -227,6 +227,9 @@ config ARCH_HAS_FORTIFY_SOURCE
