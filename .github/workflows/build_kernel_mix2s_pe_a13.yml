@@ -428,10 +428,10 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix.patch
-          patch -p1 < fix.patch
           cp /tmp/Patches/backport_set_memory.patch ./
           patch -p1 < backport_set_memory.patch || true
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix.patch
+          patch -p1 < fix.patch
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
