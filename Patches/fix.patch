@@ -1,16 +1,3 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Fix Bot <fix@example.com>
-Date: $(date +'%a, %d %b %Y %H:%M:%S %z')
-Subject: [PATCH] Fix VM_LOWMEM compilation error
-
-- Replace VM_LOWMEM with VM_MAP for compatibility
-- Add fallback for older kernel versions
----
- mm/vmalloc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 7aad09b65..40292b158 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -3443,10 +3443,16 @@ static void vmap_debug_free_range(unsigned long start, unsigned long end)
@@ -24,7 +11,7 @@ index 7aad09b65..40292b158 100644
  		kpm_free_page(addr, size);
 -	else
 +	else 
- 		vunmap_page_range(addr, addr + size);
++		vunmap_page_range(addr, addr + size);
 +#else
 +	if (v->flags & VM_MAP)
 +		kpm_free_page(addr, size);
@@ -33,5 +20,3 @@ index 7aad09b65..40292b158 100644
 +#endif
  }
  #endif
--- 
-2.39.2
