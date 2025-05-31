@@ -22,7 +22,15 @@ index 75081da0bf19..8e9b7d8b9a19 100644
  #include <linux/slab.h>
  #include <net/ip.h>
  
-@@ -185,10 +186,11 @@ int wg_ratelimiter_init(void)
+@@ -174,6 +174,7 @@ void wg_ratelimiter_uninit(void)
+ 
+ int wg_ratelimiter_init(void)
+ {
++	struct sysinfo i;
+ 	mutex_lock(&init_lock);
+ 	if (++init_refcnt != 1)
+ 		goto out;
+@@ -185,10 +186,9 @@ int wg_ratelimiter_init(void)
  	 * we borrow their wisdom about good table sizes on different systems
  	 * dependent on RAM. This calculation here comes from there.
  	 */
@@ -30,11 +38,9 @@ index 75081da0bf19..8e9b7d8b9a19 100644
 -		max_t(unsigned long, 16, roundup_pow_of_two(
 -			(totalram_pages() << PAGE_SHIFT) /
 -			(1U << 14) / sizeof(struct hlist_head)));
-+	struct sysinfo i;
 +	si_meminfo(&i);
 +	table_size = (i.totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
-+		     max_t(unsigned long, 16, roundup_pow_of_two(
-+			     (i.totalram << PAGE_SHIFT) / (1U << 14) / sizeof(struct hlist_head)));
++		     max_t(unsigned long, 16, roundup_pow_of_two((i.totalram << PAGE_SHIFT) / (1U << 14) / sizeof(struct hlist_head)));
  	max_entries = table_size * 8;
  
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
