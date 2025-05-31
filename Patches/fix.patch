@@ -1,5 +1,5 @@
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index f79d944d7fa7..8e9b7d8b9a19 100644
+index 75081da0bf19..8e9b7d8b9a19 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -3451,9 +3451,6 @@ static int s_show(struct seq_file *m, void *p)
@@ -11,6 +11,7 @@ index f79d944d7fa7..8e9b7d8b9a19 100644
 -
  	seq_printf(m, "0x%pK-0x%pK %7ld",
  		v->addr, v->addr + v->size, v->size);
+ 
 diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
 index 9e5c4f0..a1b1a2f 100644
 --- a/net/wireguard/ratelimiter.c
@@ -19,14 +20,13 @@ index 9e5c4f0..a1b1a2f 100644
  	struct wg_peer *peer;
  	int ret = -ENOMEM;
  	u32 i;
--
++	unsigned long totalram = totalram_pages();
+ 
 -	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
 -                     max_t(unsigned long, 16, roundup_pow_of_two(
-+	unsigned long totalram;
-+	
-+	totalram = totalram_pages();
 +	table_size = (totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
 +                     max_t(unsigned long, 16, roundup_pow_of_two((
                           (totalram_pages() << PAGE_SHIFT) /
-                          (1U << 14) / sizeof(struct wg_peer *) * 8));
+-                         (1U << 14) / sizeof(struct wg_peer *) * 8));
++                         (1U << 14) / sizeof(struct wg_peer *) * 8)));
  	max_entries = table_size * 8;
