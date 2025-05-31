@@ -1,11 +1,26 @@
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1927,9 +1927,6 @@ static int show_vmalloc_info(struct seq_file *m, void *p)
- 		if (!v)
- 			continue;
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Mon, 20 May 2025 15:30:00 +0800
+Subject: [PATCH] Add VM_LOWMEM definition to vmalloc.h
+
+This fixes compilation error in vmalloc.c when using KPM patches
+
+Signed-off-by: Your Name <your.email@example.com>
+---
+ include/linux/vmalloc.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 3b9e6a1c..e5e8e9b1 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -100,6 +100,7 @@
+ #define VM_UNINITIALIZED	0x00000020	/* vm_struct is not fully initialized */
+ #define VM_NO_GUARD		0x00000040      /* don't add guard page */
+ #define VM_KASAN		0x00000080      /* has allocated kasan shadow memory */
++#define VM_LOWMEM         0x00000008      /* Low memory mapping */
  
--		if (v->flags & VM_LOWMEM)
--			continue;
--
- 		seq_printf(m, "0x%pK-0x%pK %7ld",
- 			v->addr, v->addr + v->size, v->size);
+ /* bits [20..32] reserved for arch specific ioremap internals */
+ 
+-- 
+2.39.2
