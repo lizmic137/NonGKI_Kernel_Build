@@ -29,4 +29,3 @@ index 9e5c4f0..a1b1a2f 100644
                           (totalram_pages() << PAGE_SHIFT) /
 -                         (1U << 14) / sizeof(struct wg_peer *) * 8));
 +                         (1U << 14) / sizeof(struct wg_peer *) * 8)));
- 	max_entries = table_size * 8;
