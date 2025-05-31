@@ -47,3 +47,186 @@ index [原索引]..[新索引] 100644
  	max_entries = table_size * 8;
  
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
+
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index abcdef1..1234567 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -575,47 +575,104 @@ int unregister_vmap_purge_notifier(struct notifier_block *nb)
+ 	return blocking_notifier_chain_unregister(&vmap_notify_list, nb);
+ }
+ 
+-static void __free_vmap_area(struct vmap_area *va)
++static void unlink_va(struct vmap_area *va, struct rb_root *root)
+ {
+-	BUG_ON(RB_EMPTY_NODE(&va->rb_node));
+-
+-	if (free_vmap_cache) {
+-		if (va->va_end < cached_vstart) {
+-			free_vmap_cache = NULL;
+-		} else {
+-			struct vmap_area *cache;
+-			cache = rb_entry(free_vmap_cache, struct vmap_area, rb_node);
+-			if (va->va_start <= cache->va_start) {
+-				free_vmap_cache = rb_prev(&va->rb_node);
+-				/*
+-				 * We don't try to update cached_hole_size or
+-				 * cached_align, but it won't go very wrong.
+-				 */
+-			}
+-		}
+-	}
+-	rb_erase(&va->rb_node, &vmap_area_root);
++	BUG_ON(RB_EMPTY_NODE(&va->rb_node));
++	rb_erase(&va->rb_node, root);
+ 	RB_CLEAR_NODE(&va->rb_node);
+ 	list_del_rcu(&va->list);
++}
+ 
+-	/*
+-	 * Track the highest possible candidate for pcpu area
+-	 * allocation.  Areas outside of vmalloc area can be returned
+-	 * here too, consider only end addresses which fall inside
+-	 * vmalloc area proper.
+-	 */
+-	if (va->va_end > VMALLOC_START && va->va_end <= VMALLOC_END)
+-		vmap_area_pcpu_hole = max(vmap_area_pcpu_hole, va->va_end);
++static void __free_vmap_area(struct vmap_area *va)
++{
++	BUG_ON(RB_EMPTY_NODE(&va->rb_node));
++	unlink_va(va, &vmap_area_root);
++	
++	/*
++	 * Merge VA with its neighbors, otherwise just add it.
++	 */
++	merge_or_add_vmap_area(va,
++		&free_vmap_area_root, &free_vmap_area_list);
++}
+ 
+-	kfree_rcu(va, rcu_head);
++/*
++ * This function populates subtree with maximum free
++ * block size. It propagates the tree from bottom up.
++ */
++static void augment_tree_propagate_from(struct vmap_area *va)
++{
++	struct rb_node *node = &va->rb_node;
++	unsigned long free_child = 0;
++
++	while (node) {
++		va = rb_entry(node, struct vmap_area, rb_node);
++		free_child = va->free_size;
++		if (node->rb_left) {
++			struct vmap_area *left;
++			left = rb_entry(node->rb_left,
++				struct vmap_area, rb_node);
++			if (free_child < left->free_size)
++				free_child = left->free_size;
++		}
++		if (node->rb_right) {
++			struct vmap_area *right;
++			right = rb_entry(node->rb_right,
++				struct vmap_area, rb_node);
++			if (free_child < right->free_size)
++				free_child = right->free_size;
++		}
++		va->subtree_max_size = free_child;
++		node = rb_parent(node);
++	}
+ }
+ 
+-/*
+- * Free a region of KVA allocated by alloc_vmap_area
+- */
+-static void free_vmap_area(struct vmap_area *va)
++static void
++merge_or_add_vmap_area(struct vmap_area *va,
++	struct rb_root *root, struct list_head *head)
+ {
+-	spin_lock(&vmap_area_lock);
+-	__free_vmap_area(va);
+-	spin_unlock(&vmap_area_lock);
++	struct vmap_area *sibling;
++	struct list_head *next;
++	struct rb_node **link;
++	struct rb_node *parent;
++	bool merged = false;
++
++	/*
++	 * Find a place in the tree where VA will be inserted.
++	 */
++	link = &root->rb_node;
++	parent = NULL;
++
++	while (*link) {
++		parent = *link;
++		sibling = rb_entry(parent, struct vmap_area, rb_node);
++		if (va->va_start < sibling->va_end)
++			link = &parent->rb_left;
++		else
++			link = &parent->rb_right;
++	}
++
++	/*
++	 * Merge with previous if possible.
++	 */
++	next = head->next;
++	if (next != head) {
++		struct vmap_area *prev;
++		prev = list_entry(next, struct vmap_area, list);
++		if (&prev->list != head && prev->va_end == va->va_start) {
++			prev->va_end = va->va_end;
++			merged = true;
++			unlink_va(va, root);
++			va = prev;
++		}
++	}
++
++	/*
++	 * Merge with next if possible.
++	 */
++	if (next != head) {
++		struct vmap_area *next_va;
++		next_va = list_entry(va->list.next, struct vmap_area, list);
++		if (&next_va->list != head && next_va->va_start == va->va_end) {
++			va->va_end = next_va->va_end;
++			merged = true;
++			unlink_va(next_va, root);
++		}
++	}
++
++	if (!merged) {
++		link = &root->rb_node;
++		parent = NULL;
++		
++		while (*link) {
++			parent = *link;
++			sibling = rb_entry(parent, struct vmap_area, rb_node);
++			if (va->va_start < sibling->va_end)
++				link = &parent->rb_left;
++			else
++				link = &parent->rb_right;
++		}
++		
++		rb_link_node(&va->rb_node, parent, link);
++		rb_insert_color(&va->rb_node, root);
++	}
++	
++	augment_tree_propagate_from(va);
+ }
+ 
+ /*
+@@ -1789,10 +1846,10 @@ static void purge_fragmented_blocks(int cpu)
+ 	list_for_each_entry_rcu(vb, &vbq->free, free_list) {
+ 
+ 		if (!(vb->free + vb->dirty == VMAP_BBMAP_BITS && vb->dirty != VMAP_BBMAP_BITS))
+ 			continue;
+-
++		
+ 		spin_lock(&vb->lock);
+ 		if (vb->free + vb->dirty == VMAP_BBMAP_BITS && vb->dirty != VMAP_BBMAP_BITS) {
+-			vb->free = 0; /* prevent further allocs after releasing lock */
++			vb->free = 0; /* prevent further allocs after releasing lock */
+ 			vb->dirty = VMAP_BBMAP_BITS; /* prevent purging it again */
+ 			vb->dirty_min = 0;
+ 			vb->dirty_max = VMAP_BBMAP_BITS;
