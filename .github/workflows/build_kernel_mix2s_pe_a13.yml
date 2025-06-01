@@ -18,7 +18,7 @@ env:
   BUILD_DEBUGGER: "false" # Output build errors.
   BUILD_OTHER_CONFIG: "false" # Merge config files.
   FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
-  REKERNEL_ENABLE: "true" # if u need Re:Kernel.
+  REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
 
 jobs:
