@@ -10,8 +10,8 @@
  	seq_printf(m, "0x%pK-0x%pK %7ld",
  		v->addr, v->addr + v->size, v->size);
 
---- a/swap.c
-+++ b/swap.c
+--- a/mm/swap.c
++++ b/mm/swap.c
 @@ -981,7 +981,7 @@ EXPORT_SYMBOL(pagevec_lookup_range_nr_tag);
   */
  void __init swap_setup(void)
