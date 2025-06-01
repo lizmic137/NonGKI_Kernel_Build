@@ -546,16 +546,6 @@ jobs:
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
 
-      - name: Show reject files
-        run: |
-          cd $GITHUB_WORKSPACE/device_kernel/
-          echo "===== fs/proc/cmdline.c.rej content ====="
-          if [ -f fs/proc/cmdline.c.rej ]; then
-            cat fs/proc/cmdline.c.rej
-          else
-            echo "No reject files found"
-          fi
-
       - name: Updated SUSFS Version
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
         run: |
@@ -568,6 +558,27 @@ jobs:
           # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
 
           # patch -p1 < [patch_file].patch || true
+
+      - name: Find and print .rej files
+        if: always()
+        run: |
+          rej_files=$(find . -type f -name "*.rej")
+          
+          if [ -z "$rej_files" ]; then
+            echo "✅ 没有发现任何 .rej 文件"
+          else
+            echo "❌ 发现以下 .rej 文件:"
+            echo "$rej_files" | sed 's/^/  /'
+
+            echo -e "\n===================== 文件内容 ====================="
+            for file in $rej_files; do
+              echo -e "\n🔥 ${file} 内容:"
+              echo "--------------------------------------------------"
+              cat "$file"
+              echo "--------------------------------------------------"
+          done
+
+          fi
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
