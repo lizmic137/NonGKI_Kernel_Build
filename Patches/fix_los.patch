@@ -21,8 +21,8 @@
  #ifdef CONFIG_SWAP
  	int i;
 
---- a/net/wireguard/ratelimiter.c
-+++ b/net/wireguard/ratelimiter.c
+--- a/drivers/net/wireguard/ratelimiter.c
++++ b/drivers/net/wireguard/ratelimiter.c
 @@ -18,6 +18,7 @@
  #include "ratelimiter.h"
  #include <linux/siphash.h>
