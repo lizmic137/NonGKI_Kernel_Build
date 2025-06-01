@@ -559,6 +559,27 @@ jobs:
 
           # patch -p1 < [patch_file].patch || true
 
+      - name: Find and print .rej files
+        if: always()
+        run: |
+          rej_files=$(find . -type f -name "*.rej")
+          
+          if [ -z "$rej_files" ]; then
+            echo "✅ 没有发现任何 .rej 文件"
+          else
+            echo "❌ 发现以下 .rej 文件:"
+            echo "$rej_files" | sed 's/^/  /'
+
+            echo -e "\n===================== 文件内容 ====================="
+            for file in $rej_files; do
+              echo -e "\n🔥 ${file} 内容:"
+              echo "--------------------------------------------------"
+              cat "$file"
+              echo "--------------------------------------------------"
+          done
+
+          fi
+
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
