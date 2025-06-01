@@ -18,7 +18,7 @@ env:
   BUILD_DEBUGGER: "false" # Output build errors.
   BUILD_OTHER_CONFIG: "false" # Merge config files.
   FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
-  REKERNEL_ENABLE: "false" # if u need Re:Kernel.
+  REKERNEL_ENABLE: "true" # if u need Re:Kernel.
 
 
 jobs:
@@ -513,6 +513,8 @@ jobs:
           if [ -f "$PATCH_FILE" ]; then
             cp /tmp/Patches/Rekernel/rekernel-${{ env.KERNEL_VERSION }}.patch ./
             patch -p1 < rekernel-${{ env.KERNEL_VERSION }}.patch || true
+            cp /tmp/Patches/Rekernel/rekernel-${{ env.KERNEL_VERSION }}-for-fixed.patch ./
+            patch -p1 < rekernel-${{ env.KERNEL_VERSION }}-for-fixed.patch || true
             echo "Re:Kernel Patched."
           else
             echo "Your kernel not supported it."
