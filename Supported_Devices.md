@@ -4,7 +4,7 @@
 | 一加 8  | All | instantnoodle | 4.19/ppajda/XTD | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | Magic | ✅ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 一加 8  | All | instantnoodle | 4.19/Nameless/Nameless | Nameless 15 | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 一加 8  | All | instantnoodle | 4.19/Rohail33/Realking | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | SukiSU(U) | ✅ | ❌ | ❌ | ❌ | ✅ | Suspend |  
-| 小米 MIX2S  | All | polaris | 4.9/EvoX/EvoX | Evolution X 10.2.1 | 15 | Boot Image | SukiSU(U) | ✅ | ❌ | ❌ | ✅ | ❌ | Stable |  
+| 小米 MIX2S  | All | polaris | 4.9/EvoX/EvoX | Evolution X 10.6 | 15 | Boot Image | SukiSU(U) | ✅ | ❌ | ❌ | ✅ | ✅ | Stable |  
 | 红米 K20 Pro  | All | raphael | 4.14/SOVIET-ANDROID/SOVIET-STAR-OSS | Based-AOSP | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | ❌ | ❌ | Stable |  
 | 红米 Note 4X  | All | mido | 4.9/RaidenShogunSeggs/(Nothing) | Based-AOSP | 13 | AnyKernel3 | Next | ✅ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 黑鲨 4 | All | penrose | 4.19/DtHnAme/(Nothing) | MIUI/JoyUI 12 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Stable |  
@@ -36,3 +36,4 @@
   - 谷歌 Pixel 9 Series 指 9代全系列设备，该内核目前尚未经过测试
   - 小米 11 Ultra 没有进行normal patch，仅仅执行backport patch，因此应该可以在KSU管理器中切换kprobe和模拟手动修补，以及SUS SU应该也能正常工作
   - 小米平板 4(Plus) 基于SukiSU Ultra的KPM功能**未经完整测试**（会显示在管理器中，但未刷入内核模块进行测试）
+  - 小米 Mix2s 已移植Cgroup V2，但Cgroup Freezer需要依赖系统额外步骤才能使用且该功能实际执行冻结过程异常，建议使用Cgroup UID

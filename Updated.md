@@ -1,4 +1,24 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 53**
+    - 修改 支持列表 小米Mix2s 系统版本号
+    - 修改 发布列表 小米Mix2s 系统版本号
+
+- **Ver.1.4 Fixed 52**
+    - 修改 支持列表 小米Mix2s Rekernel状态
+    - 修改 发布列表 小米Mix2s Rekernel状态
+
+- **Ver.1.4 Fixed 51**
+    - 增加 说明文件 对于Rekernel的补充说明
+
+- **Ver.1.4 Fixed 50**
+    - 增加 Rekernel 4.9内核 经过binder修补后使用补丁
+    - 修改 小米Mix2s Rekernel 补丁至binder修补版本
+
+- **Ver.1.4 Fixed 49**
+    - 增加 支持列表 小米Mix2s 有关Cgroup相关内容
+    - 增加 发布列表 小米Mix2s 有关Cgroup相关内容
+    - 增加 小米Mix2s Binder_Freezer 补丁
+
 - **Ver.1.4 Fixed 48**
     - 增加 小米Mix2s Cgroup V2 补丁
 

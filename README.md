@@ -122,6 +122,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 分为三个部分，SUSFS修补、Re:Kernel修补以及补充修补（Patch Kernel of SUSFS 、Patch Kernel of Re:Kernel 和 Fixed Kernel Patch）
   - 一切基于env.SUSFS_ENABLE、env.REKERNEL_ENABLE 和 env.SUSFS_FIXED为true，但不一定都为true
   - SUSFS修补 和 Re:Kernel修补 大概率会产生问题，因此通常情况下需要补充修补
+  - 若你为**4.9**内核，在使用默认的Re:Kernel补丁修补后无法正常识别到，可切换至Re:Kernel Fixed补丁尝试
   - 补充修补需要执行你重新制作的patch补丁（步骤为：Fixed Kernel Patch）
   - 切记填写好**PATCHES_SOURCE**和**PATCHES_BRANCH**，否则会导致错误
   

@@ -124,6 +124,7 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - Everything is based on env.SUSFS_ENABLE, env.REKERNEL_ENABLE, and env.SUSFS_FIXED being true, but they are not necessarily all true.
     - SUSFS patching and Re:Kernel patching are highly likely to cause issues, so supplementary patching is usually required.
     - SUSFS patching and Re:Kernel patching may cause issues, requiring additional fixes (under Fixed Kernel Patch).
+    - If you have a **4.9** kernel and it's not being recognized properly after patching with the default Re:Kernel patch, you can try switching to the Re:Kernel Fixed patch.
     - Make sure to correctly fill in **PATCHES_SOURCE** and **PATCHES_BRANCH**, otherwise it will result in errors.
 
 - **Update SUSFS Version**
