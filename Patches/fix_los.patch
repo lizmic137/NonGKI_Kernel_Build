@@ -1,1 +1,23 @@
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -3443,9 +3443,6 @@ static int s_show(struct seq_file *m, void *p)
+ 	if (is_vmalloc_addr(v->pages))
+ 		seq_puts(m, " vpages");
+ 
+-	if (v->flags & VM_LOWMEM)
+-		seq_puts(m, " lowmem");
+-
+ 	show_numa_info(m, v);
+ 	seq_putc(m, '\n');
+ 	return 0;
 
+  --- a/swap.c
++++ b/swap.c
+@@ -981,7 +981,7 @@ EXPORT_SYMBOL(pagevec_lookup_range_nr_tag);
+  */
+ void __init swap_setup(void)
+ {
+-	unsigned long megs = totalram_pages >> (20 - PAGE_SHIFT);
++	unsigned long megs = totalram_pages() >> (20 - PAGE_SHIFT);
+ #ifdef CONFIG_SWAP
+ 	int i;
