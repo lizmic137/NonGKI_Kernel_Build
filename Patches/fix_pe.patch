@@ -1,6 +1,6 @@
---- a/mm/vmalloc.c
+--- a/mm/vmalloc.cAdd commentMore actions
 +++ b/mm/vmalloc.c
-@@ -3443,9 +3443,6 @@ static int s_show(struct seq_file *m, void *p)
+@@ -3451,9 +3451,6 @@ static int s_show(struct seq_file *m, void *p)
  
  	v = va->vm;
  
@@ -9,9 +9,9 @@
 -
  	seq_printf(m, "0x%pK-0x%pK %7ld",
  		v->addr, v->addr + v->size, v->size);
-
---- a/drivers/net/wireguard/ratelimiter.c
-+++ b/drivers/net/wireguard/ratelimiter.cAdd commentMore actions
+ 
+--- a/net/wireguard/ratelimiter.c
++++ b/net/wireguard/ratelimiter.c
 @@ -18,6 +18,7 @@
  #include "ratelimiter.h"
  #include <linux/siphash.h>
@@ -19,9 +19,9 @@
 +#include <linux/sysinfo.h>
  #include <linux/slab.h>
  #include <net/ip.h>
-
+ 
 @@ -174,6 +175,7 @@ void wg_ratelimiter_uninit(void)
-
+ 
  int wg_ratelimiter_init(void)
  {
 +	struct sysinfo i;
@@ -41,5 +41,5 @@
 +		     max_t(unsigned long, 16, roundup_pow_of_two(
 +			     (i.totalram << PAGE_SHIFT) / (1U << 14) / sizeof(struct hlist_head)));
  	max_entries = table_size * 8;
-
+ 
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
