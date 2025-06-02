@@ -1,4 +1,4 @@
---- a/mm/vmalloc.cAdd commentMore actions
+--- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -3451,9 +3451,6 @@ static int s_show(struct seq_file *m, void *p)
  
