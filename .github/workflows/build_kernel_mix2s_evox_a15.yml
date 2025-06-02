@@ -157,7 +157,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
             echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           fi
@@ -206,6 +206,10 @@ jobs:
           # Patch set_memory
           cp /tmp/Patches/backport_set_memory.patch ./
           patch -p1 < backport_set_memory.patch || true
+
+          # Patch LZ4KD
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4kd_to_49.patch
+          patch -p1 < lz4kd_to_49.patch
 
           # KPM Checker
           if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
@@ -291,6 +295,11 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel/
           echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_CGROUP_FREEZER=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_LITTLE_CPU_MASK=15" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_BIG_CPU_MASK=240" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CRYPTO_ZSTD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CRYPTO_LZ4K=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
@@ -367,6 +376,7 @@ jobs:
         run: |
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
+
           make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
 
