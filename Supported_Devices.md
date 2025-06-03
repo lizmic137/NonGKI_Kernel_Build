@@ -16,6 +16,7 @@
 | 谷歌 Pixel 9 Series | All | zumapro | 6.1/kerneltoast/Sultan | Pixel | 15 | Anykernel3 | SukiSU | ✅ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 小米 11 Ultra | All | star | 5.4/EndCredits/Acetaminophen | HyperOS | 14 | Anykernel3 | Magic | ✅ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 小米平板 4(Plus) | All | clover | 4.19/pix106/SouthWest | LineageOS 22.1 | 15 | AnyKernel3 | SukiSU(U) | ✅ | ❌ | ❌ | ✅ | ❌ | Stable |  
+| OPPO K9 Pro | CN | PEYM00 | 4.19/nishant6342/(nothing) | ColorOS 13.1 | 13 | AnyKernel3 | Magic | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 
 特别说明：
   - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)

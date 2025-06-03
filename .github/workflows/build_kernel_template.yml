@@ -353,7 +353,7 @@ jobs:
               if [ -z "${{ env.PATCHES_SOURCE }}" ] || [ -z "${{ env.PATCHES_BRANCH }}" ]; then
                 echo "Please input vaild source and branch!"
                 false
-              elif [[ ${{ env.PATCHES_SOURCE }} == *".git" ]]; then
+              elif [[ "${{ env.PATCHES_SOURCE }}" == *".git" ]]; then
                 echo "Please do not set a full URL in PATCH_SOURCE!"
                 false
               else

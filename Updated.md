@@ -1,4 +1,24 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 65**
+    - 增加 OPPO K9 Pro KPM相关config项
+    - 删除 小米Mix2s wireguard相关config项
+
+- **Ver.1.4 Fixed 64**
+    - 增加 小米Mix2s Defconfig项
+
+- **Ver.1.4 Fixed 63**
+    - 增加 支持列表 新机型 OPPO K9 Pro
+    - 修正 OPPO K9 Pro YAML文件 和 ENV文件 部分文本
+
+- **Ver.1.4 Fixed 62**
+    - 修正 示例YAML 有关获取SUSFS的判定错误问题
+
+- **Ver.1.4 Fixed 61**
+    - 增加 小米Mix2s Zram Writeback defconfig项
+
+- **Ver.1.4 Fixed 60**
+    - 增加 小米Mix2s Simple LMK 补丁
+
 - **Ver.1.4 Fixed 59**
     - 启用 小米Mix2s LZ4KD 补丁
 

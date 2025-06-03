@@ -211,6 +211,10 @@ jobs:
           wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4kd_to_49.patch
           patch -p1 < lz4kd_to_49.patch
 
+          # Patch Simple LMK
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/simple_lmk_to_49.patch
+          patch -p1 < simple_lmk_to_49.patch
+
           # KPM Checker
           if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
             if [ -f "include/linux/set_memory.h" ] && [ "${{ env.KPM_ENABLE }}" == "true" ]; then
@@ -293,13 +297,51 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel/
-          echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_CGROUP_FREEZER=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # Additional functions
+          ## BPF
+          echo "CONFIG_BPF_JIT=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_BPF_JIT_ALWAYS_ON=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          ## CPU
+          echo "CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          ## Network
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_TCP_CONG_WESTWOOD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_TCP_CONG_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # echo "CONFIG_WIREGUARD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          ## File
+          echo "CONFIG_EXFAT_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_NTFS_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_EROFS_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # Fixed compile error
           echo "CONFIG_LITTLE_CPU_MASK=15" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_BIG_CPU_MASK=240" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # Cgroup V2
+          echo "CONFIG_BLK_CGROUP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CGROUP_FREEZER=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CPUSETS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CGROUP_RDMA=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CGROUP_CPUACCT=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_CGROUP_SCHEDTUNE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # LZ4KD
           echo "CONFIG_CRYPTO_ZSTD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_CRYPTO_LZ4K=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+          # Simple LMK
+          echo "# CONFIG_MEMCG is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "# CONFIG_MEMCG_SWAP is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "# CONFIG_MEMCG_SWAP_ENABLED is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/$
+
+          # Zram Writeback
+          echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ZRAM_ENTROPY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
