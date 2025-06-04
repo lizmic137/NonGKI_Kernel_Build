@@ -81,14 +81,14 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - **KPM_ENABLE** - (Experimental ⚠) Enables compilation support for KPM in SukiSU-Ultra. This is an experimental feature, so please enable it with caution.
     - **KPM_PATCH_SOURCE** - (Experimental ⚠) Normally, you don't need to provide the patch binary download link yourself, unless you have additional requirements.
     - **GENERATE_DTB** - If your kernel requires a DTB file after compilation (not .dtb, .dts, or .dtsi), you can enable this option to automatically generate the DTB file. 
-    - **GENERATE_CHIP** - Specifies the CPU type for generating the DTB file. Typically supports qcom and mediatek, but compatibility with other CPUs is uncertain.
+    - **GENERATE_CHIP** - Set the corresponding device CPU, and provide it for DTB and KPM functions for identification. It typically supports Qualcomm (qcom) and MediaTek (mediatek), but we're unsure if other CPUs are supported.
     - **BUILD_DEBUGGER** - Enables error reporting if needed. Currently, it provides output for patch error .rej files, with more features expected in future updates.
     - **BUILD_OTHER_CONFIG** - If you need to merge additional .config files included in the kernel source, you can enable this option. However, you must manually modify the MERGE_CONFIG_FILES array in the "Build Kernel" section.
     - **FREE_MORE_SPACE** - If you believe the current available space is insufficient, you can enable this option to free up additional space. By default, approximately 88GB of space is available. Enabling this option can increase the available space to 102GB, but it will add 1–2 minutes to the execution time. (Only applies to the default YAML; Arch Linux or Ubuntu 20.04 can only provide 14–20GB of space.)
     - **REKERNEL_ENABLE** - If you believe your device meets the requirements to run [Re:Kernel](https://github.com/Sakion-Team/Re-Kernel) and you need Re:Kernel, you can enable this option, true or false.
 
 - **runs-on:** ubuntu-XX.XX 
-    - Different kernels may require different Ubuntu versions. The default is 22.04, but support for both 22.04 and 24.04 is available. The system version determines which package installation method is used.
+    - Different kernels may require different Ubuntu versions. The default is 22.04, but support for 20.04, 22.04 and 24.04 is available. The system version determines which package installation method is used.
     - If you are using the Arch Linux YAML, this feature is not applicable — please do not modify it.
 
 - **Set Compile Environment**
@@ -97,7 +97,7 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - If GCC is needed, both 64-bit and 32-bit versions must be specified. The recommended format is git, but tar.gz and zip are also supported.
     - You can choose to use only GCC without enabling Clang. Additionally, GCC allows using the system's default installed version. This can be enabled in the YAML file variables.
     - Clang sources can be in git, tar.gz, tar.xz, zip, or managed via antman.
-    - If you plan to use [Proton Clang 13](https://github.com/kdrag0n/proton-clang), you need to set your system to **Ubuntu-20.04** (we do not recommend Arch Linux as it may cause glibc issues). We have pre-adapted the Proton Clang Toolchain, and it will automatically recognize the bundled GCC upon detecting Proton Clang. However, remember not to fill in the GCC field.
+    - If you're planning to use [Proton Clang 13](https://github.com/kdrag0n/proton-clang), you'll need to use the Older YAML. (We don't recommend Arch Linux, as it might lead to glibc issues.) We've pre-adapted the Proton Clang Toolchain, so it'll automatically detect and recognize the bundled GCC when Proton Clang is found. However, remember not to fill in the GCC field yourself.
 
 - **Get Kernel Source**
     - Normally, kernel source code can be obtained via Git, so modifications are generally unnecessary.
@@ -126,6 +126,7 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - SUSFS patching and Re:Kernel patching may cause issues, requiring additional fixes (under Fixed Kernel Patch).
     - If you have a **4.9** kernel and it's not being recognized properly after patching with the default Re:Kernel patch, you can try switching to the Re:Kernel Fixed patch.
     - Make sure to correctly fill in **PATCHES_SOURCE** and **PATCHES_BRANCH**, otherwise it will result in errors.
+    - When SUSFS_FIXED is enabled by default, the directory cloned via PATCHES_SOURCE and PATCHES_BRANCH will be named **NonGKI_Kernel_Patches**, even if your project has a different name.
 
 - **Update SUSFS Version**
     - Intended to update version v1.5.5, which will stop receiving updates, to SUSFS v1.5.7.
@@ -134,7 +135,50 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - Whether this step is executed is controlled by a variable.
     
 - **KPM Patcher (Experiment)**
-    - Provides KPM kernel patch support for SukiSU-Ultra. Currently, this feature does not support devices with kernel versions ≤ 4.9. If you have backported some functionality for KPM manually, please adjust this section accordingly — however, we do not offer support for experimental features.
+    - SukiSU-Ultra now offers KPM kernel patching functionality. This feature currently doesn't support devices with kernel versions below 4.9. For 4.9 kernels, you can enable KPM after porting set_memory using the backport_set_memory.patch.
     - This feature works correctly under **Arch Linux** but behaves **abnormally on Ubuntu 22.04**. It is recommended to use the latest version of **Ubuntu or the Arch Linux YAML**.
+    
+## Patches/Patch_Introduction.patch
+Below is an introduction to the patches included in the Patches directory:  
+
+- **normal_patches.sh**
+    - Variable: HOOK_METHOD -> normal
+    - Used for manually patching Non-GKI kernels. This is also the kernel used in the manual patching section for Non-GKI kernels on the KernelSU official website.
+    - Reference: https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
+    
+- **vfs_hook_patches.sh**
+    - Variable: HOOK_METHOD -> vfs
+    - Used for the latest minimized manual patching (Syscall) feature implemented by backslashxx. Compatibility with older compilers isn't great.
+    - Reference: https://github.com/backslashxx/KernelSU/issues/5
+    
+- **extra_patches.sh**
+    - Executes automatically based on kernel version.
+    - Used for older kernel versions (kernel version ≤ 4.9) that lack SELinux-related permissions.
+    - Reference: https://github.com/sticpaper/android_kernel_xiaomi_msm8998-ksu/commit/646d0c8
+
+- **backport_patches.sh**
+    - Executes automatically based on kernel version.
+    - Used for backporting features to Non-GKI kernels. While KernelSU-Next and SukiSU-Ultra can automatically handle backporting, other branches cannot. This script was independently created for automatic backporting in those cases.
+    - Reference: https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+
+- **susfs_upgrade_to_157.patch**
+    - Variable: (env file) SUSFS_UPDATE -> true
+    - Updates SuSFS from v1.5.5 to v1.5.7 for Non-GKI devices that have stopped receiving updates.
+    - Reference: https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/compare/c7d82bf8607704c22a8a869c4611c7cf3d22ce31..1ea2cbd7659167e62d2265632710f084c45f3ca1
+
+- **temp_dtbo.patch**
+    - Variables: (env file) HAVE_NO_DTBO -> true , (env file) HAVE_NO_DTBO_TOOL -> false
+    - A patch file required for the dtbo.img generation step; it's used automatically when needed.
+    - Reference: https://review.lineageos.org/c/LineageOS/android_kernel_xiaomi_gauguin/+/372909/2
+
+- backport_set_memory.patch
+    - Requires **manual** execution.
+    - A patch file for backporting the set_memory function to devices with kernel versions ≤ 4.9. Due to a lack of extensive testing, it's considered a test patch only and should only be used when the KPM function of SukiSU-Ultra is required.
+    - Reference: None available.
+
+- Rekernel/rekernel-X.X.patch
+    - Variable: REKERNEL_ENABLE -> true
+    - A patch file to enable Re:Kernel support in the kernel. The YAML will automatically determine which patch to use based on your kernel version. However, if you have a 4.9 kernel and the current patch isn't working, you'll need to change the patch to rekernel-4.9-for-fixed.patch and try again. This does not support devices with kernel versions ≤ 4.4.
+    - Reference: https://github.com/Sakion-Team/Re-Kernel/blob/main/Integrate/README_CN.md
     
 Final Reminder⚠ : Unless otherwise mentioned, there is no need to modify any other sections of the .yml workflow. The setup is designed to automatically handle various conditions.

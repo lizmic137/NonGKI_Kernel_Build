@@ -1,7 +1,18 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 67**
+    - 增加 说明文件 Patches/补丁介绍.patch 部分
+    - 增加 说明文件 有关Patch Kernel部分说明
+    - 增加 normal_patches.sh 作者
+    - 修正 说明文件 部分说明内容纰漏
+    - 修正 支持列表 有关VFS Hook说明
+
+- **Ver.1.4 Fixed 66**
+    - 增加 小米Mix2s wireguard fixed 补丁
+    - 启用 小米Mix2s wireguard相关config项
+
 - **Ver.1.4 Fixed 65**
     - 增加 OPPO K9 Pro KPM相关config项
-    - 删除 小米Mix2s wireguard相关config项
+    - 撤回 小米Mix2s wireguard相关config项
 
 - **Ver.1.4 Fixed 64**
     - 增加 小米Mix2s Defconfig项

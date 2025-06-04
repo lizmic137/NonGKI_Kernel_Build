@@ -308,7 +308,7 @@ jobs:
           echo "CONFIG_TCP_CONG_WESTWOOD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_TCP_CONG_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # echo "CONFIG_WIREGUARD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_WIREGUARD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           ## File
           echo "CONFIG_EXFAT_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_NTFS_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -385,10 +385,12 @@ jobs:
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/cmdline_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/task_mmu_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/fdinfo_fixed.patch ./
+          cp NonGKI_Kernel_Patches/mix2s_evox_a15/wireguard_fixed.patch ./
 
           patch -p1 < cmdline_fixed.patch || true
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
+          patch -p1 < wireguard_fixed.patch || true
 
           # Fixed KPM
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/set_momery_fixed.patch ./

@@ -22,7 +22,7 @@
   - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)
   - 打包方式：Anykernel3请在Recovery下刷入，Boot Image请在Recovery/Fastboot下选择刷入Boot分区
   - 部分机型由于内核问题将暂停（Suspend）维护，但仍可通过Action的方式Fork后自行编译
-  - VFS Hook支持rsuntk、Magic、Next，其他分支可能无法支持，经测试SukiSU无法支持
+  - VFS Hook(Syscall Hook)支持rsuntk、Magic、Next，其他分支可能无法支持
   - SUSFS v1.5.7 目前可用移植为4.19内核，测试后4.14、4.9内核也可直接使用，理论上≥4.9版本内核都可以直接使用该补丁进行修补，~~其他内核可根据[该commit](https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/compare/c7d82bf8607704c22a8a869c4611c7cf3d22ce31..1ea2cbd7659167e62d2265632710f084c45f3ca1)自行移植~~（该commit可能已无法访问，请参考项目提供的susfs升级补丁自行修补）
   - [Re:Kernel](https://github.com/Sakion-Team/Re-Kernel) 是一个用于在Binder过程中快速执行临时解冻进程的模块，但其并不一定能在任何设备下奏效
   - 内核通常为全版本可用，除非特殊声明
