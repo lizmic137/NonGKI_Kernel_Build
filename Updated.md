@@ -1,4 +1,30 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 72**
+    - 修正 示例YAML 对于 ARMV7A设备 的部分判定
+    - 修正 LG Nexus 5 YAML 对于 ARMV7A设备 的部分判定
+
+- **Ver.1.4 Fixed 71**
+    - 增加 支持列表 LG Nexus 5 设备
+    - 修正 LG Nexus 5 YAML 标题错误
+
+- **Ver.1.4 Fixed 70**
+    - 增加 支持列表 有关 ARMV7A设备 的 KernelSU分支 支持情况
+    - 增加 示例YAML 有关 ARMV7A 利用 Anykernel3 打包的检测
+    - 增加 LG Nexus 5 设备
+    - 修正 extra_patches.sh ARMV7A设备 修补错误
+    - 修正 backport_patches.sh ARMV7A设备 修补错误
+    - 修正 示例ENV文件 默认 GCC_32 获取地址
+
+- **Ver.1.4 Fixed 69**
+    - 修正 说明文件 有关 no-kprobe 部分说明
+
+- **Ver.1.4 Fixed 68**
+    - 增加 backport_patches.sh 对 ARMV7A设备 的支持
+    - 增加 vfs_hook_patches.sh 对 ARMV7A设备 的支持
+    - 增加 extra_patches.sh 对 ARMV7A设备 的支持
+    - 增加 示例YAML 对 ARMV7A设备 的支持
+    - 修正 说明文件 有关 Patch脚本 的部分说明
+
 - **Ver.1.4 Fixed 67**
     - 增加 说明文件 Patches/补丁介绍.patch 部分
     - 增加 说明文件 有关Patch Kernel部分说明

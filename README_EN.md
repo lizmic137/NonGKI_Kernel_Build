@@ -29,7 +29,7 @@ Each profile consists of the following elements:
 **CLANG_BRANCH** - Required branch for Clang (only applicable if using git).  
 
 **GCC_GNU** - If your kernel requires GCC but does not need a custom GCC, you can enable the system-provided GNU-GCC with true or false.  
-**GCC_XX_SOURCE** - Location of GCC (supports git, tar.gz, zip).  
+**GCC_XX_SOURCE** - Location of GCC (supports git, tar.gz, zip). If you're an ARMV7A device, please only fill in GCC_32.  
 **GCC_XX_BRANCH** - Required branch for GCC (only applicable if using git).  
 
 **DEFCONFIG_SOURCE** - If you require a custom DEFCONFIG file, you can provide a download link for the DEFCONFIG file.  
@@ -74,8 +74,8 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - **PATCHES_SOURCE** - SUSFS typically requires manual patches. Provide the GitHub repository URL containing the patches. If you are not using SUSFS, this can be left blank.
     - **PATCHES_BRANCH** - The required branch for the patch repository (default: main).
     - **HOOK_METHOD** - Two KernelSU patching methods are available:
-        - **normal**: Standard patching, works in most cases.
-        - [vfs](https://github.com/backslashxx/KernelSU/issues/5): Minimal patching method, which may improve hiding KernelSU but might cause ISO compliance issues with older Clang versions，And there are issues with support for kernels ≤4.9. It is recommended to enable this only for higher kernel versions.
+        - **normal**: Standard patching, works in most cases. This is only suitable for ARM64 devices with kernel version 3.18 or higher.
+        - [vfs](https://github.com/backslashxx/KernelSU/issues/5): Minimal patching method, which may improve hiding KernelSU but might cause ISO compliance issues with older Clang versions，And there are issues with support for kernels ≤4.9. It is recommended to enable this only for higher kernel versions. We now support all kernel versions, with 3.4 being the minimum supported version.
     - **PROFILE_NAME** - Enter the name of your modified ENV environment variable file, such as codename_rom_template.env.
     - **KERNELSU_SUS_PATCH** - If your KernelSU is not part of KernelSU-Next and does not have a patch branch for SuSFS, you can enable this option (true). However, we do not recommend doing so, as the KernelSU branches have been heavily modified, and manual patching is no longer suitable for the current era.
     - **KPM_ENABLE** - (Experimental ⚠) Enables compilation support for KPM in SukiSU-Ultra. This is an experimental feature, so please enable it with caution.
@@ -143,12 +143,12 @@ Below is an introduction to the patches included in the Patches directory:
 
 - **normal_patches.sh**
     - Variable: HOOK_METHOD -> normal
-    - Used for manually patching Non-GKI kernels. This is also the kernel used in the manual patching section for Non-GKI kernels on the KernelSU official website.
+    - Used for manually patching Non-GKI kernels. This is also the kernel used in the manual patching section for Non-GKI kernels on the KernelSU official website. This is only suitable for ARM64 devices with kernel version 3.18 or higher.
     - Reference: https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
     
 - **vfs_hook_patches.sh**
     - Variable: HOOK_METHOD -> vfs
-    - Used for the latest minimized manual patching (Syscall) feature implemented by backslashxx. Compatibility with older compilers isn't great.
+    - Used for the latest minimized manual patching (Syscall) feature implemented by backslashxx. Compatibility with older compilers isn't great. But it's been adapted to support devices with kernel versions ≤ 3.18 (ARMV7A), so it's compatible with all kernels.
     - Reference: https://github.com/backslashxx/KernelSU/issues/5
     
 - **extra_patches.sh**
@@ -158,7 +158,7 @@ Below is an introduction to the patches included in the Patches directory:
 
 - **backport_patches.sh**
     - Executes automatically based on kernel version.
-    - Used for backporting features to Non-GKI kernels. While KernelSU-Next and SukiSU-Ultra can automatically handle backporting, other branches cannot. This script was independently created for automatic backporting in those cases.
+    - Used for backporting features to Non-GKI kernels. While KernelSU-Next and SukiSU-Ultra can automatically handle backporting, other branches cannot.
     - Reference: https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
 
 - **susfs_upgrade_to_157.patch**
