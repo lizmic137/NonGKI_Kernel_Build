@@ -613,16 +613,16 @@ jobs:
         run: |
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
-          cat ./arch/arm64/configs/vendor/xiaomi/mi845_defconfig > ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          cat ./arch/arm64/configs/vendor/xiaomi/polaris.config >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_CRYPTO_LZ4=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_LZ4_COMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_LZ4_DECOMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
-          make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu- vendor/xiaomi/polaris_defconfig
+          cat ./arch/arm64/configs/vendor/xiaomi/mi845_defconfig > ./arch/arm64/configs/polaris_defconfig
+          cat ./arch/arm64/configs/vendor/xiaomi/polaris.config >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_CRYPTO_LZ4=y" >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_LZ4_COMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_LZ4_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
+          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/polaris_defconfig
+          make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu- polaris_defconfig
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} CROSS_COMPILE=aarch64-linux-gnu-
 
       - name: KPM Patcher (Experiment)
