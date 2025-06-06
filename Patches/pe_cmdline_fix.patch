@@ -1,6 +1,7 @@
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -4,6 +4,12 @@
+@@ -4,13 +4,23 @@
+ #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
  #include <asm/setup.h>
  
@@ -23,3 +24,6 @@
  }
  
  static int cmdline_proc_open(struct inode *inode, struct file *file)
+ {
+ 	return single_open(file, cmdline_proc_show, NULL);
+ }
