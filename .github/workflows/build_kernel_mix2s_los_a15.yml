@@ -11,7 +11,7 @@ env:
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
   PROFILE_NAME: "polaris_los_a15.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
-  KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
+  KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
   GENERATE_DTB: "false" # if u kernel need DTB , but cannot auto generate it. (Only Anykernel3).
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
@@ -446,12 +446,15 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
-          wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
-          chmod a+x patch
-          cp /tmp/Patches/backport_set_memory.patch ./
-          patch -p1 < backport_set_memory.patch || true
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_los.patch
-          patch -p1 < fix_los.patch
+          if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
+            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
+            chmod a+x patch
+            cp /tmp/Patches/backport_set_memory.patch ./
+            patch -p1 < backport_set_memory.patch || true
+            wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_los.patch
+            patch -p1 < fix_los.patch
+          fi
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
