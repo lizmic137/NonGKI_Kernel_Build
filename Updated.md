@@ -1,4 +1,12 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 74**
+    - 关闭 小米Mix2s LXC功能
+    - 修正 OPPO K9 Pro 编译错误
+
+- **Ver.1.4 Fixed 73**
+    - 修正 OPPO K9 Pro 标题
+    - 修正 OPPO K9 Pro 编译错误
+
 - **Ver.1.4 Fixed 72**
     - 修正 示例YAML 对于 ARMV7A设备 的部分判定
     - 修正 LG Nexus 5 YAML 对于 ARMV7A设备 的部分判定

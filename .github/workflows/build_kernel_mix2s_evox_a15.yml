@@ -44,6 +44,7 @@ jobs:
               SUSFS_FIXED
               SUSFS_UPDATE
               BOOT_SOURCE
+              LXC_ENABLE
               ROM_TEXT
 
           )
@@ -177,6 +178,12 @@ jobs:
             echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
             echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
             echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          fi
+          if [[ "${{ env.LXC_ENABLE }}" == "true" ]]; then
+           echo "CONFIG_VIRTUALIZATION=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+           echo "CONFIG_KVM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+           echo "CONFIG_VHOST_NET=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+           echo "CONFIG_VHOST_CROSS_ENDIAN_LEGACY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           fi
 
       - name: Set Anykernel3 and Others
@@ -342,6 +349,44 @@ jobs:
           # Zram Writeback
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_ZRAM_ENTROPY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+
+
+      - name: Setup LXC (Experiment)
+        if: env.LXC_ENABLE == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel
+          if [[ -d "arch/arm64/configs" ]]; then
+            ARCH=arm64
+          else
+            ARCH=arm
+          fi
+
+          rm -rf lxc
+          git clone https://github.com/tomxi1997/lxc-docker-support-for-android.git lxc
+          echo 'source "lxc/Kconfig"' >> "Kconfig"
+
+          echo "CONFIG_DOCKER=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+
+          sed -i '/CONFIG_ANDROID_PARANOID_NETWORK/d' ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+          echo "# CONFIG_ANDROID_PARANOID_NETWORK is not set" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+
+          #sed -i '/CONFIG_LOCALVERSION/d' ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+          #echo 'CONFIG_LOCALVERSION="-LXC"' >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+
+          chmod +x $GITHUB_WORKSPACE/device_kernel/lxc/runcpatch.sh
+          if [ -f $GITHUB_WORKSPACE/device_kernel/kernel/cgroup/cgroup.c ]; then
+              sh $GITHUB_WORKSPACE/device_kernel/lxc/runcpatch.sh $GITHUB_WORKSPACE/device_kernel/kernel/cgroup/cgroup.c
+          fi
+
+          if [ -f $GITHUB_WORKSPACE/device_kernel/kernel/cgroup.c ]; then
+              sh $GITHUB_WORKSPACE/device_kernel/lxc/runcpatch.sh $GITHUB_WORKSPACE/device_kernel/kernel/cgroup.c
+          fi
+
+          if [ -f $GITHUB_WORKSPACE/device_kernel/net/netfilter/xt_qtaguid.c ]; then
+              patch -p0 < $GITHUB_WORKSPACE/device_kernel/lxc/xt_qtaguid.patch
+          fi
+
+          echo "LXC_ENABLE=lxc" >> $GITHUB_ENV
 
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
