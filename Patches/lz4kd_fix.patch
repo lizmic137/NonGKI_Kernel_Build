@@ -1,21 +1,12 @@
 --- a/drivers/block/zram/zcomp.c
 +++ b/drivers/block/zram/zcomp.c
-@@ -19,7 +19,18 @@
- #include "zcomp.h"
- 
- static const char * const backends[] = {
-+#if IS_ENABLED(CONFIG_CRYPTO_LZ4)
- 	"lz4",
-+#endif
-+#if IS_ENABLED(CONFIG_CRYPTO_LZ4HC)
-+	"lz4hc",
-+#endif
+@@ -25,6 +25,9 @@
+ #if IS_ENABLED(CONFIG_CRYPTO_LZ4HC)
+ 	"lz4hc",
+ #endif
 +#if IS_ENABLED(CONFIG_CRYPTO_LZ4KD)
 +	"lz4kd",
 +#endif
-+#if IS_ENABLED(CONFIG_CRYPTO_842)
-+	"842",
-+#endif
- #if IS_ENABLED(CONFIG_CRYPTO_ZSTD)
- 	"zstd",
+ #if IS_ENABLED(CONFIG_CRYPTO_842)
+ 	"842",
  #endif
