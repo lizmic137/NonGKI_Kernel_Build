@@ -465,7 +465,7 @@ jobs:
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_UID.patch
           patch -p1 < cgroup_v2_UID.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/lz4kd.patch
-          patch -p1 < lz4kd.patch
+          patch -p1 < lz4kd.patch || true
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/lz4kd_fix.patch
           patch -p1 < lz4kd_fix.patch
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
