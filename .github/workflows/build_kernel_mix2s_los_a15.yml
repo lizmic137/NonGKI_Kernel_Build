@@ -466,6 +466,8 @@ jobs:
           patch -p1 < cgroup_v2_UID.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/lz4kd.patch
           patch -p1 < lz4kd.patch
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/lz4kd_fix.patch
+          patch -p1 < lz4kd_fix.patch
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
             # 设置 BBR 为默认算法
             sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
