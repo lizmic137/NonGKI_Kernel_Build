@@ -448,32 +448,34 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4kd_to_49.patch
-          patch -p1 < lz4kd_to_49.patch || true
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_los_lz4kd.patch
-          patch -p1 < fix_los_lz4kd.patch
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/lz4kd.patch
+          patch -p1 < lz4kd.patch || true
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/lz4kd_fix.patch
+          patch -p1 < lz4kd_fix.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_uid.patch
           patch -p1 < cgroup_v2_uid.patch
-          # 删除 WIREGUARD
-          sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Zram Writeback
           echo "CONFIG_SWAP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          # 设置 BBR 为默认算法
-          echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_TCP_CONG_WESTWOOD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_TCP_CONG_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_WIREGUARD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
-            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-            wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
-            chmod a+x patch
+            # 删除 WIREGUARD
+            sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            # 设置 BBR 为默认算法
+            echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            echo "CONFIG_TCP_CONG_WESTWOOD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            echo "CONFIG_TCP_CONG_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            echo "CONFIG_WIREGUARD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            # set_memory
             cp /tmp/Patches/Patch/set_memory_to_49_and_low.patch ./
             patch -p1 < set_memory_to_49_and_low.patch || true
             wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_los.patch
             patch -p1 < fix_los.patch
+            # KPM
+            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
+            chmod a+x patch
           fi
 
       - name: Added mkdtboimg to kernel (Experiment)
