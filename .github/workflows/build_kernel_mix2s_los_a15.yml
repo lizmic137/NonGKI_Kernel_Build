@@ -455,15 +455,6 @@ jobs:
           patch -p1 < lz4kd_fix.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_uid.patch
           patch -p1 < cgroup_v2_uid.patch
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/simple_lmk_to_49.patch
-          patch -p1 < simple_lmk_to_49.patch
-          # Simple LMK
-          echo "# CONFIG_MEMCG is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_MEMCG_SWAP is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "# CONFIG_MEMCG_SWAP_ENABLED is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Zram Writeback
           echo "CONFIG_SWAP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
