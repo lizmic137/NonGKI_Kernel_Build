@@ -449,8 +449,6 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
-          echo "CONFIG_LTO_CLANG=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_LTO=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/lz4kd.patch
           patch -p1 < lz4kd.patch || true
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/lz4kd_fix.patch
