@@ -462,10 +462,10 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/lz4kd.patch
-          patch -p1 < lz4kd.patch || true
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/lz4kd_fix.patch
-          patch -p1 < lz4kd_fix.patch
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mix2s_evox_a15/lz4kd_to_49.patch
+          patch -p1 < lz4kd_to_49.patch || true
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_los_lz4kd.patch
+          patch -p1 < fix_los_lz4kd.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_uid.patch
           patch -p1 < cgroup_v2_uid.patch
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
