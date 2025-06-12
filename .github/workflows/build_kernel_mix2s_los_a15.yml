@@ -642,6 +642,7 @@ jobs:
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/polaris_defconfig
           echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
           echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
+          export KBUILD_USE_RESPONSE_FILE=1
           make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
 
