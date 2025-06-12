@@ -642,15 +642,8 @@ jobs:
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/polaris_defconfig
           echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
           echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
-          # 阶段1: 配置和主机工具 (增加内存限制)
-          prlimit --as=4G --stack=131072 -- make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }} 
-          prlimit --as=4G --stack=131072 -- make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} scripts
-          # 阶段2: 内核编译 (降低并行度 + 内存监控)
-          prlimit --as=6G --stack=262144 -- make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
-          # 阶段3: 链接和模块 (单独处理)
-          prlimit --as=8G --stack=524288 -- make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} vmlinux modules
-          # 阶段4: 设备树
-          prlimit --as=4G --stack=262144 -- make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} dtbs
+          make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
+          make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
