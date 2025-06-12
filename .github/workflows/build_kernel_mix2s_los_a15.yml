@@ -643,7 +643,7 @@ jobs:
           echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
           echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
           make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
-          prlimit --stack=65536 -- make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
+          systemd-run --scope -p MemoryLimit=4G -p LimitSTACK=262144 make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
