@@ -458,7 +458,6 @@ jobs:
           # Zram Writeback
           echo "CONFIG_SWAP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ZRAM_ENTROPY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
             # 删除 WIREGUARD
             sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
