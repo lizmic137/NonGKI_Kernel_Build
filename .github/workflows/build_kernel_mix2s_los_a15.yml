@@ -150,9 +150,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
 
-          # Copy Shell
-          cp /tmp/Patches/found_gcc.sh ./
-
           # Set GCC Aarch64
           if [[ "${{ env.CLANG_SOURCE }}" == *proton* ]]; then
             echo "Detected Proton Clang. Not use GCC Source."
@@ -179,7 +176,8 @@ jobs:
               mkdir gcc-64
               unzip gcc-64.zip -d gcc-64/
             fi
-            bash found_gcc.sh GCC_64
+            GCC_64_BIN=aarch64-linux-android-
+            echo "GCC_64=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-64/bin/$GCC_64_BIN" >> $GITHUB_ENV
           fi
 
 
@@ -209,10 +207,11 @@ jobs:
               mkdir gcc-32
               unzip gcc-32.zip -d gcc-32/
             fi
+            GCC_32_BIN=arm-linux-androideabi-
             if [ -z "${{ env.GCC_64_SOURCE }}" ]; then
-                bash found_gcc.sh GCC_32_ONLY
+                echo "GCC_32=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-32/bin/$GCC_32_BIN" >> $GITHUB_ENV
             else
-                bash found_gcc.sh GCC_32
+                echo "GCC_32=CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/gcc-32/bin/$GCC_32_BIN" >> $GITHUB_ENV
             fi
           fi
 
@@ -261,13 +260,7 @@ jobs:
                 $GITHUB_WORKSPACE/device_kernel/scripts/extract-ikconfig $GITHUB_WORKSPACE/device_kernel/Image > $GITHUB_WORKSPACE/device_kernel/arch/arm/configs/${{ env.DEFCONFIG_NAME }}
             fi
           fi
-
-          # Get KernelSU Version and Kernel Version
-
-          KERNEL_VERSION=$(head -n 3 $GITHUB_WORKSPACE/device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
-          echo "FIRST_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $1}')" >> $GITHUB_ENV
-          echo "SECOND_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $2}')" >> $GITHUB_ENV
 
       - name: Set KSU and SUSFS for DEFCONFIG
         run: |
@@ -370,22 +363,15 @@ jobs:
           KSU_VERSION=$(cd ${{ env.KERNELSU_NAME }} && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           echo "UPLOADNAME=-${{ env.KERNELSU_NAME }}_$KSU_VERSION" >> $GITHUB_ENV
 
-          # KPM Checker
+          ## KPM Checker
           if [[ -d "${{ env.KERNELSU_NAME }}/kernel/kpm" ]]; then
             if [ -f "include/linux/set_memory.h" ] && [ "${{ env.KPM_ENABLE }}" == "true" ]; then
                 echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
                 wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
                 chmod a+x patch
                 echo "Set KPM successfully !"
-            elif [ "${{ env.KPM_ENABLE }}" == "true" ]; then
-                if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
-                    cp /tmp/Patches/Patch/set_memory_to_49_and_low.patch ./
-                    patch -p1 < set_memory_to_49_and_low.patch || true
-                    echo "Patch set_memory successfully !"
-                    echo "If have patch error (.rej), manual fixed it."
-                else
-                    echo "Your kernel cannot support KPM function."
-                fi
+            elif [ "$KPM_ENABLE" == "true" ]; then
+                echo "Your kernel doesn't support KPM !"
             else
                 echo "Doesn't enable KPM !"
             fi
@@ -466,8 +452,15 @@ jobs:
           patch -p1 < lz4kd_to_49.patch || true
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_los_lz4kd.patch
           patch -p1 < fix_los_lz4kd.patch
+          # 删除 MEMCG 相关配置
+          sed -i '/CONFIG_MEMCG/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          sed -i '/CONFIG_MEMCG_SWAP/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          sed -i '/CONFIG_MEMCG_SWAP_ENABLED/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # 删除 WIREGUARD
           sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # Zram Writeback
+          echo "CONFIG_SWAP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # 设置 BBR 为默认算法
           echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -488,19 +481,17 @@ jobs:
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
         run: |
-          # Get MKDTBO tool to kernel
           cd $GITHUB_WORKSPACE/device_kernel/scripts/dtc
           wget https://android.googlesource.com/platform/system/libufdt/+archive/refs/heads/main/utils/src.tar.gz
           tar zxvf src.tar.gz
           rm -f src.tar.gz
 
-          # Hook dtbo generate code to kernel
           cd $GITHUB_WORKSPACE/device_kernel
+          cp /tmp/Patches/temp_dtbo.patch ./
+          patch -p1 < temp_dtbo.patch
           sed -i '/targets := Image Image.bz2 Image.gz Image.lz4 Image.lzma Image.lzo/s/$/ dtbo.img/' ./arch/arm64/boot/Makefile
-          sed -i '/# Add RTIC DTB to the DTB list if RTIC MPGen is enabled/i \DTBO_OBJS := $(shell find $(obj)/dts/ -name \\*.dtbo)\n' arch/arm64/boot/Makefile
           sed -i '/$(obj)\/Image\.gz-dtb: $(obj)\/Image\.gz $(DTB_OBJS) FORCE/a \#DTBO\n$(obj)\/dtbo.img: $(DTBO_OBJS) FORCE\n\t$(call if_changed,mkdtimg)' ./arch/arm64/boot/Makefile
           sed -i '/KBUILD_DTBS\t:= dtbs/a \#DTBO\nKBUILD_DTBO_IMG := dtbo.img' ./arch/arm64/Makefile
-          sed -i '/PHONY += vdso_install/i \ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)\n$(KBUILD_DTBO_IMG): dtbs\n\t$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@\n\nall: $(KBUILD_DTBO_IMG)\nendif' arch/arm64/Makefile
           sed -i '/dtc-tmp = $(subst $(comma),_,$(dot-target)\.dts\.tmp)/a \#DTBO\n# mkdtimg\n#----------------------------------------------------------------------------\nquiet_cmd_mkdtimg = DTBOIMG $@\ncmd_mkdtimg = python3 $(srctree)\/scripts\/dtc\/mkdtboimg.py create $@ --page_size=4096 $(filter-out FORCE,$^)' ./scripts/Makefile.lib
 
       - name: Setup LXC (Experiment)
@@ -604,7 +595,7 @@ jobs:
           patch -p1 < fdinfo_fixed.patch || true
 
       - name: Updated SUSFS Version
-        if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
+        if: env.SUSFS_UPDATE == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           cp /tmp/Patches/Patch/susfs_upgrade_to_157.patch ./
@@ -652,20 +643,6 @@ jobs:
           echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
           make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
-
-      - name: Analyze compile error
-        if: env.BUILD_DEBUGGER == 'true' && always()
-        run: |
-          cd $GITHUB_WORKSPACE/device_kernel/
-
-          cp /tmp/Patches/check_error.sh ./
-          bash check_error.sh
-
-          if [ -f "have_error" ]; then
-            false
-          else
-            echo "Skipped."
-          fi
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
