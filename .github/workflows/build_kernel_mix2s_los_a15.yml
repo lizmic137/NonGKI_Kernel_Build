@@ -459,8 +459,6 @@ jobs:
           patch -p1 < simple_lmk_to_49.patch
           # Simple Lmk
           echo "CONFIG_ANDROID_SIMPLE_LMK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_AGGRESSION=1" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_ANDROID_SIMPLE_LMK_MINFREE=100" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Zram Writeback
           echo "CONFIG_SWAP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
