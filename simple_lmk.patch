@@ -1,0 +1,652 @@
+From d59bc60ac31b6f163de644449b5598a8827e6595 Mon Sep 17 00:00:00 2001
+From: wuqij <wuqij@noreply.gitcode.com>
+Date: Thu, 12 Jun 2025 19:24:15 -0800
+Subject: [PATCH] Added simple lmk
+
+---
+ .../configs/vendor/xiaomi/mi845_defconfig     |   6 +-
+ drivers/android/Kconfig                       |  33 ++
+ drivers/android/Makefile                      |   1 +
+ drivers/android/simple_lmk.c                  | 358 ++++++++++++++++++
+ drivers/block/zram/zcomp.c                    |   3 +
+ include/linux/mmzone.h                        |   1 +
+ include/linux/sched.h                         |   6 +
+ include/linux/simple_lmk.h                    |  18 +
+ kernel/exit.c                                 |   4 +
+ kernel/fork.c                                 |   2 +
+ mm/oom_kill.c                                 |   4 +
+ mm/page_alloc.c                               |  17 +-
+ mm/vmscan.c                                   |   3 +-
+ 13 files changed, 450 insertions(+), 6 deletions(-)
+ create mode 100644 drivers/android/simple_lmk.c
+ create mode 100644 include/linux/simple_lmk.h
+
+diff --git a/arch/arm64/configs/vendor/xiaomi/mi845_defconfig b/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
+index 05bc4fccd52e..7e6d383d8961 100644
+--- a/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
++++ b/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
+@@ -9,7 +9,7 @@ CONFIG_SCHED_WALT=y
+ CONFIG_TASKSTATS=y
+ CONFIG_TASK_XACCT=y
+ CONFIG_TASK_IO_ACCOUNTING=y
+-CONFIG_PSI=y
++CONFIG_PSI=n
+ CONFIG_RCU_EXPERT=y
+ CONFIG_RCU_FAST_NO_HZ=y
+ CONFIG_RCU_NOCB_CPU=y
+@@ -23,7 +23,7 @@ CONFIG_CGROUP_FREEZER=y
+ CONFIG_CPUSETS=y
+ CONFIG_CGROUP_CPUACCT=y
+ CONFIG_CGROUP_SCHEDTUNE=y
+-CONFIG_MEMCG=y
++CONFIG_MEMCG=n
+ CONFIG_MEMCG_SWAP=y
+ CONFIG_RT_GROUP_SCHED=y
+ CONFIG_CGROUP_BPF=y
+@@ -652,3 +652,5 @@ CONFIG_WCD9XXX_CODEC_CORE=y
+ CONFIG_WCD_DSP_GLINK=y
+ CONFIG_WCD_SPI_AC=y
+ CONFIG_CRYPTO_LZ4KD=y
++CONFIG_ANDROID_LOW_MEMORY_KILLER=n
++CONFIG_ANDROID_SIMPLE_LMK=y
+diff --git a/drivers/android/Kconfig b/drivers/android/Kconfig
+index bb2a5b581622..67edcdc09561 100644
+--- a/drivers/android/Kconfig
++++ b/drivers/android/Kconfig
+@@ -54,6 +54,39 @@ config ANDROID_BINDER_IPC_SELFTEST
+ 	  exhaustively with combinations of various buffer sizes and
+ 	  alignments.
+ 
++config ANDROID_SIMPLE_LMK
++	bool "Simple Android Low Memory Killer"
++	depends on !ANDROID_LOW_MEMORY_KILLER && !MEMCG && !PSI
++	---help---
++	  This is a complete low memory killer solution for Android that is
++	  small and simple. Processes are killed according to the priorities
++	  that Android gives them, so that the least important processes are
++	  always killed first. Processes are killed until memory deficits are
++	  satisfied, as observed from direct reclaim and kswapd reclaim
++	  struggling to free up pages, via VM pressure notifications.
++
++if ANDROID_SIMPLE_LMK
++
++config ANDROID_SIMPLE_LMK_MINFREE
++	int "Minimum MiB of memory to free per reclaim"
++	range 8 512
++	default 128
++	help
++	  Simple LMK will try to free at least this much memory per reclaim.
++
++config ANDROID_SIMPLE_LMK_TIMEOUT_MSEC
++	int "Reclaim timeout in milliseconds"
++	range 50 1000
++	default 200
++	help
++	  Simple LMK tries to wait until all of the victims it kills have their
++	  memory freed; however, sometimes victims can take a while to die,
++	  which can block Simple LMK from killing more processes in time when
++	  needed. After the specified timeout elapses, Simple LMK will stop
++	  waiting and make itself available to kill more processes.
++
++endif
++
+ endif # if ANDROID
+ 
+ endmenu
+diff --git a/drivers/android/Makefile b/drivers/android/Makefile
+index a01254c43ee3..81cc79664cf9 100644
+--- a/drivers/android/Makefile
++++ b/drivers/android/Makefile
+@@ -2,3 +2,4 @@ ccflags-y += -I$(src)			# needed for trace events
+ 
+ obj-$(CONFIG_ANDROID_BINDER_IPC)	+= binder.o binder_alloc.o
+ obj-$(CONFIG_ANDROID_BINDER_IPC_SELFTEST) += binder_alloc_selftest.o
++obj-$(CONFIG_ANDROID_SIMPLE_LMK)	+= simple_lmk.o
+diff --git a/drivers/android/simple_lmk.c b/drivers/android/simple_lmk.c
+new file mode 100644
+index 000000000000..56fcd6d037ac
+--- /dev/null
++++ b/drivers/android/simple_lmk.c
+@@ -0,0 +1,358 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2019-2023 Sultan Alsawaf <sultan@kerneltoast.com>.
++ */
++
++#define pr_fmt(fmt) "simple_lmk: " fmt
++
++#include <linux/freezer.h>
++#include <linux/kthread.h>
++#include <linux/mm.h>
++#include <linux/moduleparam.h>
++#include <linux/oom.h>
++#include <linux/ratelimit.h>
++#include <linux/sort.h>
++#include <linux/vmpressure.h>
++
++/* The minimum number of pages to free per reclaim */
++#define MIN_FREE_PAGES (CONFIG_ANDROID_SIMPLE_LMK_MINFREE * SZ_1M / PAGE_SIZE)
++
++/* Kill up to this many victims per reclaim */
++#define MAX_VICTIMS 1024
++
++/* Timeout in jiffies for each reclaim */
++#define RECLAIM_EXPIRES msecs_to_jiffies(CONFIG_ANDROID_SIMPLE_LMK_TIMEOUT_MSEC)
++
++struct victim_info {
++	struct task_struct *tsk;
++	struct mm_struct *mm;
++	unsigned long size;
++};
++
++static struct victim_info victims[MAX_VICTIMS] __cacheline_aligned_in_smp;
++static struct task_struct *task_bucket[SHRT_MAX + 1] __cacheline_aligned;
++static DECLARE_WAIT_QUEUE_HEAD(oom_waitq);
++static DECLARE_COMPLETION(reclaim_done);
++static __cacheline_aligned_in_smp DEFINE_RWLOCK(mm_free_lock);
++static int nr_victims;
++static atomic_t needs_reclaim = ATOMIC_INIT(0);
++static atomic_t nr_killed = ATOMIC_INIT(0);
++
++static int victim_cmp(const void *lhs_ptr, const void *rhs_ptr)
++{
++	const struct victim_info *lhs = (typeof(lhs))lhs_ptr;
++	const struct victim_info *rhs = (typeof(rhs))rhs_ptr;
++
++	return rhs->size - lhs->size;
++}
++
++static void victim_swap(void *lhs_ptr, void *rhs_ptr, int size)
++{
++	struct victim_info *lhs = (typeof(lhs))lhs_ptr;
++	struct victim_info *rhs = (typeof(rhs))rhs_ptr;
++
++	swap(*lhs, *rhs);
++}
++
++static unsigned long get_total_mm_pages(struct mm_struct *mm)
++{
++	unsigned long pages = 0;
++	int i;
++
++	for (i = 0; i < NR_MM_COUNTERS; i++)
++		pages += get_mm_counter(mm, i);
++
++	return pages;
++}
++
++static unsigned long find_victims(int *vindex)
++{
++	short i, min_adj = SHRT_MAX, max_adj = 0;
++	unsigned long pages_found = 0;
++	struct task_struct *tsk;
++
++	rcu_read_lock();
++	for_each_process(tsk) {
++		struct signal_struct *sig;
++		short adj;
++
++		/*
++		 * Search for suitable tasks with a positive adj (importance).
++		 * Since only tasks with a positive adj can be targeted, that
++		 * naturally excludes tasks which shouldn't be killed, like init
++		 * and kthreads. Although oom_score_adj can still be changed
++		 * while this code runs, it doesn't really matter; we just need
++		 * a snapshot of the task's adj.
++		 */
++		sig = tsk->signal;
++		adj = READ_ONCE(sig->oom_score_adj);
++		if (adj < 0 ||
++		    sig->flags & (SIGNAL_GROUP_EXIT | SIGNAL_GROUP_COREDUMP) ||
++		    (thread_group_empty(tsk) && tsk->flags & PF_EXITING))
++			continue;
++
++		/* Store the task in a linked-list bucket based on its adj */
++		tsk->simple_lmk_next = task_bucket[adj];
++		task_bucket[adj] = tsk;
++
++		/* Track the min and max adjs to speed up the loop below */
++		if (adj > max_adj)
++			max_adj = adj;
++		if (adj < min_adj)
++			min_adj = adj;
++	}
++
++	/* Start searching for victims from the highest adj (least important) */
++	for (i = max_adj; i >= min_adj; i--) {
++		int old_vindex;
++
++		tsk = task_bucket[i];
++		if (!tsk)
++			continue;
++
++		/* Clear out this bucket for the next time reclaim is done */
++		task_bucket[i] = NULL;
++
++		/* Iterate through every task with this adj */
++		old_vindex = *vindex;
++		do {
++			struct task_struct *vtsk;
++
++			vtsk = find_lock_task_mm(tsk);
++			if (!vtsk)
++				continue;
++
++			/* Store this potential victim away for later */
++			victims[*vindex].tsk = vtsk;
++			victims[*vindex].mm = vtsk->mm;
++			victims[*vindex].size = get_total_mm_pages(vtsk->mm);
++
++			/* Count the number of pages that have been found */
++			pages_found += victims[*vindex].size;
++
++			/* Make sure there's space left in the victim array */
++			if (++*vindex == MAX_VICTIMS)
++				break;
++		} while ((tsk = tsk->simple_lmk_next));
++
++		/* Go to the next bucket if nothing was found */
++		if (*vindex == old_vindex)
++			continue;
++
++		/*
++		 * Sort the victims in descending order of size to prioritize
++		 * killing the larger ones first.
++		 */
++		sort(&victims[old_vindex], *vindex - old_vindex,
++		     sizeof(*victims), victim_cmp, victim_swap);
++
++		/* Stop when we are out of space or have enough pages found */
++		if (*vindex == MAX_VICTIMS || pages_found >= MIN_FREE_PAGES) {
++			/* Zero out any remaining buckets we didn't touch */
++			if (i > min_adj)
++				memset(&task_bucket[min_adj], 0,
++				       (i - min_adj) * sizeof(*task_bucket));
++			break;
++		}
++	}
++	rcu_read_unlock();
++
++	return pages_found;
++}
++
++static int process_victims(int vlen)
++{
++	unsigned long pages_found = 0;
++	int i, nr_to_kill = 0;
++
++	/*
++	 * Calculate the number of tasks that need to be killed and quickly
++	 * release the references to those that'll live.
++	 */
++	for (i = 0; i < vlen; i++) {
++		struct victim_info *victim = &victims[i];
++		struct task_struct *vtsk = victim->tsk;
++
++		/* The victim's mm lock is taken in find_victims; release it */
++		if (pages_found >= MIN_FREE_PAGES) {
++			task_unlock(vtsk);
++		} else {
++			pages_found += victim->size;
++			nr_to_kill++;
++		}
++	}
++
++	return nr_to_kill;
++}
++
++static void scan_and_kill(void)
++{
++	int i, nr_to_kill, nr_found = 0;
++	unsigned long pages_found;
++
++	/* Populate the victims array with tasks sorted by adj and then size */
++	pages_found = find_victims(&nr_found);
++	if (unlikely(!pages_found)) {
++		pr_err_ratelimited("No processes available to kill!\n");
++		return;
++	}
++
++	/* Minimize the number of victims if we found more pages than needed */
++	if (pages_found > MIN_FREE_PAGES) {
++		/* First round of processing to weed out unneeded victims */
++		nr_to_kill = process_victims(nr_found);
++
++		/*
++		 * Try to kill as few of the chosen victims as possible by
++		 * sorting the chosen victims by size, which means larger
++		 * victims that have a lower adj can be killed in place of
++		 * smaller victims with a high adj.
++		 */
++		sort(victims, nr_to_kill, sizeof(*victims), victim_cmp,
++		     victim_swap);
++
++		/* Second round of processing to finally select the victims */
++		nr_to_kill = process_victims(nr_to_kill);
++	} else {
++		/* Too few pages found, so all the victims need to be killed */
++		nr_to_kill = nr_found;
++	}
++
++	/* Store the final number of victims for simple_lmk_mm_freed() */
++	write_lock(&mm_free_lock);
++	nr_victims = nr_to_kill;
++	write_unlock(&mm_free_lock);
++
++	/* Kill the victims */
++	for (i = 0; i < nr_to_kill; i++) {
++		static const struct sched_param min_rt_prio = {
++			.sched_priority = 1
++		};
++		struct victim_info *victim = &victims[i];
++		struct task_struct *t, *vtsk = victim->tsk;
++
++		pr_info("Killing %s with adj %d to free %lu KiB\n", vtsk->comm,
++			vtsk->signal->oom_score_adj,
++			victim->size << (PAGE_SHIFT - 10));
++
++		/* Accelerate the victim's death by forcing the kill signal */
++		do_send_sig_info(SIGKILL, SEND_SIG_FORCED, vtsk, true);
++
++		/*
++		 * Mark the thread group dead so that other kernel code knows,
++		 * and then elevate the thread group to SCHED_RR with minimum RT
++		 * priority. The entire group needs to be elevated because
++		 * there's no telling which threads have references to the mm as
++		 * well as which thread will happen to put the final reference
++		 * and release the mm's memory. If the mm is released from a
++		 * thread with low scheduling priority then it may take a very
++		 * long time for exit_mmap() to complete.
++		 */
++		rcu_read_lock();
++		for_each_thread(vtsk, t)
++			set_tsk_thread_flag(t, TIF_MEMDIE);
++		for_each_thread(vtsk, t)
++			sched_setscheduler_nocheck(t, SCHED_RR, &min_rt_prio);
++		rcu_read_unlock();
++
++		/* Allow the victim to run on any CPU. This won't schedule. */
++		set_cpus_allowed_ptr(vtsk, cpu_all_mask);
++
++		/* Signals can't wake frozen tasks; only a thaw operation can */
++		__thaw_task(vtsk);
++
++		/* Finally release the victim's task lock acquired earlier */
++		task_unlock(vtsk);
++	}
++
++	/* Wait until all the victims die or until the timeout is reached */
++	if (!wait_for_completion_timeout(&reclaim_done, RECLAIM_EXPIRES))
++		pr_info("Timeout hit waiting for victims to die, proceeding\n");
++
++	/* Clean up for future reclaim invocations */
++	write_lock(&mm_free_lock);
++	reinit_completion(&reclaim_done);
++	nr_victims = 0;
++	nr_killed = (atomic_t)ATOMIC_INIT(0);
++	write_unlock(&mm_free_lock);
++}
++
++static int simple_lmk_reclaim_thread(void *data)
++{
++	static const struct sched_param sched_max_rt_prio = {
++		.sched_priority = MAX_RT_PRIO - 1
++	};
++
++	sched_setscheduler_nocheck(current, SCHED_FIFO, &sched_max_rt_prio);
++	set_freezable();
++
++	while (1) {
++		wait_event_freezable(oom_waitq, atomic_read(&needs_reclaim));
++		scan_and_kill();
++		atomic_set(&needs_reclaim, 0);
++	}
++
++	return 0;
++}
++
++void simple_lmk_mm_freed(struct mm_struct *mm)
++{
++	int i;
++
++	/* Nothing to do when reclaim is starting or ending */
++	if (!read_trylock(&mm_free_lock))
++		return;
++
++	for (i = 0; i < nr_victims; i++) {
++		if (victims[i].mm == mm) {
++			victims[i].mm = NULL;
++			if (atomic_inc_return_relaxed(&nr_killed) == nr_victims)
++				complete(&reclaim_done);
++			break;
++		}
++	}
++	read_unlock(&mm_free_lock);
++}
++
++static int simple_lmk_vmpressure_cb(struct notifier_block *nb,
++				    unsigned long pressure, void *data)
++{
++	if (pressure == 100) {
++		atomic_set(&needs_reclaim, 1);
++		smp_mb__after_atomic();
++		if (waitqueue_active(&oom_waitq))
++			wake_up(&oom_waitq);
++	}
++
++	return NOTIFY_OK;
++}
++
++static struct notifier_block vmpressure_notif = {
++	.notifier_call = simple_lmk_vmpressure_cb,
++	.priority = INT_MAX
++};
++
++/* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
++static int simple_lmk_init_set(const char *val, const struct kernel_param *kp)
++{
++	static atomic_t init_done = ATOMIC_INIT(0);
++	struct task_struct *thread;
++
++	if (!atomic_cmpxchg(&init_done, 0, 1)) {
++		thread = kthread_run(simple_lmk_reclaim_thread, NULL,
++				     "simple_lmkd");
++		BUG_ON(IS_ERR(thread));
++		BUG_ON(vmpressure_notifier_register(&vmpressure_notif));
++	}
++
++	return 0;
++}
++
++static const struct kernel_param_ops simple_lmk_init_ops = {
++	.set = simple_lmk_init_set
++};
++
++/* Needed to prevent Android from thinking there's no LMK and thus rebooting */
++#undef MODULE_PARAM_PREFIX
++#define MODULE_PARAM_PREFIX "lowmemorykiller."
++module_param_cb(minfree, &simple_lmk_init_ops, NULL, 0200);
+diff --git a/drivers/block/zram/zcomp.c b/drivers/block/zram/zcomp.c
+index b1c5aa0cd3c8..660babe18890 100644
+--- a/drivers/block/zram/zcomp.c
++++ b/drivers/block/zram/zcomp.c
+@@ -38,6 +38,9 @@ static const char * const backends[] = {
+ #if IS_ENABLED(CONFIG_CRYPTO_LZ4KD)
+ 	"lz4kd",
+ #endif
++#if IS_ENABLED(CONFIG_CRYPTO_DEFLATE)
++	"deflate",
++#endif
+ #if IS_ENABLED(CONFIG_CRYPTO_842)
+ 	"842",
+ #endif
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index f146244e7b6a..c4cf8f93826b 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -638,6 +638,7 @@ typedef struct pglist_data {
+ 	unsigned long node_spanned_pages; /* total size of physical page
+ 					     range, including holes */
+ 	int node_id;
++	atomic_t kswapd_waiters;
+ 	wait_queue_head_t kswapd_wait;
+ 	wait_queue_head_t pfmemalloc_wait;
+ 	struct task_struct *kswapd;	/* Protected by
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 94e195508472..41e80a783165 100755
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -2203,6 +2203,12 @@ struct task_struct {
+ 	/* A live task holds one reference. */
+ 	atomic_t stack_refcount;
+ #endif
++#ifdef CONFIG_ANDROID_SIMPLE_LMK
++	struct task_struct		*simple_lmk_next;
++#endif
++#ifdef CONFIG_ANDROID_SIMPLE_LMK
++	struct task_struct		*simple_lmk_next;
++#endif
+ /* CPU-specific state of this task */
+ #ifdef CONFIG_KSU_SUSFS
+ 	u64 susfs_task_state;
+diff --git a/include/linux/simple_lmk.h b/include/linux/simple_lmk.h
+new file mode 100644
+index 000000000000..b02d1bec9731
+--- /dev/null
++++ b/include/linux/simple_lmk.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2019-2020 Sultan Alsawaf <sultan@kerneltoast.com>.
++ */
++#ifndef _SIMPLE_LMK_H_
++#define _SIMPLE_LMK_H_
++
++struct mm_struct;
++
++#ifdef CONFIG_ANDROID_SIMPLE_LMK
++void simple_lmk_mm_freed(struct mm_struct *mm);
++#else
++static inline void simple_lmk_mm_freed(struct mm_struct *mm)
++{
++}
++#endif
++
++#endif /* _SIMPLE_LMK_H_ */
+diff --git a/kernel/exit.c b/kernel/exit.c
+index c4f70f0f47b5..c35a014c8e22 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -517,8 +517,12 @@ static void exit_mm(struct task_struct *tsk)
+ 	mm_update_next_owner(mm);
+ 
+ 	mm_released = mmput(mm);
++#ifdef CONFIG_ANDROID_SIMPLE_LMK
++	clear_thread_flag(TIF_MEMDIE);
++#else
+ 	if (test_thread_flag(TIF_MEMDIE))
+ 		exit_oom_victim();
++#endif
+ 	if (mm_released)
+ 		set_tsk_thread_flag(tsk, TIF_MM_RELEASED);
+ }
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 300761b7afbf..97253140f9c3 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -80,6 +80,7 @@
+ #include <linux/sysctl.h>
+ #include <linux/kcov.h>
+ #include <linux/cpufreq_times.h>
++#include <linux/simple_lmk.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -888,6 +889,7 @@ static inline void __mmput(struct mm_struct *mm)
+ 	ksm_exit(mm);
+ 	khugepaged_exit(mm); /* must run before exit_mmap */
+ 	exit_mmap(mm);
++	simple_lmk_mm_freed(mm);
+ 	mm_put_huge_zero_page(mm);
+ 	set_mm_exe_file(mm, NULL);
+ 	if (!list_empty(&mm->mmlist)) {
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index 6dbc34d08f73..5e05e5f35936 100755
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -1017,6 +1017,10 @@ bool out_of_memory(struct oom_control *oc)
+ 	unsigned long freed = 0;
+ 	enum oom_constraint constraint = CONSTRAINT_NONE;
+ 
++	/* Return true since Simple LMK automatically kills in the background */
++	if (IS_ENABLED(CONFIG_ANDROID_SIMPLE_LMK))
++		return true;
++
+ 	if (oom_killer_disabled)
+ 		return false;
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 5672fe3c9352..1fa121b2ec70 100755
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3692,6 +3692,8 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+ 	int compaction_retries;
+ 	int no_progress_loops;
+ 	unsigned int cpuset_mems_cookie;
++	pg_data_t *pgdat = ac->preferred_zoneref->zone->zone_pgdat;
++	bool woke_kswapd = false;
+ 
+ 	/*
+ 	 * In the slowpath, we sanity check order to avoid ever trying to
+@@ -3736,8 +3738,13 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+ 	 */
+ 	alloc_flags = gfp_to_alloc_flags(gfp_mask);
+ 
+-	if (gfp_mask & __GFP_KSWAPD_RECLAIM)
++	if (gfp_mask & __GFP_KSWAPD_RECLAIM) {
++		if (!woke_kswapd) {
++			atomic_inc(&pgdat->kswapd_waiters);
++			woke_kswapd = true;
++		}
+ 		wake_all_kswapds(order, ac);
++	}
+ 
+ 	/*
+ 	 * The adjusted alloc_flags might result in immediate success, so try
+@@ -3909,9 +3916,12 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
+ 	if (read_mems_allowed_retry(cpuset_mems_cookie))
+ 		goto retry_cpuset;
+ 
+-	warn_alloc(gfp_mask,
+-			"page allocation failure: order:%u", order);
+ got_pg:
++	if (woke_kswapd)
++		atomic_dec(&pgdat->kswapd_waiters);
++	if (!page)
++		warn_alloc(gfp_mask,
++				"page allocation failure: order:%u", order);
+ 	return page;
+ }
+ 
+@@ -5983,6 +5993,7 @@ static void __paginginit free_area_init_core(struct pglist_data *pgdat)
+ 	pgdat_page_ext_init(pgdat);
+ 	spin_lock_init(&pgdat->lru_lock);
+ 	lruvec_init(node_lruvec(pgdat));
++	pgdat->kswapd_waiters = (atomic_t)ATOMIC_INIT(0);
+ 
+ 	for (j = 0; j < MAX_NR_ZONES; j++) {
+ 		struct zone *zone = pgdat->node_zones + j;
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index b3c44fc17861..f353a149db21 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3395,7 +3395,8 @@ static int balance_pgdat(pg_data_t *pgdat, int order, int classzone_idx)
+ 			wake_up_all(&pgdat->pfmemalloc_wait);
+ 
+ 		/* Check if kswapd should be suspending */
+-		if (try_to_freeze() || kthread_should_stop())
++		if (try_to_freeze() || kthread_should_stop() ||
++		    !atomic_read(&pgdat->kswapd_waiters))
+ 			break;
+ 
+ 		/*
