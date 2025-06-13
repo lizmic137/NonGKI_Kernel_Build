@@ -1,6 +1,6 @@
 --- a/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
 +++ b/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
-@@ -652,3 +652,5 @@ CONFIG_WCD9XXX_CODEC_CORE=y
+@@ -652,3 +652,6 @@ CONFIG_WCD9XXX_CODEC_CORE=y
  CONFIG_WCD_DSP_GLINK=y
  CONFIG_WCD_SPI_AC=y
 +CONFIG_ANDROID_LOW_MEMORY_KILLER=n
