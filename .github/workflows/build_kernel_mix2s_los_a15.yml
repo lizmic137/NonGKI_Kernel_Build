@@ -455,10 +455,6 @@ jobs:
           patch -p1 < lz4kd_fix.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_uid.patch
           patch -p1 < cgroup_v2_uid.patch
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/simple_lmk.patch
-          patch -p1 < simple_lmk.patch || true
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/simple_lmk_fix.patch
-          patch -p1 < simple_lmk_fix.patch
           # lz4kd
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
