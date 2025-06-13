@@ -464,6 +464,10 @@ jobs:
           # Zram Writeback
           echo "CONFIG_SWAP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # lz4kd
+          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
             # 删除 WIREGUARD
             sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -643,11 +647,6 @@ jobs:
         run: |
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
           cd $GITHUB_WORKSPACE/device_kernel/
-          echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/polaris_defconfig
-          echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
-          echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/polaris_defconfig
-          ulimit -s 65536
-          ulimit -n 2048
           make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.DEFCONFIG_NAME }}
           make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
 
