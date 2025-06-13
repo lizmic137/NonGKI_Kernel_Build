@@ -455,6 +455,8 @@ jobs:
           patch -p1 < lz4kd_fix.patch
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_uid.patch
           patch -p1 < cgroup_v2_uid.patch
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/simple_lmk.patch
+          patch -p1 < simple_lmk.patch
           echo "CONFIG_LTO_CLANG=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_LTO=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # Zram Writeback
