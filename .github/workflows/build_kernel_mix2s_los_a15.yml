@@ -465,7 +465,7 @@ jobs:
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # cgroup v2
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/cgroup_v2_uid.patch
-          patch -p1 < cgroup_v2_uid.patch
+          patch -p1 < cgroup_v2_uid.patch || true
           # set memory
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/backport_set_memory.patch
           patch -p1 < backport_set_memory.patch || true
