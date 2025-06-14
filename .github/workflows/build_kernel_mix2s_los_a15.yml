@@ -457,6 +457,9 @@ jobs:
           echo "CONFIG_CRYPTO_LZ4KD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_LZ4KD_COMPRESS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_LZ4KD_DECOMPRESS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # simple lmk
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/simple_lmk.patch
+          patch -p1 < simple_lmk.patch || true
           # Zram Writeback
           echo "CONFIG_ZRAM_WRITEBACK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # cgroup v2
