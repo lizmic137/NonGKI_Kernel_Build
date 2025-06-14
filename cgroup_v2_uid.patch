@@ -1,11 +1,12 @@
-From e411561fda873980ecd60b7d77073cd712fdb68f Mon Sep 17 00:00:00 2001
-From: wqj6 <wqj0@outlook.com>
-Date: Tue, 10 Jun 2025 23:18:03 +0800
-Subject: [PATCH] Add cgroup.freezer v2 support with uid
+From 458546fd2a4c186ff53fe74ac5987b4621896070 Mon Sep 17 00:00:00 2001
+From: awkoo <wqj0@outlook.com>
+Date: Fri, 13 Jun 2025 22:36:42 -0800
+Subject: [PATCH] Added cgroup.freezer v2 support with uid
 
 ---
  Documentation/cgroup-v2.txt                   |  276 +-
  Documentation/kernel-parameters.txt           |    8 +-
+ RELEASEBODY.md                                |    1 +
  fs/kernfs/mount.c                             |    4 +-
  include/linux/cgroup-defs.h                   |  123 +-
  include/linux/cgroup.h                        |   72 +-
@@ -33,7 +34,7 @@ Subject: [PATCH] Add cgroup.freezer v2 support with uid
  kernel/signal.c                               |   70 +-
  mm/memcontrol.c                               |    2 +-
  net/core/netclassid_cgroup.c                  |    2 +-
- 29 files changed, 5113 insertions(+), 2151 deletions(-)
+ 30 files changed, 5114 insertions(+), 2151 deletions(-)
  create mode 100644 include/linux/cgroup_rdma.h
  create mode 100644 kernel/cgroup/Makefile
  create mode 100644 kernel/cgroup/cgroup-internal.h
@@ -434,6 +435,15 @@ index 491abfa245b5..4e646522df06 100644
  
  	cgroup.memory=	[KNL] Pass options to the cgroup memory controller.
  			Format: <string>
+diff --git a/RELEASEBODY.md b/RELEASEBODY.md
+index 7e85ee393985..b9905972617c 100644
+--- a/RELEASEBODY.md
++++ b/RELEASEBODY.md
+@@ -6,3 +6,4 @@
+ - Susfs `1.5.5`
+ - KPM `2820`
+ - Re:Kernel
++- cgroup.freezer(uid) v2
 diff --git a/fs/kernfs/mount.c b/fs/kernfs/mount.c
 index d5b149a45be1..9bd669d077b8 100644
 --- a/fs/kernfs/mount.c
