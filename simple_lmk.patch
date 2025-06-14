@@ -1,28 +1,38 @@
-From d59bc60ac31b6f163de644449b5598a8827e6595 Mon Sep 17 00:00:00 2001
-From: wuqij <wuqij@noreply.gitcode.com>
-Date: Thu, 12 Jun 2025 19:24:15 -0800
-Subject: [PATCH] Added simple lmk
+From 3adb54f3d2e8c29faf6490e1b8d65aa6282ac83e Mon Sep 17 00:00:00 2001
+From: awkoo <wqj0@outlook.com>
+Date: Fri, 13 Jun 2025 22:59:17 -0800
+Subject: [PATCH] LowMemoryKiller: Added Android Simple LMK support
 
 ---
- .../configs/vendor/xiaomi/mi845_defconfig     |   6 +-
+ RELEASEBODY.md                                |   1 +
+ .../configs/vendor/xiaomi/mi845_defconfig     |  10 +-
  drivers/android/Kconfig                       |  33 ++
  drivers/android/Makefile                      |   1 +
  drivers/android/simple_lmk.c                  | 358 ++++++++++++++++++
  drivers/block/zram/zcomp.c                    |   3 +
  include/linux/mmzone.h                        |   1 +
- include/linux/sched.h                         |   6 +
+ include/linux/sched.h                         |   3 +
  include/linux/simple_lmk.h                    |  18 +
  kernel/exit.c                                 |   4 +
  kernel/fork.c                                 |   2 +
  mm/oom_kill.c                                 |   4 +
  mm/page_alloc.c                               |  17 +-
  mm/vmscan.c                                   |   3 +-
- 13 files changed, 450 insertions(+), 6 deletions(-)
+ 14 files changed, 452 insertions(+), 6 deletions(-)
  create mode 100644 drivers/android/simple_lmk.c
  create mode 100644 include/linux/simple_lmk.h
 
+diff --git a/RELEASEBODY.md b/RELEASEBODY.md
+index c8fcdb4add83..5c1e31a5a82d 100644
+--- a/RELEASEBODY.md
++++ b/RELEASEBODY.md
+@@ -8,3 +8,4 @@
+ - Re:Kernel
+ - cgroup.freezer(uid) v2
+ - LZ4KD
++- Android Simple LMK
 diff --git a/arch/arm64/configs/vendor/xiaomi/mi845_defconfig b/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
-index 05bc4fccd52e..7e6d383d8961 100644
+index fc652acde562..c7cf64be29f5 100644
 --- a/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
 +++ b/arch/arm64/configs/vendor/xiaomi/mi845_defconfig
 @@ -9,7 +9,7 @@ CONFIG_SCHED_WALT=y
@@ -43,11 +53,15 @@ index 05bc4fccd52e..7e6d383d8961 100644
  CONFIG_MEMCG_SWAP=y
  CONFIG_RT_GROUP_SCHED=y
  CONFIG_CGROUP_BPF=y
-@@ -652,3 +652,5 @@ CONFIG_WCD9XXX_CODEC_CORE=y
- CONFIG_WCD_DSP_GLINK=y
- CONFIG_WCD_SPI_AC=y
+@@ -667,3 +667,9 @@ CONFIG_CRYPTO_LZ4K=n
  CONFIG_CRYPTO_LZ4KD=y
+ CONFIG_CRYPTO_LZ4HC=n
+ CONFIG_CRYPTO_ZSTD=n
++
++# Android Simple LMK
 +CONFIG_ANDROID_LOW_MEMORY_KILLER=n
++CONFIG_MEMCG=n
++CONFIG_PSI=n
 +CONFIG_ANDROID_SIMPLE_LMK=y
 diff --git a/drivers/android/Kconfig b/drivers/android/Kconfig
 index bb2a5b581622..67edcdc09561 100644
@@ -493,16 +507,13 @@ index f146244e7b6a..c4cf8f93826b 100644
  	wait_queue_head_t pfmemalloc_wait;
  	struct task_struct *kswapd;	/* Protected by
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 94e195508472..41e80a783165 100755
+index 94e195508472..5900ec50d7c2 100755
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
-@@ -2203,6 +2203,12 @@ struct task_struct {
+@@ -2203,6 +2203,9 @@ struct task_struct {
  	/* A live task holds one reference. */
  	atomic_t stack_refcount;
  #endif
-+#ifdef CONFIG_ANDROID_SIMPLE_LMK
-+	struct task_struct		*simple_lmk_next;
-+#endif
 +#ifdef CONFIG_ANDROID_SIMPLE_LMK
 +	struct task_struct		*simple_lmk_next;
 +#endif
