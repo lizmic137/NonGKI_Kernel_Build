@@ -247,6 +247,7 @@ jobs:
           cat device_kernel/arch/arm64/configs/vendor/xiaomi/mi845_defconfig > device_kernel/arch/arm64/configs/polaris_defconfig
           cat device_kernel/arch/arm64/configs/vendor/xiaomi/polaris.config >> device_kernel/arch/arm64/configs/polaris_defconfig
           sed -i '/CONFIG_KALLSYMS_ALL/d' device_kernel/arch/arm64/configs/polaris_defconfig
+          sed -i '/CONFIG_WIREGUARD/d' device_kernel/arch/arm64/configs/polaris_defconfig
           if [[ -n "${{ env.DEFCONFIG_SOURCE }}" ]]; then
             if [[ -d "device_kernel/arch/arm64/configs" ]]; then
                 wget ${{ env.DEFCONFIG_SOURCE }} -O device_kernel/arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -469,7 +470,6 @@ jobs:
           wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/backport_set_memory.patch
           patch -p1 < backport_set_memory.patch || true
           # 设置 BBR 为默认算法
-          sed -i '/CONFIG_WIREGUARD/d' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo 'CONFIG_DEFAULT_TCP_CONG="bbr"' >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_DEFAULT_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
