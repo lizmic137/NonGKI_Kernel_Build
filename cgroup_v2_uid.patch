@@ -1,4 +1,4 @@
-From 458546fd2a4c186ff53fe74ac5987b4621896070 Mon Sep 17 00:00:00 2001
+From d7453983615c822b1117ec1a094638081544596d Mon Sep 17 00:00:00 2001
 From: awkoo <wqj0@outlook.com>
 Date: Fri, 13 Jun 2025 22:36:42 -0800
 Subject: [PATCH] Added cgroup.freezer v2 support with uid
@@ -436,12 +436,12 @@ index 491abfa245b5..4e646522df06 100644
  	cgroup.memory=	[KNL] Pass options to the cgroup memory controller.
  			Format: <string>
 diff --git a/RELEASEBODY.md b/RELEASEBODY.md
-index 7e85ee393985..b9905972617c 100644
+index e0d5a13d6a2b..49ade2897f2c 100644
 --- a/RELEASEBODY.md
 +++ b/RELEASEBODY.md
 @@ -6,3 +6,4 @@
- - Susfs `1.5.5`
- - KPM `2820`
+ - Susfs `SUSFS_VERSION`
+ - KPM
  - Re:Kernel
 +- cgroup.freezer(uid) v2
 diff --git a/fs/kernfs/mount.c b/fs/kernfs/mount.c
