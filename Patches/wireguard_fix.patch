@@ -1,15 +1,33 @@
 diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
-index 1a2b3f4..8d8a7a3 100644
+index 1a2b3f4..d3b2e6a 100644
 --- a/drivers/net/wireguard/ratelimiter.c
 +++ b/drivers/net/wireguard/ratelimiter.c
-@@ -184,9 +184,9 @@ int wg_ratelimiter_init(void)
+@@ -20,6 +20,7 @@
+ #include "ratelimiter.h"
+ #include <linux/siphash.h>
+ #include <linux/mm.h>
++#include <linux/sysinfo.h>
+ #include <linux/slab.h>
+ #include <net/ip.h>
+ 
+@@ -181,12 +182,17 @@ int wg_ratelimiter_init(void)
+ 	if (!entry_cache)
+ 		goto err;
+ 
++	struct sysinfo i;
++	unsigned long totalram_pgs;
++	si_meminfo(&i);
++	totalram_pgs = i.totalram;
++
+ 	/* xt_hashlimit.c uses a slightly different algorithm for ratelimiting,
+ 	 * but what it shares in common is that it uses a massive hashtable. So,
  	 * we borrow their wisdom about good table sizes on different systems
  	 * dependent on RAM. This calculation here comes from there.
  	 */
 -	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
-+	table_size = (totalram_pages > (1U << 30) / PAGE_SIZE) ? 8192 :
++	table_size = (totalram_pgs > (1U << 30) / PAGE_SIZE) ? 8192 :
  		max_t(unsigned long, 16, roundup_pow_of_two(
 -			(totalram_pages() << PAGE_SHIFT) /
-+			(totalram_pages << PAGE_SHIFT) /
++			(totalram_pgs << PAGE_SHIFT) /
  			(1U << 14) / sizeof(struct hlist_head)));
  	max_entries = table_size * 8;
