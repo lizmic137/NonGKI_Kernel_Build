@@ -1,38 +1,24 @@
-diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
-index 1a2b3f4..3d4f8d9 100644
 --- a/drivers/net/wireguard/ratelimiter.c
 +++ b/drivers/net/wireguard/ratelimiter.c
-@@ -20,6 +20,7 @@
- #include "ratelimiter.h"
- #include <linux/siphash.h>
- #include <linux/mm.h>
-+#include <linux/sysinfo.h>
- #include <linux/slab.h>
- #include <net/ip.h>
+@@ -178,14 +178,20 @@ int wg_ratelimiter_init(void)
+ 	int ret;
+ 	struct wg_ratelimiter *rlimiter;
+ 	struct sk_buff *skb;
++	unsigned long totalram;
++	
++	/* 使用标准方法获取总内存页数 */
++	totalram = totalram_pages();
  
-@@ -164,6 +165,8 @@ bool wg_ratelimiter_allow(struct sk_buff *skb, struct net *net)
+ 	/* Perf-critical: avoid unnecessary calculation. */
+ 	if (!boot_cpu_has(X86_FEATURE_BMI2)) {
+ 		table_size = 8192;
+ 	} else {
+-		table_size = (totalram_pages > (1U << 30) / PAGE_SIZE) ? 8192 :
++		table_size = (totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
+ 			     max_t(unsigned long, 128,
+-				   roundup_pow_of_two((totalram_pages << PAGE_SHIFT) /
++				   roundup_pow_of_two(
++				   (totalram << PAGE_SHIFT) /
+ 				   (1U << 14) / sizeof(struct hlist_head)));
+ 	}
  
- int wg_ratelimiter_init(void)
- {
-+	struct sysinfo i;
-+	unsigned long totalram_pgs;
- 	mutex_lock(&init_lock);
- 	if (++init_refcnt != 1)
- 		goto out;
-@@ -174,12 +177,15 @@ int wg_ratelimiter_init(void)
- 
- 	/* xt_hashlimit.c uses a slightly different algorithm for ratelimiting,
- 	 * but what it shares in common is that it uses a massive hashtable. So,
-+	si_meminfo(&i);
-+	totalram_pgs = i.totalram;
-+
- 	 * we borrow their wisdom about good table sizes on different systems
- 	 * dependent on RAM. This calculation here comes from there.
- 	 */
--	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
-+	table_size = (totalram_pgs > (1U << 30) / PAGE_SIZE) ? 8192 :
- 		max_t(unsigned long, 16, roundup_pow_of_two(
--			(totalram_pages() << PAGE_SHIFT) /
-+			(totalram_pgs << PAGE_SHIFT) /
- 			(1U << 14) / sizeof(struct hlist_head)));
- 	max_entries = table_size * 8;
