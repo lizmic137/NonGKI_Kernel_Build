@@ -10,17 +10,22 @@ index 1a2b3f4..d3b2e6a 100644
  #include <linux/slab.h>
  #include <net/ip.h>
  
-@@ -181,12 +182,17 @@ int wg_ratelimiter_init(void)
- 	if (!entry_cache)
- 		goto err;
- 
-+	struct sysinfo i;
+@@ -166,6 +167,8 @@ int wg_ratelimiter_init(void)
+ {
+ 	mutex_lock(&init_lock);
+ 	if (++init_refcnt != 1)
++	struct sysinfo si;
 +	unsigned long totalram_pgs;
-+	si_meminfo(&i);
-+	totalram_pgs = i.totalram;
-+
+ 		goto out;
+ 
+ 	entry_cache = KMEM_CACHE(ratelimiter_entry, 0);
+@@ -174,6 +177,9 @@ int wg_ratelimiter_init(void)
+ 
  	/* xt_hashlimit.c uses a slightly different algorithm for ratelimiting,
  	 * but what it shares in common is that it uses a massive hashtable. So,
++	si_meminfo(&si);
++	totalram_pgs = si.totalram;
++
  	 * we borrow their wisdom about good table sizes on different systems
  	 * dependent on RAM. This calculation here comes from there.
  	 */
