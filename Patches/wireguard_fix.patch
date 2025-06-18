@@ -1,5 +1,5 @@
 diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
-index 1a2b3f4..d3b2e6a 100644
+index 1a2b3f4..3d4f8d9 100644
 --- a/drivers/net/wireguard/ratelimiter.c
 +++ b/drivers/net/wireguard/ratelimiter.c
 @@ -20,6 +20,7 @@
@@ -10,21 +10,21 @@ index 1a2b3f4..d3b2e6a 100644
  #include <linux/slab.h>
  #include <net/ip.h>
  
-@@ -166,6 +167,8 @@ int wg_ratelimiter_init(void)
+@@ -164,6 +165,8 @@ bool wg_ratelimiter_allow(struct sk_buff *skb, struct net *net)
+ 
+ int wg_ratelimiter_init(void)
  {
++	struct sysinfo i;
++	unsigned long totalram_pgs;
  	mutex_lock(&init_lock);
  	if (++init_refcnt != 1)
-+	struct sysinfo si;
-+	unsigned long totalram_pgs;
  		goto out;
- 
- 	entry_cache = KMEM_CACHE(ratelimiter_entry, 0);
-@@ -174,6 +177,9 @@ int wg_ratelimiter_init(void)
+@@ -174,12 +177,15 @@ int wg_ratelimiter_init(void)
  
  	/* xt_hashlimit.c uses a slightly different algorithm for ratelimiting,
  	 * but what it shares in common is that it uses a massive hashtable. So,
-+	si_meminfo(&si);
-+	totalram_pgs = si.totalram;
++	si_meminfo(&i);
++	totalram_pgs = i.totalram;
 +
  	 * we borrow their wisdom about good table sizes on different systems
  	 * dependent on RAM. This calculation here comes from there.
