@@ -1,46 +1,53 @@
+From 7c5b7d0d1d9c8f2a3b4e6c8d9a0b1c2d3e4f5a6b7 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Thu, 20 Jun 2024 15:30:00 +0800
+Subject: [PATCH] ratelimiter: Replace totalram_pages() with si_meminfo()
+
+This patch fixes compilation errors caused by using totalram_pages()
+in arithmetic operations by switching to si_meminfo() to get total RAM.
+The change maintains the original table size calculation logic while
+resolving type mismatch issues and ensuring C89 compliance.
+
+Signed-off-by: Your Name <your.email@example.com>
+---
+ drivers/net/wireguard/ratelimiter.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
 diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
-index 1a2b3c4..a5b6c7d 100644
+index 1a2b3c4..5d6e7a8 100644
 --- a/drivers/net/wireguard/ratelimiter.c
 +++ b/drivers/net/wireguard/ratelimiter.c
-@@ -17,6 +17,7 @@
- #endif
- 
- #include "ratelimiter.h"
-+#include <linux/sysinfo.h>
+@@ -15,6 +15,7 @@
  #include <linux/siphash.h>
  #include <linux/mm.h>
  #include <linux/slab.h>
-@@ -162,21 +163,23 @@ bool wg_ratelimiter_allow(struct sk_buff *skb, struct net *net)
++#include <linux/sysinfo.h>
+ #include <net/ip.h>
+ 
+ static struct kmem_cache *entry_cache;
+@@ -176,6 +177,8 @@ bool wg_ratelimiter_allow(struct sk_buff *skb, struct net *net)
  
  int wg_ratelimiter_init(void)
  {
-+	struct sysinfo i;
-+	unsigned long totalram_pgs;
++	struct sysinfo si;
 +
  	mutex_lock(&init_lock);
  	if (++init_refcnt != 1)
  		goto out;
- 
-+	si_meminfo(&i);
-+	totalram_pgs = i.totalram;
-+
- 	entry_cache = KMEM_CACHE(ratelimiter_entry, 0);
- 	if (!entry_cache)
- 		goto err;
- 
--	/* xt_hashlimit.c uses a slightly different algorithm for ratelimiting,
--	 * but what it shares in common is that it uses a massive hashtable. So,
--	 * we borrow their wisdom about good table sizes on different systems
--	 * dependent on RAM. This calculation here comes from there.
--	 */
+@@ -189,10 +192,10 @@ int wg_ratelimiter_init(void)
+ 	 * we borrow their wisdom about good table sizes on different systems
+ 	 * dependent on RAM. This calculation here comes from there.
+ 	 */
 -	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
 -		max_t(unsigned long, 16, roundup_pow_of_two(
 -			(totalram_pages() << PAGE_SHIFT) /
 -			(1U << 14) / sizeof(struct hlist_head)));
-+	table_size = (totalram_pgs > (1U << 30) / PAGE_SIZE) ? 8192 :
-+		     max_t(unsigned long, 16, roundup_pow_of_two(
-+			     (totalram_pgs << PAGE_SHIFT) /
-+			     (1U << 14) / sizeof(struct hlist_head)));
++	si_meminfo(&si);
++	table_size = (si.totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
++		max_t(unsigned long, 16, roundup_pow_of_two((si.totalram << PAGE_SHIFT) /
++			(1U << 14) / sizeof(struct hlist_head)));
  	max_entries = table_size * 8;
  
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
+-- 
+2.34.1
