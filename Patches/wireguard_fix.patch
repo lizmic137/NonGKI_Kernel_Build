@@ -1,24 +1,33 @@
+diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
+index 1a2b3c4..5d6e8a1 100644
 --- a/drivers/net/wireguard/ratelimiter.c
 +++ b/drivers/net/wireguard/ratelimiter.c
-@@ -178,14 +178,20 @@ int wg_ratelimiter_init(void)
- 	int ret;
- 	struct wg_ratelimiter *rlimiter;
- 	struct sk_buff *skb;
-+	unsigned long totalram;
-+	
-+	/* 使用标准方法获取总内存页数 */
-+	totalram = totalram_pages();
+@@ -17,6 +17,7 @@
+ #endif
  
- 	/* Perf-critical: avoid unnecessary calculation. */
- 	if (!boot_cpu_has(X86_FEATURE_BMI2)) {
- 		table_size = 8192;
- 	} else {
--		table_size = (totalram_pages > (1U << 30) / PAGE_SIZE) ? 8192 :
-+		table_size = (totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
- 			     max_t(unsigned long, 128,
--				   roundup_pow_of_two((totalram_pages << PAGE_SHIFT) /
-+				   roundup_pow_of_two(
-+				   (totalram << PAGE_SHIFT) /
- 				   (1U << 14) / sizeof(struct hlist_head)));
- 	}
+ #include "ratelimiter.h"
++#include <linux/sysinfo.h>
+ #include <linux/siphash.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+@@ -171,11 +172,15 @@ int wg_ratelimiter_init(void)
+ 	if (!entry_cache)
+ 		goto err;
  
+-	/* xt_hashlimit.c uses a slightly different algorithm for ratelimiting,
+-	 * but what it shares in common is that it uses a massive hashtable. So,
+-	 * we borrow their wisdom about good table sizes on different systems
+-	 * dependent on RAM. This calculation here comes from there.
+-	 */
++	{
++		struct sysinfo i;
++		unsigned long totalram_pgs;
++
++		si_meminfo(&i);
++		totalram_pgs = i.totalram;
++		table_size = (totalram_pgs > (1U << 30) / PAGE_SIZE) ? 8192 :
++			max_t(unsigned long, 16, roundup_pow_of_two(
++				(totalram_pgs << PAGE_SHIFT) / (1U << 14) / sizeof(struct hlist_head)));
+ 	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
+ 		max_t(unsigned long, 16, roundup_pow_of_two(
+ 			(totalram_pages() << PAGE_SHIFT) /
