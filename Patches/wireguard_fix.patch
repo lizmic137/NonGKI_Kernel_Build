@@ -1,18 +1,3 @@
-From 7c5b7d0d1d9c8f2a3b4e6c8d9a0b1c2d3e4f5a6b7 Mon Sep 17 00:00:00 2001
-From: Your Name <your.email@example.com>
-Date: Thu, 20 Jun 2024 15:30:00 +0800
-Subject: [PATCH] ratelimiter: Replace totalram_pages() with si_meminfo()
-
-This patch fixes compilation errors caused by using totalram_pages()
-in arithmetic operations by switching to si_meminfo() to get total RAM.
-The change maintains the original table size calculation logic while
-resolving type mismatch issues and ensuring C89 compliance.
-
-Signed-off-by: Your Name <your.email@example.com>
----
- drivers/net/wireguard/ratelimiter.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
 diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
 index 1a2b3c4..5d6e7a8 100644
 --- a/drivers/net/wireguard/ratelimiter.c
@@ -49,5 +34,3 @@ index 1a2b3c4..5d6e7a8 100644
  	max_entries = table_size * 8;
  
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
--- 
-2.34.1
