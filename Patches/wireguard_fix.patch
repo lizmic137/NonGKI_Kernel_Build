@@ -44,3 +44,4 @@ index 1a2b3c4..a5b6c7d 100644
  	max_entries = table_size * 8;
  
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
+ 	if (unlikely(!table_v4))
