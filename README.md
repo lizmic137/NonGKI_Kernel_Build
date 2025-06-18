@@ -76,6 +76,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - **HOOK_METHOD** - 我们提供了两种方式用于KernelSU手动修补：
     - **normal**代表最常见的修补方式，一般不会出问题，仅适合内核版本≥3.18（ARM64）设备
     - [syscall](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，目前已经支持包括3.4版本内核为最低版本的所有内核
+  - **HOOK_NEWER** - 根据最新来自blackslashxx的Backport修补方案制成，对于**内核版本≤4.9**的内核，会自动执行针对kernel_write和kernel_read的修补补丁，但可能存在需要二次修补的情况，更高版本内核则不需要考虑这个事情
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
   - **KPM_ENABLE** - (实验性⚠)启用对SukiSU-Ultra的KPM编译支持，该项为实验项，请小心启用
@@ -168,6 +169,11 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 用于分析基础的编译错误，并提供一定建议
   - 参考：暂无
   
+- **backport_patches_newer.sh**
+  - 变量：HOOK_NEWER -> true
+  - 用于执行对Non-GKI内核的反向移植，针对最新版本反向移植制作，但**内核版本≤4.9**的内核可能存在需要二次修补的情况
+  - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+  
 - **Patch/susfs_upgrade_to_157.patch**
   - 变量：(env文件)SUSFS_UPDATE -> true
   - 对停止更新的Non-GKI设备的SuSFS进行更新，从v1.5.5更新至v1.5.7
@@ -178,6 +184,11 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 用于对内核版本≤4.9的设备移植set_memory功能的补丁文件，因为缺少大量测试，因此只作为测试补丁，且该补丁仅用于需要使用SukiSU-Ultra的KPM功能的情况下
   - 参考：暂无
 
+- **Patch/backport_kernel_read_and_kernel_write_to_ksu.patch**
+  - 变量：HOOK_NEWER -> true
+  - 用于执行对Non-GKI内核（**内核版本≤4.9**）的反向移植，可能存在需要二次修补的情况
+  - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+  
 - **Rekernel/rekernel-X.X.patch**
   - 变量：REKERNEL_ENABLE -> true
   - 让内核支持Re:Kernel的补丁文件，YAML会根据你的内核版本自动判断使用的补丁，不过若你是4.9内核且当前补丁不可用，就需要将补丁修改成rekernel-4.9-for-fixed.patch后尝试，不支持内核版本≤4.4设备

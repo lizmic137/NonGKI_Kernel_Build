@@ -1,4 +1,72 @@
 ## 项目更新日志
+- **Ver.1.5 Fixed 20**
+    - 修正 示例YAML文件 安全生成DTBO功能获取文件错误
+
+- **Ver.1.5 Fixed 19**
+    - 切换 小米Mix2s binder补丁至515补丁
+
+- **Ver.1.5 Fixed 18**
+    - 增加 红米 Note12Pro AlphaDroid 设备
+    - 增加 支持列表 新设备词条
+    - 修正 小米Mix2s ENV文件 ROM文本
+    - 修正 小米 10S ENV文件 ROM文本
+    - 修正 红米 K20 Pro ENV文件 ROM文本
+    - 修正 红米 K20 Pro ENV文件 设备名称
+    - 修正 黑鲨4 ENV文件 ROM文本
+    - 修正 一加8 OOS13 ENV文件 ROM文本
+
+- **Ver.1.5 Fixed 17**
+    - 修正 发布列表 文本错误
+    - 增加 红米 K40 Gaming MIUI13 A12 设备
+    - 增加 红米 K40 Gaming HyperOS A13 设备
+    - 增加 支持列表 新设备词条
+
+- **Ver.1.5 Fixed 16**
+    - 修正 发布列表 SukiSU-Ultra 链接指向错误
+    - 删除 发布列表 KernelSU分支lightsummer233
+
+- **Ver.1.5 Fixed 15**
+    - 修正 支持列表 发布列表 小米Mix2s 打包方式
+
+- **Ver.1.5 Fixed 14**
+    - 修正 小米Mix2s YAML 完整打包功能
+
+- **Ver.1.5 Fixed 13**
+    - 撤回 小米Mix2s HOOK_METHOD为syscall
+
+- **Ver.1.5 Fixed 12**
+    - 移植 小米Mix2s YAML 完整打包功能
+    - 更新 小米Mix2s YAML no-kprobe功能为最新版
+    - 切换 小米Mix2s HOOK_METHOD为syscall
+    - 切换 小米Mix2s 打包方式为Anykernel3
+
+- **Ver.1.5 Fixed 11**
+    - 增加 check_error.sh 错误类型判断和建议
+
+- **Ver.1.5 Fixed 10**
+    - 增加 OPPO K10E 设备
+
+- **Ver.1.5 Fixed 9**
+    - 撤回 小米11 HyperOS A14 设备
+    - 修正 支持列表 小米11 Ultra HyperOS A14 设备命名
+
+- **Ver.1.5 Fixed 8**
+    - 修正 使用SukiSU-Ultra(SUSFS) ENV文件 切换至susfs-main
+    - 增加 支持列表 红米 Note8Pro MIUI12 A11 设备 和 小米11 HyperOS A14 设备
+
+- **Ver.1.5 Fixed 7**
+    - 增加 红米 Note8Pro MIUI12 A11 设备
+    - 增加 小米11 HyperOS A14 设备
+
+- **Ver.1.5 Fixed 6**
+    - 修正 编译错误后依然判定成功以及BUILD_DEBUGGER功能优化
+
+- **Ver.1.5 Fixed 5**
+    - 增加 backport_patches_newer.sh
+    - 增加 Patch/backport_kernel_read_and_kernel_write_to_ksu.patch
+    - 增加 说明文件 部分新补丁说明
+    - 增加 示例YAML 有关新补丁执行的更多判断以及新变量
+
 - **Ver.1.5 Fixed 4**
     - 移植 一加8 OOS13 no-kprobe完整步骤
     - 移植 一加8 OOS13 Updated SUSFS Version 步骤

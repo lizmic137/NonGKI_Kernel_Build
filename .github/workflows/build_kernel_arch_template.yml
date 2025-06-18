@@ -9,6 +9,7 @@ env:
   PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "branch" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_NEWER: "false" # syscall can try it.
   PROFILE_NAME: "codename_rom_template.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
@@ -367,8 +368,6 @@ jobs:
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
-          KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
-          PATCHLEVEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $2}')
           if grep -q "CONFIG_KSU" "device_kernel/fs/exec.c"; then
             echo "Your kernel source code appears to have been manually patched, so this step is skipped."
           else
@@ -379,9 +378,21 @@ jobs:
                   bash normal_patches.sh
                   echo "execuated patch successfully."
                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
-                      cp /tmp/Patches/backport_patches.sh ./
-                      bash backport_patches.sh
-                      echo "execuated backport patch successfully."
+                      if [[ "${{ env.HOOK_NEWER }}" == "true" ]] && [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
+                        cp /tmp/Patches/backport_patches_newer.sh ./
+                        cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
+                        patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
+                        bash backport_patches_newer.sh
+                        echo "execuated backport patch newer successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
+                      elif [[ "${{ env.HOOK_NEWER }}" == "true" ]]; then
+                        cp /tmp/Patches/backport_patches_newer.sh ./
+                        bash backport_patches_newer.sh
+                        echo "execuated backport patch newer successfully."
+                      else
+                        cp /tmp/Patches/backport_patches.sh ./
+                        bash backport_patches.sh
+                        echo "execuated backport patch successfully."
+                      fi
                   else
                       echo "your kernel needn't backport patch."
                   fi
@@ -396,9 +407,21 @@ jobs:
                   bash syscall_hook_patches.sh
                   echo "execuated syscall patch successfully."
                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
-                      cp /tmp/Patches/backport_patches.sh ./
-                      bash backport_patches.sh
-                      echo "execuated backport patch successfully."
+                      if [[ "${{ env.HOOK_NEWER }}" == "true" ]] && [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
+                        cp /tmp/Patches/backport_patches_newer.sh ./
+                        cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
+                        patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
+                        bash backport_patches_newer.sh
+                        echo "execuated backport patch newer successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
+                      elif [[ "${{ env.HOOK_NEWER }}" == "true" ]]; then
+                        cp /tmp/Patches/backport_patches_newer.sh ./
+                        bash backport_patches_newer.sh
+                        echo "execuated backport patch newer successfully."
+                      else
+                        cp /tmp/Patches/backport_patches.sh ./
+                        bash backport_patches.sh
+                        echo "execuated backport patch successfully."
+                      fi
                   else
                       echo "your kernel needn't backport patch."
                   fi
@@ -608,7 +631,7 @@ jobs:
             cd $GITHUB_WORKSPACE/device_kernel
             mkdir dtbo_tool
             cd dtbo_tool
-            wget https://android.googlesource.com/platform/system/libufdt/+archive/master/utils.tar.gz -o mkdtboimg.tar.gz
+            wget https://android.googlesource.com/platform/system/libufdt/+archive/master/utils.tar.gz -O mkdtboimg.tar.gz
             tar zxvf mkdtboimg.tar.gz
             cd ../
             if [ -d "$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot/dts/vendor" ]; then
@@ -618,8 +641,12 @@ jobs:
             fi
           fi
 
+          if grep -q "Error 2" "error.log"; then
+            false
+          fi
+
       - name: Analyze compile error
-        if: env.BUILD_DEBUGGER == 'true' && always()
+        if: ${{ failure() && env.BUILD_DEBUGGER == 'true' }}
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
 

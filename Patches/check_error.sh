@@ -101,6 +101,12 @@ process_error_block() {
     elif grep -q "makes pointer from integer without a cast" <<< "${error_block[@]}"; then
         error_type="类型转换错误（指针与整数）"
         suggestion="建议: 这是一个严重的类型不匹配。通常是函数返回类型与预期不符（如返回int但期望指针）。可能需要修改源代码，或使用更兼容的编译器。"
+    elif grep -q "MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver)" <<< "${error_block[@]}"; then
+        error_type="Clang版本异常"
+        suggestion="建议: 这是编译器与KernelSU不兼容的问题，通常发生在KernelSU官方版和SukiSU-Ultra上，对于官方版，可选择v0.9.5旧版，对于SukiSU-Ultra，一般建议更换KernelSU分支。"
+    elif grep -q "not found (required by clang) " <<< "${error_block[@]}"; then
+        error_type="Clang版本异常"
+        suggestion="建议: 当前编译所用系统版本过老，若是20.04请使用22.04，反之latest。"
     fi
 
     echo "Error: $error_type"
