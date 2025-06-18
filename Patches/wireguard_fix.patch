@@ -1,3 +1,19 @@
+From 8a5b0d5d8e4c4d6f7b1a3c2d8f9e0a1b3c4d5e6f Mon Sep 17 00:00:00 2001
+From: DeepSeek Assistant <assistant@deepseek.com>
+Date: Thu, 20 Jun 2024 15:30:00 +0800
+Subject: [PATCH] fix: replace totalram_pages with si_meminfo for memory info
+
+This patch resolves compilation errors caused by using totalram_pages()
+as a function pointer. It replaces it with si_meminfo() to get system
+memory information, which is more compatible across kernel versions.
+The change also ensures strict C89 compliance by declaring variables
+at the beginning of the scope.
+
+Signed-off-by: DeepSeek Assistant <assistant@deepseek.com>
+---
+ drivers/net/wireguard/ratelimiter.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
+
 diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
 index 1a2b3c4..a5b6c7d 100644
 --- a/drivers/net/wireguard/ratelimiter.c
@@ -44,4 +60,5 @@ index 1a2b3c4..a5b6c7d 100644
  	max_entries = table_size * 8;
  
  	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
- 	if (unlikely(!table_v4))
+-- 
+2.34.1
