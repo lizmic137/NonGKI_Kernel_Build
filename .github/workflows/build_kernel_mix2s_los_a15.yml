@@ -510,6 +510,10 @@ jobs:
           echo "CONFIG_TCP_CONG_WESTWOOD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_TCP_CONG_BBR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_WIREGUARD=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          # rekernel
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/rekernel.patch
+          patch -p1 < rekernel.patch
+          echo "CONFIG_REKERNEL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
             # KPM
             echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
