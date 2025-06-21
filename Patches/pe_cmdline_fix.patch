@@ -1,5 +1,5 @@
---- a/fs/proc/cmdline.c
-+++ b/fs/proc/cmdline.c
+--- fs/proc/cmdline.c
++++ fs/proc/cmdline.c
 @@ -5,6 +5,9 @@
  #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
  #include <asm/setup.h>
@@ -10,10 +10,10 @@
  
  #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
  #define INITRAMFS_STR_FIND "skip_initramf"
-@@ -28,6 +31,12 @@
- 
- static int cmdline_proc_show(struct seq_file *m, void *v)
- {
+@@ -31,6 +34,12 @@ static int cmdline_proc_show(struct seq_file *m, void *v)
+ #else
+ 	char *proc_command_line = saved_command_line;
+ #endif
 +#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 +	if (!susfs_spoof_cmdline_or_bootconfig(m)) {
 +		seq_putc(m, '\n');
