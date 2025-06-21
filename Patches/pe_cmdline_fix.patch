@@ -1,5 +1,5 @@
---- fs/proc/cmdline.c
-+++ fs/proc/cmdline.c
+--- a/fs/proc/cmdline.c
++++ b/fs/proc/cmdline.c
 @@ -5,6 +5,9 @@
  #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
  #include <asm/setup.h>
