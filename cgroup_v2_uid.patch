@@ -1,12 +1,15 @@
-From d7453983615c822b1117ec1a094638081544596d Mon Sep 17 00:00:00 2001
+From c9b8703da16ebf0c13efb48445da73ce31e6d8f5 Mon Sep 17 00:00:00 2001
 From: awkoo <wqj0@outlook.com>
-Date: Fri, 13 Jun 2025 22:36:42 -0800
-Subject: [PATCH] Added cgroup.freezer v2 support with uid
+Date: Sat, 21 Jun 2025 01:53:30 -0800
+Subject: [PATCH] =?UTF-8?q?=E4=B8=BAFreezer=E6=8F=90=E4=BA=A4cgroup.freeze?=
+ =?UTF-8?q?r=20v2=E6=94=AF=E6=8C=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 ---
  Documentation/cgroup-v2.txt                   |  276 +-
  Documentation/kernel-parameters.txt           |    8 +-
- RELEASEBODY.md                                |    1 +
  fs/kernfs/mount.c                             |    4 +-
  include/linux/cgroup-defs.h                   |  123 +-
  include/linux/cgroup.h                        |   72 +-
@@ -34,7 +37,7 @@ Subject: [PATCH] Added cgroup.freezer v2 support with uid
  kernel/signal.c                               |   70 +-
  mm/memcontrol.c                               |    2 +-
  net/core/netclassid_cgroup.c                  |    2 +-
- 30 files changed, 5114 insertions(+), 2151 deletions(-)
+ 29 files changed, 5113 insertions(+), 2151 deletions(-)
  create mode 100644 include/linux/cgroup_rdma.h
  create mode 100644 kernel/cgroup/Makefile
  create mode 100644 kernel/cgroup/cgroup-internal.h
@@ -435,15 +438,6 @@ index 491abfa245b5..4e646522df06 100644
  
  	cgroup.memory=	[KNL] Pass options to the cgroup memory controller.
  			Format: <string>
-diff --git a/RELEASEBODY.md b/RELEASEBODY.md
-index e0d5a13d6a2b..49ade2897f2c 100644
---- a/RELEASEBODY.md
-+++ b/RELEASEBODY.md
-@@ -6,3 +6,4 @@
- - Susfs `SUSFS_VERSION`
- - KPM
- - Re:Kernel
-+- cgroup.freezer(uid) v2
 diff --git a/fs/kernfs/mount.c b/fs/kernfs/mount.c
 index d5b149a45be1..9bd669d077b8 100644
 --- a/fs/kernfs/mount.c
@@ -9206,7 +9200,7 @@ index 09beccfb0977..c4f70f0f47b5 100644
  	call_rcu(&p->rcu, delayed_put_task_struct);
  
 diff --git a/kernel/fork.c b/kernel/fork.c
-index cf3cb0a52c40..300761b7afbf 100644
+index 8f7ab491c94c..49d84e1083af 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -1069,7 +1069,9 @@ static int wait_for_vfork_done(struct task_struct *child,
