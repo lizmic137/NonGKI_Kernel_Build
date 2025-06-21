@@ -10,9 +10,12 @@
  
  #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
  #define INITRAMFS_STR_FIND "skip_initramf"
-@@ -28,6 +31,12 @@
+@@ -26,8 +29,15 @@ static void __init proc_cmdline_skip_initramfs(void)
+ }
+ #endif
  
- static int cmdline_proc_show(struct seq_file *m, void *v)
+-static int cmdline_proc_show(struct seq_file *m, void *v)
++static int __ref cmdline_proc_show(struct seq_file *m, void *v)
  {
 +#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 +	if (!susfs_spoof_cmdline_or_bootconfig(m)) {
@@ -20,6 +23,7 @@
 +		return 0;
 +	}
 +#endif
++
  #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
  	seq_printf(m, "%s\n", proc_command_line);
  #else
