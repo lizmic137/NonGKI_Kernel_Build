@@ -483,6 +483,10 @@ jobs:
       - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/pe_set_momery_fixed.patch
+          patch -p1 < pe_set_momery_fixed.patch
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/pe_cmdline_fix.patch
+          patch -p1 < pe_cmdline_fix.patch
           if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
             # KPM
             echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
