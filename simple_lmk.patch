@@ -480,20 +480,6 @@ index 000000000000..56fcd6d037ac
 +#undef MODULE_PARAM_PREFIX
 +#define MODULE_PARAM_PREFIX "lowmemorykiller."
 +module_param_cb(minfree, &simple_lmk_init_ops, NULL, 0200);
-diff --git a/drivers/block/zram/zcomp.c b/drivers/block/zram/zcomp.c
-index b1c5aa0cd3c8..660babe18890 100644
---- a/drivers/block/zram/zcomp.c
-+++ b/drivers/block/zram/zcomp.c
-@@ -38,6 +38,9 @@ static const char * const backends[] = {
- #if IS_ENABLED(CONFIG_CRYPTO_LZ4KD)
- 	"lz4kd",
- #endif
-+#if IS_ENABLED(CONFIG_CRYPTO_DEFLATE)
-+	"deflate",
-+#endif
- #if IS_ENABLED(CONFIG_CRYPTO_842)
- 	"842",
- #endif
 diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
 index f146244e7b6a..c4cf8f93826b 100644
 --- a/include/linux/mmzone.h
