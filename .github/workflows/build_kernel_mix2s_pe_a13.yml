@@ -1,4 +1,4 @@
-name: Build Kernel Mix2s PE
+name: Build Kernel Template (Cannot be used for compilation directly)
 on:
   workflow_call:
   workflow_dispatch:
@@ -9,14 +9,16 @@ env:
   PATCHES_SOURCE: "JackA1ltman/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "mi_kernel" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
-  HOOK_NEWER: "false" # syscall can try it.
+  HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
   PROFILE_NAME: "polaris_pe_a13.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
-  KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
+  KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
+  KPM_FIX: "false" # Fix Error When Enabling KPM.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
   GENERATE_DTB: "false" # if u kernel need DTB , but cannot auto generate it. (Only Anykernel3).
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
   BUILD_DEBUGGER: "false" # Output build errors.
+  SKIP_PATCH: "false" # Ignore errors found in Patch Debugger.
   BUILD_OTHER_CONFIG: "false" # Merge config files.
   FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
@@ -410,6 +412,14 @@ jobs:
             echo "Disabled SUSFS !"
           fi
 
+      - name: Fix Error When Enabling KPM
+        if: env.KPM_ENABLE == 'true' && env.KPM_FIX == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel
+          cd ${{ env.KERNELSU_NAME }}/kernel/kpm
+          cp /tmp/Patches/Patch/fix_kpm.patch ./
+          patch -p1 < fix_kpm.patch || true
+
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
@@ -423,21 +433,9 @@ jobs:
                   bash normal_patches.sh
                   echo "execuated patch successfully."
                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
-                      if [[ "${{ env.HOOK_NEWER }}" == "true" ]] && [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
-                        cp /tmp/Patches/backport_patches_newer.sh ./
-                        cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
-                        patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
-                        bash backport_patches_newer.sh
-                        echo "execuated backport patch newer successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
-                      elif [[ "${{ env.HOOK_NEWER }}" == "true" ]]; then
-                        cp /tmp/Patches/backport_patches_newer.sh ./
-                        bash backport_patches_newer.sh
-                        echo "execuated backport patch newer successfully."
-                      else
-                        cp /tmp/Patches/backport_patches.sh ./
-                        bash backport_patches.sh
-                        echo "execuated backport patch successfully."
-                      fi
+                        cp /tmp/Patches/backport_patches_older.sh ./
+                        bash backport_patches_older.sh
+                        echo "execuated backport patch older successfully. "
                   else
                       echo "your kernel needn't backport patch."
                   fi
@@ -446,34 +444,37 @@ jobs:
                   false
               fi
             elif [[ ${{ env.HOOK_METHOD }} == "syscall" ]]; then
-              if [[ -f "/tmp/Patches/syscall_hook_patches.sh" ]]; then
-                  cp /tmp/Patches/syscall_hook_patches.sh device_kernel/
-                  cd device_kernel
-                  bash syscall_hook_patches.sh
-                  echo "execuated syscall patch successfully."
-                  if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
-                      if [[ "${{ env.HOOK_NEWER }}" == "true" ]] && [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
-                        cp /tmp/Patches/backport_patches_newer.sh ./
-                        cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
-                        patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
-                        bash backport_patches_newer.sh
-                        echo "execuated backport patch newer successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
-                      elif [[ "${{ env.HOOK_NEWER }}" == "true" ]]; then
-                        cp /tmp/Patches/backport_patches_newer.sh ./
-                        bash backport_patches_newer.sh
-                        echo "execuated backport patch newer successfully."
-                      else
-                        cp /tmp/Patches/backport_patches.sh ./
-                        bash backport_patches.sh
-                        echo "execuated backport patch successfully."
-                      fi
-                  else
-                      echo "your kernel needn't backport patch."
-                  fi
-              else
-                  echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
-                  false
-              fi
+               if [[ -f "/tmp/Patches/syscall_hook_patches_older.sh" ]] && [[ "${{ env.HOOK_OLDER }}" == "true" ]]; then
+                   cp /tmp/Patches/syscall_hook_patches_older.sh device_kernel/
+                   cd device_kernel
+                   bash syscall_hook_patches_older.sh
+                   echo "execuated syscall patch successfully."
+                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                     cp /tmp/Patches/backport_patches_older.sh ./
+                     bash backport_patches_older.sh
+                     echo "execuated backport patch older successfully. "
+                   else
+                     echo "your kernel needn't backport patch."
+                   fi
+               elif [[ -f "/tmp/Patches/syscall_hook_patches.sh" ]]; then
+                   cp /tmp/Patches/syscall_hook_patches.sh device_kernel/
+                   cd device_kernel
+                   bash syscall_hook_patches.sh
+                   echo "execuated syscall patch successfully."
+                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                     cp /tmp/Patches/backport_patches.sh ./
+                     bash backport_patches.sh
+                     if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
+                         cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
+                         patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
+                         echo "execuated backport patch kernel_read and kernel_read successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
+                     fi
+                     echo "execuated backport patch successfully."
+                   fi
+                else
+                   echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
+                   false
+               fi
             else
               echo "please input vaild option!"
               false
@@ -482,13 +483,9 @@ jobs:
 
       - name: Extra Kernel Options
         run: |
+          # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
-            # KPM
-            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-            wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
-            chmod a+x patch
-          fi
+          # Nothing
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
@@ -549,7 +546,7 @@ jobs:
         if: env.SUSFS_ENABLE == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-          cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
+          cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch ./
 
           patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true
 
@@ -580,22 +577,6 @@ jobs:
             echo "Your kernel not supported it."
           fi
 
-      - name: Patch Debugger
-        if: env.BUILD_DEBUGGER == 'true'
-        run: |
-          cd $GITHUB_WORKSPACE/device_kernel/
-          mapfile -t REJ_FILES < <(find . -type f -name "*.rej")
-          if [ ${#REJ_FILES[@]} -eq 0 ]; then
-            echo "Your kernel have no any rej files."
-          else
-            for CAT_REJ in "${REJ_FILES[@]}"; do
-                echo "Found .rej file: $CAT_REJ"
-                cat $CAT_REJ
-                echo "==========EOF=========="
-            done
-            false
-          fi
-
       - name: Fixed Kernel Patch
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'
         run: |
@@ -621,25 +602,23 @@ jobs:
 
           # patch -p1 < [patch_file].patch || true
 
-      - name: Find and print .rej files
-        if: always()
+      - name: Patch Debugger
+        if: env.BUILD_DEBUGGER == 'true'
         run: |
-          rej_files=$(find . -type f -name "*.rej")
-          
-          if [ -z "$rej_files" ]; then
-            echo "✅ 没有发现任何 .rej 文件"
+          cd $GITHUB_WORKSPACE/device_kernel/
+          mapfile -t REJ_FILES < <(find . -type f -name "*.rej")
+          if [ ${#REJ_FILES[@]} -eq 0 ]; then
+            echo "Your kernel have no any rej files."
           else
-            echo "❌ 发现以下 .rej 文件:"
-            echo "$rej_files" | sed 's/^/  /'
+            for CAT_REJ in "${REJ_FILES[@]}"; do
+                echo "Found .rej file: $CAT_REJ"
+                cat $CAT_REJ
+                echo "==========EOF=========="
+            done
 
-            echo -e "\n===================== 文件内容 ====================="
-            for file in $rej_files; do
-              echo -e "\n🔥 ${file} 内容:"
-              echo "--------------------------------------------------"
-              cat "$file"
-              echo "--------------------------------------------------"
-          done
-
+            if [[ "${{ env.SKIP_PATCH }}" != "true" ]]; then
+              false
+            fi
           fi
 
       - name: Setup ccache
@@ -700,23 +679,23 @@ jobs:
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} 2>&1|tee error.log
           fi
 
+          if grep -q "Error 1" "error.log"; then
+            false
+          fi
+
           ## Generate DTBO
           if [ "${{ env.HAVE_NO_DTBO }}" == "true" ] && [ "${{ env.HAVE_NO_DTBO_TOOL }}" == "true" ]; then
             cd $GITHUB_WORKSPACE/device_kernel
             mkdir dtbo_tool
             cd dtbo_tool
             wget https://android.googlesource.com/platform/system/libufdt/+archive/master/utils.tar.gz -O mkdtboimg.tar.gz
-            tar zxvf mkdtboimg.tar.gz
+            tar -zxvf mkdtboimg.tar.gz
             cd ../
             if [ -d "$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot/dts/vendor" ]; then
                 python dtbo_tool/src/mkdtboimg.py create $GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot/dtbo.img $GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtbo
             else
                 python dtbo_tool/src/mkdtboimg.py create $GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot/dtbo.img $GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot/dts/${{ env.GENERATE_CHIP }}/*.dtbo
             fi
-          fi
-
-          if grep -q "Error 2" "error.log"; then
-            false
           fi
 
       - name: Analyze compile error
