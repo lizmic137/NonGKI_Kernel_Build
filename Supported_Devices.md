@@ -25,10 +25,11 @@
 | 一加 9 Pro | All | lemonadep | 5.4/brickport-devs/lily | OxygenOS/ColorOS 11 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 一加 9 Pro | All | lemonadep | 5.4/kristofpetho/omega | OxygenOS/ColorOS 11 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 红米 Note8 Pro | All | begonia | 4.14/Nova-Kernels/Nova-miui | MIUI 12.5 | 11 | AnyKernel3 | SukiSU(U) | ✅ | ❌ | ❌ | ❌ | ❌ | Suspend |  
-| OPPO K10E | CN | PERM10 | 5.4/fangkuaixiaoqia/官方内核 | ColorOS 14 | 14 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
-| 红米 K40 Gaming | All | ares | 4.14/AbzRaider/(Nothing) | MIUI 13 | 12 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
-| 红米 K40 Gaming | All | ares | 4.14/Tkpointz/aresin | HyperOS | 13 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| OPPO K10 活力版 | CN | PERM10 | 5.4/fangkuaixiaoqia/官方内核 | ColorOS 14 | 14 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| 红米 K40 Gaming | All | ares | 4.14/Tkpointz/aresin | MIUI 13 | 12 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| 红米 K40 Gaming | All | ares | 4.14/AbzRaider/(Nothing) | HyperOS | 13 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | 红米 Note 12 Pro 5G | CN | ruby | 4.19/qiangua2460/AlphaDroid | AlphaDroid 15.1 | 15 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| 红米 8 | All | olive | 4.19/yu13140/mi439 | Based-AOSP | 15 | AnyKernel3 | SukiSU(U) | ✅ | ❌ | ✅ | ✅ | ❌ | Stable | 
 
 特别说明：
   - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)
@@ -36,7 +37,7 @@
   - 部分机型由于内核问题将暂停（Suspend）维护，但仍可通过Action的方式Fork后自行编译
   - [Syscall Hook](https://github.com/backslashxx/KernelSU/issues/5) 支持Magic，其他分支可能无法支持
   - ARMV7A（内核版本≤3.10） 设备 请使用SukiSU-Ultra、Magic、rsuntk分支，其他分支无法保证是否支持
-  - SUSFS v1.5.7 目前可用移植为4.19内核，测试后4.14、4.9内核也可直接使用，理论上≥4.9版本内核都可以直接使用该补丁进行修补，~~其他内核可根据[该commit](https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/compare/c7d82bf8607704c22a8a869c4611c7cf3d22ce31..1ea2cbd7659167e62d2265632710f084c45f3ca1)自行移植~~（该commit可能已无法访问，请参考项目提供的susfs升级补丁自行修补）
+  - SUSFS v1.5.7 目前可用移植为4.19内核，测试后4.14、4.9内核也可直接使用，理论上≥4.9版本内核都可以直接使用该补丁进行修补，其他内核可根据 https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/pull/1 自行移植
   - [Re:Kernel](https://github.com/Sakion-Team/Re-Kernel) 是一个用于在Binder过程中快速执行临时解冻进程的模块，但其并不一定能在任何设备下奏效
   - 内核通常为全版本可用，除非特殊声明
   - LineageOS 内核 通常需要在repo完整源代码的环境下编译，否则可能会导致无法开机，但若是能够正常编译并开机的我们仍会考虑维护，~~因此我们不会考虑官方维护LineageOS内核~~
