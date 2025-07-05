@@ -503,6 +503,8 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           sed -i 's/ -dirty//' scripts/setlocalversion
+          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/fix_read_write.patch
+          patch -p1 < fix_read_write.patch
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
