@@ -1,0 +1,32 @@
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 4dc0f9c..a0f0a9d 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -624,9 +624,10 @@ ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *
+ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
+ {
+ 	struct fd f = fdget_pos(fd);
+-	ssize_t ret = -EBADF;
++	ssize_t ret = -EBADF;
++	loff_t pos;
+ 
+ 	if (f.file) {
+-		loff_t pos = file_pos_read(f.file);
++		pos = file_pos_read(f.file);
+ 		ret = vfs_read(f.file, buf, count, &pos);
+ 		if (ret >= 0)
+ 			file_pos_write(f.file, pos);
+@@ -642,9 +643,10 @@ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
+ SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf, size_t, count)
+ {
+ 	struct fd f = fdget_pos(fd);
+-	ssize_t ret = -EBADF;
++	ssize_t ret = -EBADF;
++	loff_t pos;
+ 
+ 	if (f.file) {
+-		loff_t pos = file_pos_read(f.file);
++		pos = file_pos_read(f.file);
+ 		ret = vfs_write(f.file, buf, count, &pos);
+ 		if (ret >= 0)
+ 			file_pos_write(f.file, pos);
