@@ -1,0 +1,36 @@
+diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
+index 1a2b3c4..5d6e7a8 100644
+--- a/drivers/net/wireguard/ratelimiter.c
++++ b/drivers/net/wireguard/ratelimiter.c
+@@ -15,6 +15,7 @@
+ #include <linux/siphash.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
++#include <linux/sysinfo.h>
+ #include <net/ip.h>
+ 
+ static struct kmem_cache *entry_cache;
+@@ -176,6 +177,8 @@ bool wg_ratelimiter_allow(struct sk_buff *skb, struct net *net)
+ 
+ int wg_ratelimiter_init(void)
+ {
++	struct sysinfo si;
++
+ 	mutex_lock(&init_lock);
+ 	if (++init_refcnt != 1)
+ 		goto out;
+@@ -189,10 +192,10 @@ int wg_ratelimiter_init(void)
+ 	 * we borrow their wisdom about good table sizes on different systems
+ 	 * dependent on RAM. This calculation here comes from there.
+ 	 */
+-	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
+-		max_t(unsigned long, 16, roundup_pow_of_two(
+-			(totalram_pages() << PAGE_SHIFT) /
+-			(1U << 14) / sizeof(struct hlist_head)));
++	si_meminfo(&si);
++	table_size = (si.totalram > (1U << 30) / PAGE_SIZE) ? 8192 :
++		max_t(unsigned long, 16, roundup_pow_of_two((si.totalram << PAGE_SHIFT) /
++			(1U << 14) / sizeof(struct hlist_head)));
+ 	max_entries = table_size * 8;
+ 
+ 	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
