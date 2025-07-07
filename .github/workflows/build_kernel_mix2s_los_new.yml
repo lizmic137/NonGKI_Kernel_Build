@@ -1,4 +1,4 @@
-name: Build Kernel Template (Cannot be used for compilation directly)
+name: Build Kernel Mix2s Lineageos New
 on:
   workflow_call:
   workflow_dispatch:
