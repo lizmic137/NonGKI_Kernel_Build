@@ -1,4 +1,4 @@
-name: Build Kernel Mix2s Lineageos New
+name: Build Kernel Template (Cannot be used for compilation directly)
 on:
   workflow_call:
   workflow_dispatch:
@@ -503,15 +503,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           sed -i 's/ -dirty//' scripts/setlocalversion
-          if [ "${{ env.KPM_ENABLE }}" = "true" ]; then
-            # KPM
-            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-            wget "${{ env.KPM_PATCH_SOURCE }}" -O patch
-            chmod a+x patch
-            # wireguard fix
-            wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/wireguard_fix.patch
-            patch -p1 < wireguard_fix.patch
-          fi
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
@@ -639,6 +630,11 @@ jobs:
           fi
           ## Fixed ZYGOTE_ISO error
           sed -i '/#define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561/a \#define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562' include/linux/susfs_def.h
+
+          # Upgrade 1.5.9
+          cp /tmp/Patches/Patch/susfs_upgrade_to_159.patch ./
+
+          patch -p1 < susfs_upgrade_to_159.patch || true
 
           # Extra SUSFS Patch
           # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
