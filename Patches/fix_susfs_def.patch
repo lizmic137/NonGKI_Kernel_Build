@@ -1,0 +1,15 @@
+--- a/include/linux/susfs_def.h
++++ b/include/linux/susfs_def.h
+@@ -36,9 +36,12 @@
+ #define DEFAULT_SUS_MNT_GROUP_ID 1000 /* used by mount->mnt_group_id */
+ /*
+  * inode->i_state => storing flag 'INODE_STATE_'
+  * mount->mnt.susfs_mnt_id_backup => storing original mnt_id of normal mounts or custom sus mnt_id of sus mounts
+- * task_struct->susfs_task_state => storing flag 'TASK_STRUCT_'
++ * inode->i_mapping->flags => storing flag 'AS_FLAGS_'
++ * nd->state => storing flag 'ND_STATE_'
++ * nd->flags => storing flag 'ND_FLAGS_'
++ * task_struct->thread_info.flags => storing flag 'TIF_'
+  */
+ 
+ #define INODE_STATE_SUS_PATH BIT(24)
