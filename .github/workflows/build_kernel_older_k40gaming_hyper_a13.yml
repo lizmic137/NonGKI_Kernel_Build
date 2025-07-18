@@ -613,6 +613,11 @@ jobs:
 
           patch -p1 < susfs_158_fixed.patch || true
 
+          # Upgrade 1.5.9
+          cp /tmp/Patches/Patch/susfs_upgrade_to_159.patch ./
+
+          patch -p1 < susfs_upgrade_to_159.patch || true
+
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
