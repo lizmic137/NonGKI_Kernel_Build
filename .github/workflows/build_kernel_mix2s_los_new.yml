@@ -503,8 +503,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           sed -i 's/ -dirty//' scripts/setlocalversion
-          echo "CONFIG_DEFAULT_PIXIE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_DEFAULT_TCP_CONG="pixie"" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
@@ -637,9 +635,6 @@ jobs:
           cp /tmp/Patches/Patch/susfs_upgrade_to_159.patch ./
 
           patch -p1 < susfs_upgrade_to_159.patch || true
-
-          # Find susfs_def.h
-          find . -type f -name "susfs_def.h" -print -exec cat {} \;
 
           # Upgrade 1.5.10
           if grep -q "CONFIG_KSU" "fs/exec.c"; then
