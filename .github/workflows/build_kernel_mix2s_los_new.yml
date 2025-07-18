@@ -503,8 +503,8 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           sed -i 's/ -dirty//' scripts/setlocalversion
-          echo "CONFIG_DEFAULT_PIXIE=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
-          echo "CONFIG_DEFAULT_TCP_CONG="pixie"" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_DEFAULT_PIXIE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_DEFAULT_TCP_CONG="pixie"" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
