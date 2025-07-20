@@ -650,8 +650,8 @@ jobs:
           fi
 
           # fix_susfs_def
-          wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_susfs_def.patch
-          patch -p1 < fix_susfs_def.patch
+          # wget https://raw.githubusercontent.com/lizmic137/NonGKI_Kernel_Build/refs/heads/main/Patches/fix_susfs_def.patch
+          # patch -p1 < fix_susfs_def.patch
 
           # Extra SUSFS Patch
           # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
