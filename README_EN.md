@@ -222,6 +222,9 @@ Below is an introduction to the patches included in the Patches directory:
         - https://gitlab.com/simonpunk/susfs4ksu/-/commit/0e5081e1a2fc93d0ba1e87091ecdca006e3cd639
         - https://gitlab.com/simonpunk/susfs4ksu/-/commit/a92aa588cb1e2163e0d9fe7dd969d012f51654b2
         - https://gitlab.com/simonpunk/susfs4ksu/-/commit/e418485fc2694900b5cc8fa44cd98d194fb6ffa7
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/55ef262dd309a7f2284f93747a60032f0f197d15
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/dbadb4d17bc71244675eecf179eacf5bec924ec3
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/9ec78e78904e702228bdb3a4f7a666f644bc0b2a
         
 - **Patch/set_memory_to_49_and_low.patch**
     - Requires **manual** execution.
