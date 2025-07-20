@@ -636,6 +636,9 @@ jobs:
 
           patch -p1 < susfs_upgrade_to_159.patch || true
 
+          # Find susfs_def.h
+          find . -type f -name "susfs_def.h" -print -exec cat {} \;
+
           # Upgrade 1.5.10
           if grep -q "CONFIG_KSU" "fs/exec.c"; then
             cp /tmp/Patches/Patch/susfs_upgrade_to_1510_${{ env.KERNEL_VERSION }}.patch ./
