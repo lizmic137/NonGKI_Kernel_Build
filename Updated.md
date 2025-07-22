@@ -1,4 +1,8 @@
 ## 项目更新日志
+- **Ver.1.5 Fixed 53**
+    - 增加 OPPO K9 Pro LineageOS A15 设备
+    - 增加 发布列表 对应设备信息
+
 - **Ver.1.5 Fixed 52**
     - 合并 SuSFS上游最新commit
     - 修正 说明文件 SuSFS参考链接

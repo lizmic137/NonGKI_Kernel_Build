@@ -224,6 +224,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/55ef262dd309a7f2284f93747a60032f0f197d15
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/dbadb4d17bc71244675eecf179eacf5bec924ec3
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/9ec78e78904e702228bdb3a4f7a666f644bc0b2a
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/99184236f0a346f35f27b5dc9844771841ed8fa3
     
 - **Patch/set_memory_to_49_and_low.patch**
   - 变量：KPM_ENABLE -> true
