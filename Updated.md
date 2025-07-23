@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.5 Fixed 54**
+    - 增加 Realme GT Neo 设备
+
 - **Ver.1.5 Fixed 53**
     - 增加 OPPO K9 Pro LineageOS A15 设备
     - 增加 发布列表 对应设备信息

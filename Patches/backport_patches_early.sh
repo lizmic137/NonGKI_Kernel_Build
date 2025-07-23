@@ -45,14 +45,12 @@ for i in "${patch_files[@]}"; do
         ;;
     ## fs/internal.h
     fs/internal.h)
-        if [ "$SECOND_VERSION" -le 11 ]; then
-            if grep -q "extern void __mnt_drop_write(struct vfsmount \*)" fs/internal.h; then
-                sed -i '/extern void __mnt_drop_write_file(struct file \*);/a int path_umount(struct path \*path, int flags);' fs/internal.h
-            elif [ "$FIRST_VERSION" -lt 4 ] && grep -q "extern void __init mnt_init(void)" fs/internal.h; then
-                sed -i '/extern void __init mnt_init(void);/a int path_umount(struct path *path, int flags);' fs/internal.h
-            else
-                sed -i '/^extern void __init mnt_init/a int path_umount(struct path *path, int flags);' fs/internal.h
-            fi
+        if grep -q "extern void __mnt_drop_write_file(struct file \*)" fs/internal.h; then
+            sed -i '/extern void __mnt_drop_write_file(struct file \*);/a int path_umount(struct path \*path, int flags);' fs/internal.h
+        elif grep -q "extern void __init mnt_init(void)" fs/internal.h; then
+            sed -i '/extern void __init mnt_init(void);/a int path_umount(struct path *path, int flags);' fs/internal.h
+        else
+            sed -i '/^extern void __init mnt_init/a int path_umount(struct path *path, int flags);' fs/internal.h
         fi
         ;;
 
