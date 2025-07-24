@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [支持列表](Supported_Devices.md) | 中文文档 | [English](README_EN.md) | [更新日志](Updated.md)  
 
-**Ver**.1.5
+**Ver**.1.6
 
 **Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）（5.4为QGKI）和真正Non-GKI（内核版本≤4.14）  
 
@@ -105,6 +105,12 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
 - **Get Kernel Source**
   - 正常来说内核源码都可以通过Git方式获得，所以基本不需要修改
   - 某些国产厂商的水平堪忧，开源但却是自打包，或者驱动与内核源码分离，因此可能需要你自己修改这个部分
+  - 如果你有boot.img，那么你可以尝试自行从boot.img中提取Image并用于提取defconfig的过程
+    - 第一步：获取来自Google的[mkbootimg工具](https://android.googlesource.com/platform/system/tools/mkbootimg/)
+    - 第二步：使用如下命令 `mkbootimg/unpack_bootimg.py --boot=boot.img`
+    - 第三步：查看生成的**out文件夹**中是否存在**kernel**这个文件，若存在请看第四步
+    - 第四步：将**kernel**重命名为**Image**
+    - 第五步：上传Image并用于你自己的提取defconfig步骤
   
 - **Set Pack Method and KernelSU and SUSFS**
   - 我们默认提供Anykernel3和MKBOOTIMG两种打包方式，其中AK3可以自动检测内核源码中是否存在，若不存在则调用env提供的SOURCE和BRANCH，对于AK3仅提供git方式，MKBOOTIMG由我们默认提供，一般不需要自行获取
@@ -176,16 +182,6 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 自动执行
   - 旧版向后移植方案，用于normal patch和syscall旧版
   - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
-
-- **found_gcc.sh**
-  - 自动判断GCC执行
-  - 用于对GCC前缀进行自动化解析
-  - 参考：暂无
-  
-- **check_error.sh**
-  - 变量：BUILD_DEBUGGER -> true
-  - 用于分析基础的编译错误，并提供一定建议
-  - 参考：暂无
   
 - **Patch/susfs_upgrade_to_157.patch**
   - 变量：(env文件)SUSFS_UPDATE -> true
@@ -225,6 +221,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/dbadb4d17bc71244675eecf179eacf5bec924ec3
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/9ec78e78904e702228bdb3a4f7a666f644bc0b2a
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/99184236f0a346f35f27b5dc9844771841ed8fa3
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/32694cec5cf53171de86cd468f415c4e2ff8c4bf
     
 - **Patch/set_memory_to_49_and_low.patch**
   - 变量：KPM_ENABLE -> true
@@ -250,5 +247,20 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 自动执行
   - 用于更加便捷的执行包括断点续传在内的curl命令
   - 参考：由[@yu13140](https://github.com/yu13140)提供更新
+  
+- **Bin/found_gcc.sh**
+  - 自动判断GCC执行
+  - 用于对GCC前缀进行自动化解析
+  - 参考：暂无
+  
+- **Bin/check_error.sh**
+  - 变量：BUILD_DEBUGGER -> true
+  - 用于分析基础的编译错误，并提供一定建议
+  - 参考：暂无
+  
+- **Bin/pack_error_files.sh**
+  - 变量：BUILD_DEBUGGER -> true
+  - 用于打包error.log中涉及的所有有效错误文件
+  - 参考：暂无
   
 最后提醒⚠️：非上述提示的步骤理论上不需要你做任何修改，我已经尽可能实现多情况判定

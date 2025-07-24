@@ -139,7 +139,7 @@ jobs:
           cd $GITHUB_WORKSPACE
 
           # Copy Shell
-          cp /tmp/Patches/found_gcc.sh ./
+          cp /tmp/Bin/found_gcc.sh ./
 
           # Set GCC Aarch64
           if [[ "${{ env.CLANG_SOURCE }}" == *proton* ]]; then
@@ -737,10 +737,12 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
 
-          cp /tmp/Patches/check_error.sh ./
+          cp /tmp/Bin/check_error.sh ./
           bash check_error.sh
 
           if [ -f "have_error" ]; then
+            cp /tmp/Bin/pack_error_files.sh ./
+            bash pack_error_files.sh
             false
           else
             echo "Skipped."
@@ -939,6 +941,15 @@ jobs:
           echo "PACK_NAME=${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}.img" >> $GITHUB_ENV
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
+
+      - name: Upload Build Error Files
+        if: ${{ failure() && env.BUILD_DEBUGGER == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: error_files
+          path: |
+            device_kernel/error.log
+            device_kernel/compile_errors_files.zip
 
       - name: Upload Build Artifacts For Boot Image
         if: env.PACK_METHOD == 'Anykernel3'

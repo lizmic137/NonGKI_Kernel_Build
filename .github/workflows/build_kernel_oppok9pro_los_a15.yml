@@ -165,7 +165,7 @@ jobs:
           cd $GITHUB_WORKSPACE
 
           # Copy Shell
-          cp /tmp/Patches/found_gcc.sh ./
+          cp /tmp/Bin/found_gcc.sh ./
 
           # Set GCC Aarch64
           if [[ "${{ env.CLANG_SOURCE }}" == *proton* ]]; then
@@ -750,7 +750,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
 
-          cp /tmp/Patches/check_error.sh ./
+          cp /tmp/Bin/check_error.sh ./
           bash check_error.sh
 
           if [ -f "have_error" ]; then

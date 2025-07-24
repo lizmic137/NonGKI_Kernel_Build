@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [Supported Devices](Supported_Devices.md) | [中文文档](README.md) | English | [Updated Logs](Updated.md)  
 
-**Ver**.1.5
+**Ver**.1.6
 
 **Non-GKI**: What we commonly refer to as Non-GKI includes both GKI1.0 (kernel versions 4.19-5.4) (5.4 is QGKI) and true Non-GKI (kernel versions ≤ 4.14).  
 
@@ -105,6 +105,12 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
 - **Get Kernel Source**
     - Normally, kernel source code can be obtained via Git, so modifications are generally unnecessary.
     - Some smartphone manufacturers have questionable practices—they open source the code, but it's pre-packaged, or they separate drivers from the kernel source. As a result, you may need to modify this part yourself.
+    - If you have a **boot.img**, you can try extracting the **Image** from it yourself to use for the **defconfig extraction process**.
+        - First step: Get the [mkbootimg tool](https://android.googlesource.com/platform/system/tools/mkbootimg/) from Google.
+        - Second step: Use the following command: `mkbootimg/unpack_bootimg.py --boot=boot.img`
+        - Third step: Check if there's a file named **kernel** in the generated **out folder**. If it exists, proceed to the fourth step.
+        - Fourth step: Rename **kernel** to **Image**.
+        - Fifth step: Upload Image and use it for your own defconfig extraction step.
     
 - **Set Pack Method, KernelSU, and SUSFS**
     - **Anykernel3** - If AnyKernel3 is not found in the kernel source, the one specified in env is used. Only git is supported.
@@ -177,16 +183,6 @@ Below is an introduction to the patches included in the Patches directory:
     - Automatic execution
     - This refers to the older backport solution, which is used for both the normal patch and the older version of the syscall patch.
     - Reference: https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
-
-- **found_gcc.sh**
-    - Executes automatically based on GCC detection.
-    - Used for automated parsing of GCC prefixes.
-    - Reference: None available.
-
-- **check_error.sh**
-    - Variable: BUILD_DEBUGGER -> true
-    - Used for analyzing basic compilation errors and providing some suggestions.
-    - Reference: None available.
     
 - **Patch/susfs_upgrade_to_157.patch**
     - Variable: (env file) SUSFS_UPDATE -> true
@@ -226,6 +222,7 @@ Below is an introduction to the patches included in the Patches directory:
         - https://gitlab.com/simonpunk/susfs4ksu/-/commit/dbadb4d17bc71244675eecf179eacf5bec924ec3
         - https://gitlab.com/simonpunk/susfs4ksu/-/commit/9ec78e78904e702228bdb3a4f7a666f644bc0b2a
         - https://gitlab.com/simonpunk/susfs4ksu/-/commit/99184236f0a346f35f27b5dc9844771841ed8fa3
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/32694cec5cf53171de86cd468f415c4e2ff8c4bf
         
 - **Patch/set_memory_to_49_and_low.patch**
     - Requires **manual** execution.
@@ -246,5 +243,20 @@ Below is an introduction to the patches included in the Patches directory:
     - Automatic execution
     - Used for more convenient execution of **curl** commands, including resuming interrupted downloads.
     - Reference: Updated by [@yu13140](https://github.com/yu13140).
-    
+  
+- **Bin/found_gcc.sh**
+    - Executes automatically based on GCC detection.
+    - Used for automated parsing of GCC prefixes.
+    - Reference: None available.
+
+- **Bin/check_error.sh**
+    - Variable: BUILD_DEBUGGER -> true
+    - Used for analyzing basic compilation errors and providing some suggestions.
+    - Reference: None available.
+  
+- **Bin/pack_error_files.sh**
+    - Variable: BUILD_DEBUGGER -> true
+    - Used to package all valid error files involved in error.log.
+    - Reference: None available.
+  
 Final Reminder⚠ : Unless otherwise mentioned, there is no need to modify any other sections of the .yml workflow. The setup is designed to automatically handle various conditions.

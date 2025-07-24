@@ -1,4 +1,25 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 2**
+    - 修正 部分YAML文件 缺少Bin目录问题
+
+- **Ver.1.6 Fixed 1**
+    - 合并 SuSFS上游最新commit
+    - 修正 说明文件 SuSFS参考链接
+
+- **Ver.1.6**
+    - 移动 check_error.sh 至 Bin/
+    - 移动 found_gcc.sh 至 Bin/
+    - 增加 示例YAML文件 上传error.log文件步骤
+    - 增加 示例YAML文件 打包并上传所有有效错误文件步骤
+    - 修正 说明文件 版本信息
+    - 修正 说明文件 部分sh文件介绍
+    - 修正 说明文件 获取内核步骤介绍
+    - 修正 发布Tag至 1.6-r1
+    - 修正 部分YAML文件 涉及上述sh文件的执行位置修正
+    - 删除 示例YAML文件 多余步骤
+
+---
+    
 - **Ver.1.5 Fixed 54**
     - 增加 Realme GT Neo 设备
 

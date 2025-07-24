@@ -32,7 +32,7 @@
 | 红米 8 | All | olive | 4.19/yu13140/mi439 | Based-AOSP | 15 | AnyKernel3 | SukiSU(U) | ✅ | ❌ | ✅ | ✅ | ✅ | Stable | 
 | 红米 Note 10 Pro | CN | chopin | 4.14/ChopinKernels/chopin_android_T | MIUI 13 | 13 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | ❌ | ❌ | Beta |  
 | OPPO K9 Pro | CN | PEYM00 | 4.19/mt6893-development/LineageOS | LineageOS 22.X | 15 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
-| Realme GT Neo | CN | RMX3031 | 5.4/dek0der/(Nothing) | Based-AOSP | 13 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| Realme GT Neo | CN | RMX3031 | 4.19/dek0der/(Nothing) | Based-AOSP | 13 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 
 特别说明：
   - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)
@@ -57,3 +57,4 @@
   - 红米 K40 Gaming 内核与 Poco F3 GT 通用
   - 红米 8 内核与 红米 8a 通用；理论上LineageOS系的系统，只要是4.19内核都通用 (无论是安卓几)
   - 红米 Note 10 Pro 内核与 Poco X3 GT 通用
+  - OPPO K9 Pro 与 Realme GT Neo 与 Realme X7 Max 5G(India) 与 Oneplus Nord 2 5G 通用

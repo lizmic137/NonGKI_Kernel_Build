@@ -240,6 +240,48 @@ index a54b060..79bc821 100644
  	show_map_vma(m, vma);
  	if (vma_get_anon_name(vma)) {
  		seq_puts(m, "Name:           ");
+diff --git a/fs/proc_namespace.c b/fs/proc_namespace.c
+index 8f4cb69..1a02a81 100644
+--- a/fs/proc_namespace.c
++++ b/fs/proc_namespace.c
+@@ -22,7 +22,6 @@
+ #include "internal.h"
+ 
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+-extern bool susfs_is_current_ksu_domain(void);
+ bool susfs_hide_sus_mnts_for_all_procs = true; // hide sus mounts for all processes by default
+ #endif
+ 
+@@ -111,8 +110,7 @@ static int show_vfsmnt(struct seq_file *m, struct vfsmount *mnt)
+ 	int err;
+ 
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+-	if (unlikely(r->mnt_id >= DEFAULT_SUS_MNT_ID) &&
+-		(susfs_hide_sus_mnts_for_all_procs || !susfs_is_current_ksu_domain()))
++	if (susfs_hide_sus_mnts_for_all_procs && r->mnt_id >= DEFAULT_SUS_MNT_ID)
+ 		return 0;
+ #endif
+ 
+@@ -153,8 +151,7 @@ static int show_mountinfo(struct seq_file *m, struct vfsmount *mnt)
+ 	int err;
+ 
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+-	if (unlikely(r->mnt_id >= DEFAULT_SUS_MNT_ID) &&
+-		(susfs_hide_sus_mnts_for_all_procs || !susfs_is_current_ksu_domain()))
++	if (susfs_hide_sus_mnts_for_all_procs && r->mnt_id >= DEFAULT_SUS_MNT_ID)
+ 		return 0;
+ #endif
+ 
+@@ -223,8 +220,7 @@ static int show_vfsstat(struct seq_file *m, struct vfsmount *mnt)
+ 	int err;
+ 
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+-	if (unlikely(r->mnt_id >= DEFAULT_SUS_MNT_ID) &&
+-		(susfs_hide_sus_mnts_for_all_procs || !susfs_is_current_ksu_domain()))
++	if (susfs_hide_sus_mnts_for_all_procs && r->mnt_id >= DEFAULT_SUS_MNT_ID)
+ 		return 0;
+ #endif
+ 
 diff --git a/fs/stat.c b/fs/stat.c
 index 0d160f2..2f91a8f 100644
 --- a/fs/stat.c
